@@ -1,4 +1,4 @@
-import PImage from 'pureimage';
+import * as PImage from 'pureimage';
 import path from 'path';
 import fs from 'fs/promises';
 import {createReadStream} from 'fs';

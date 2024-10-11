@@ -10,10 +10,11 @@ export default (env, argv) => {
 	const isProduction = argv.mode === 'production';
 
 	return {
-		entry: './src/client/Client.ts',
+		entry: './src/client/index.tsx',
 		output: {
 			filename: 'bundle.js',
-			path: path.resolve(__dirname, 'out'),
+			path: path.resolve(__dirname, 'dist'),
+			publicPath: '/'
 		},
 		module: {
 			rules: [
@@ -27,6 +28,11 @@ export default (env, argv) => {
 				},
 				{
 					test: /\.ts$/,
+					use: 'ts-loader',
+					exclude: /node_modules/,
+				},
+				{
+					test: /\.tsx?$/,
 					use: 'ts-loader',
 					exclude: /node_modules/,
 				},

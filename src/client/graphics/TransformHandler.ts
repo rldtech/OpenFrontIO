@@ -1,6 +1,6 @@
-import {EventBus} from "../../core/EventBus"
-import {Cell, Game} from "../../core/game/Game";
-import {ZoomEvent, DragEvent} from "../InputHandler";
+import { EventBus } from "../../core/EventBus"
+import { Cell, Game } from "../../core/game/Game";
+import { ZoomEvent, DragEvent } from "../InputHandler";
 
 export class TransformHandler {
     public scale: number = 1.8
@@ -49,6 +49,31 @@ export class TransformHandler {
         const gameY = centerY + this.game.height() / 2
 
         return new Cell(Math.floor(gameX), Math.floor(gameY));
+    }
+
+    worldToScreenCoordinates(cell: Cell): Cell {
+        // Step 1: Convert from Cell coordinates to game coordinates
+        // (reverse of Math.floor operation - we'll use the exact values)
+        const gameX = cell.x;
+        const gameY = cell.y;
+
+        // Step 2: Reverse the game center offset calculation
+        // Original: gameX = centerX + this.game.width() / 2
+        // Therefore: centerX = gameX - this.game.width() / 2
+        const centerX = gameX - this.game.width() / 2;
+        const centerY = gameY - this.game.height() / 2;
+
+        // Step 3: Reverse the world point calculation
+        // Original: centerX = (canvasX - this.game.width() / 2) / this.scale + this.offsetX
+        // Therefore: canvasX = (centerX - this.offsetX) * this.scale + this.game.width() / 2
+        const canvasX = (centerX - this.offsetX) * this.scale + this.game.width() / 2;
+        const canvasY = (centerY - this.offsetY) * this.scale + this.game.height() / 2;
+
+        // Step 4: Convert canvas coordinates back to screen coordinates
+        const canvasRect = this.boundingRect();
+        const screenX = canvasX + canvasRect.left;
+        const screenY = canvasY + canvasRect.top;
+        return new Cell(screenX, screenY)
     }
 
     screenBoundingRect(): [Cell, Cell] {

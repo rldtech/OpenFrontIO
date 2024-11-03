@@ -1,8 +1,5 @@
-import {inherits} from "util"
-import {Game} from "../../../core/game/Game";
-import {throws} from "assert";
-import {Layer} from "./Layer";
-import {TransformHandler} from "../TransformHandler";
+import { Game } from "../../../core/game/Game";
+import { Layer } from "./Layer";
 
 export class TerrainLayer implements Layer {
     private canvas: HTMLCanvasElement

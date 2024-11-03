@@ -1,16 +1,16 @@
-import {AllPlayers, Cell, Game, Player, PlayerType} from "../../../core/game/Game"
-import {PseudoRandom} from "../../../core/PseudoRandom"
-import {calculateBoundingBox} from "../../../core/Util"
-import {Theme} from "../../../core/configuration/Config"
-import {Layer} from "./Layer"
-import {placeName} from "../NameBoxCalculator"
-import {TransformHandler} from "../TransformHandler"
-import {renderTroops} from "../Utils"
+import { AllPlayers, Cell, Game, Player, PlayerType } from "../../../core/game/Game"
+import { PseudoRandom } from "../../../core/PseudoRandom"
+import { calculateBoundingBox } from "../../../core/Util"
+import { Theme } from "../../../core/configuration/Config"
+import { Layer } from "./Layer"
+import { placeName } from "../NameBoxCalculator"
+import { TransformHandler } from "../TransformHandler"
+import { createCanvas, renderTroops } from "../Utils"
 import traitorIcon from '../../../../resources/images/TraitorIcon.png';
 import allianceIcon from '../../../../resources/images/AllianceIcon.png';
 import crownIcon from '../../../../resources/images/CrownIcon.png';
 import targetIcon from '../../../../resources/images/TargetIcon.png';
-import {ClientID} from "../../../core/Schemas"
+import { ClientID } from "../../../core/Schemas"
 
 
 class RenderInfo {
@@ -19,13 +19,16 @@ class RenderInfo {
         public player: Player,
         public lastRenderCalc: number,
         public lastBoundingCalculated: number,
-        public boundingBox: {min: Cell, max: Cell},
+        public boundingBox: { min: Cell, max: Cell },
         public location: Cell,
         public fontSize: number
     ) { }
 }
 
 export class NameLayer implements Layer {
+
+    private canvas: HTMLCanvasElement
+    private context: CanvasRenderingContext2D
 
     private lastChecked = 0
     private refreshRate = 1000
@@ -42,6 +45,9 @@ export class NameLayer implements Layer {
 
     private firstPlace: Player | null = null
 
+    private lastUpdate = 0
+    private updateFrequency = 100 // 100 ms
+
     constructor(private game: Game, private theme: Theme, private transformHandler: TransformHandler, private clientID: ClientID) {
         this.traitorIconImage = new Image();
         this.traitorIconImage.src = traitorIcon;
@@ -57,10 +63,15 @@ export class NameLayer implements Layer {
     }
 
     shouldTransform(): boolean {
-        return true
+        return false
     }
 
     public init(game: Game) {
+        // this.canvas = document.createElement('canvas');
+        this.canvas = createCanvas()
+        this.context = this.canvas.getContext("2d")
+        this.canvas.width = this.game.width();
+        this.canvas.height = this.game.height();
 
     }
 
@@ -101,13 +112,31 @@ export class NameLayer implements Layer {
     }
 
     public renderLayer(mainContex: CanvasRenderingContext2D) {
-        const [upperLeft, bottomRight] = this.transformHandler.screenBoundingRect()
-        for (const render of this.renders) {
-            render.isVisible = this.isVisible(render, upperLeft, bottomRight)
-            if (render.player.isAlive() && render.isVisible && render.fontSize * this.transformHandler.scale > 10) {
-                this.renderPlayerInfo(render, mainContex, this.transformHandler.scale, upperLeft, bottomRight)
+        if (Date.now() > this.updateFrequency + this.lastUpdate) {
+            console.log('updating!')
+            this.lastUpdate = Date.now()
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            const [upperLeft, bottomRight] = this.transformHandler.screenBoundingRect()
+            for (const render of this.renders) {
+                render.isVisible = this.isVisible(render, upperLeft, bottomRight)
+                if (render.player.isAlive() && render.isVisible && render.fontSize * this.transformHandler.scale > 10) {
+                    this.renderPlayerInfo(render, this.transformHandler.scale, upperLeft, bottomRight)
+                }
             }
         }
+
+        mainContex.drawImage(
+            this.canvas,
+            // -this.game.width() / 2,
+            // -this.game.height() / 2,
+            0,
+            0,
+            mainContex.canvas.width,
+            mainContex.canvas.height
+            // this.game.width(),
+            // this.game.height()
+        )
+
     }
 
     isVisible(render: RenderInfo, min: Cell, max: Cell): boolean {
@@ -138,16 +167,21 @@ export class NameLayer implements Layer {
         render.fontSize = Math.max(1, Math.floor(size))
     }
 
-    renderPlayerInfo(render: RenderInfo, context: CanvasRenderingContext2D, scale: number, uppperLeft: Cell, bottomRight: Cell) {
-        const nameCenterX = Math.floor(render.location.x - this.game.width() / 2)
+    renderPlayerInfo(render: RenderInfo, scale: number, uppperLeft: Cell, bottomRight: Cell) {
+        const nameCenterX = this.transformHandler.screenToWorldCoordinatesMath.floor(render.location.x - this.game.width() / 2)
         const nameCenterY = Math.floor(render.location.y - this.game.height() / 2)
+        this.context.font = '24px Arial';
+        this.context.fillStyle = 'white';
+        this.context.textAlign = 'center';
+        this.context.textBaseline = 'middle';
+        this.context.fillText('Test Text', this.canvas.width / 2, this.canvas.height / 2);
 
         const iconSize = render.fontSize * 2; // Adjust size as needed
         // const iconX = nameCenterX + render.fontSize * 2; // Position to the right of the name
         // const iconY = nameCenterY - render.fontSize / 2;
 
         if (render.player == this.firstPlace) {
-            context.drawImage(
+            this.context.drawImage(
                 this.crownIconImage,
                 nameCenterX - iconSize / 2,
                 nameCenterY - iconSize / 2,
@@ -156,9 +190,8 @@ export class NameLayer implements Layer {
             );
         }
 
-
         if (render.player.isTraitor() && this.traitorIconImage.complete) {
-            context.drawImage(
+            this.context.drawImage(
                 this.traitorIconImage,
                 nameCenterX - iconSize / 2,
                 nameCenterY - iconSize / 2,
@@ -169,7 +202,7 @@ export class NameLayer implements Layer {
 
         const myPlayer = this.getPlayer()
         if (myPlayer != null && myPlayer.isAlliedWith(render.player)) {
-            context.drawImage(
+            this.context.drawImage(
                 this.allianceIconImage,
                 nameCenterX - iconSize / 2,
                 nameCenterY - iconSize / 2,
@@ -179,7 +212,7 @@ export class NameLayer implements Layer {
         }
 
         if (myPlayer != null && new Set(myPlayer.transitiveTargets()).has(render.player)) {
-            context.drawImage(
+            this.context.drawImage(
                 this.targetIconImage,
                 nameCenterX - iconSize / 2,
                 nameCenterY - iconSize / 2,
@@ -191,26 +224,26 @@ export class NameLayer implements Layer {
         if (myPlayer != null) {
             const emojis = render.player.outgoingEmojis().filter(e => e.recipient == AllPlayers || e.recipient == myPlayer)
             if (emojis.length > 0) {
-                context.font = `${render.fontSize * 4}px ${this.theme.font()}`;
-                context.fillStyle = this.theme.playerInfoColor(render.player.id()).toHex();
-                context.textAlign = 'center';
-                context.textBaseline = 'middle';
+                this.context.font = `${render.fontSize * 4}px ${this.theme.font()}`;
+                this.context.fillStyle = this.theme.playerInfoColor(render.player.id()).toHex();
+                this.context.textAlign = 'center';
+                this.context.textBaseline = 'middle';
 
-                context.fillText(emojis[0].emoji, nameCenterX, nameCenterY + render.fontSize / 2);
+                this.context.fillText(emojis[0].emoji, nameCenterX, nameCenterY + render.fontSize / 2);
             }
         }
 
-        context.textRendering = "optimizeSpeed";
+        this.context.textRendering = "optimizeSpeed";
 
-        context.font = `${render.fontSize}px ${this.theme.font()}`;
-        context.fillStyle = this.theme.playerInfoColor(render.player.id()).toHex();
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
+        this.context.font = `${render.fontSize}px ${this.theme.font()}`;
+        this.context.fillStyle = this.theme.playerInfoColor(render.player.id()).toHex();
+        this.context.textAlign = 'center';
+        this.context.textBaseline = 'middle';
 
-        context.fillText(render.player.name(), nameCenterX, nameCenterY - render.fontSize / 2);
-        context.font = `bold ${render.fontSize}px ${this.theme.font()}`;
+        this.context.fillText(render.player.name(), nameCenterX, nameCenterY - render.fontSize / 2);
+        this.context.font = `bold ${render.fontSize}px ${this.theme.font()}`;
 
-        context.fillText(renderTroops(render.player.troops()), nameCenterX, nameCenterY + render.fontSize);
+        this.context.fillText(renderTroops(render.player.troops()), nameCenterX, nameCenterY + render.fontSize);
     }
 
     private getPlayer(): Player | null {

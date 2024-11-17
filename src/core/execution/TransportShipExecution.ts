@@ -1,4 +1,4 @@
-import { Unit, Cell, Execution, MutableUnit, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile, TileEvent, UnitType } from "../game/Game";
+import { Unit, Cell, Execution, MutableUnit, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile, TileEvent, UnitType, UnitTypes } from "../game/Game";
 import { and, bfs, manhattanDistWrapped, sourceDstOceanShore } from "../Util";
 import { AttackExecution } from "./AttackExecution";
 import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
@@ -44,7 +44,7 @@ export class TransportShipExecution implements Execution {
 
         this.attacker = mg.player(this.attackerID)
 
-        if (this.attacker.units(UnitType.TransportShip).length >= mg.config().boatMaxNumber()) {
+        if (this.attacker.units(UnitTypes.TransportShip).length >= mg.config().boatMaxNumber()) {
             mg.displayMessage(`No boats available, max ${mg.config().boatMaxNumber()}`, MessageType.WARN, this.attackerID)
             this.active = false
             this.attacker.addTroops(this.troops)
@@ -79,7 +79,7 @@ export class TransportShipExecution implements Execution {
         }
 
 
-        this.boat = this.attacker.addUnit(UnitType.TransportShip, this.troops, this.src)
+        this.boat = this.attacker.addUnit(UnitTypes.TransportShip, this.troops, this.src)
     }
 
     tick(ticks: number) {

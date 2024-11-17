@@ -24,12 +24,12 @@ export class StructureLayer implements Layer {
 
     // Configuration for supported unit types only
     private readonly unitConfigs: Partial<Record<UnitType, UnitRenderConfig>> = {
-        [UnitType.Port]: {
+        [UnitTypes.Port]: {
             icon: anchorIcon,
             borderRadius: 8,
             territoryRadius: 6
         },
-        [UnitType.MissileSilo]: {
+        [UnitTypes.MissileSilo]: {
             icon: missileSiloIcon,
             borderRadius: 8,
             territoryRadius: 6

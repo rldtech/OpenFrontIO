@@ -1,24 +1,24 @@
 import { bfs, dist, manhattanDist } from "../Util";
-import { BuildItem, BuildItems, Game, Player, Tile, UnitType } from "./Game";
+import { Game, Player, Tile, UnitType, UnitTypes } from "./Game";
 
 export class BuildValidator {
     constructor(private game: Game) { }
 
-    canBuild(player: Player, tile: Tile, item: BuildItem): boolean {
-        if (!player.isAlive() || player.gold() < item.cost) {
+    canBuild(player: Player, tile: Tile, unitType: UnitType): boolean {
+        if (!player.isAlive() || player.gold() < unitType.cost) {
             return false
         }
-        switch (item) {
-            case BuildItems.Nuke:
-                return player.units(UnitType.MissileSilo).length > 0
-            case BuildItems.Port:
+        switch (unitType) {
+            case UnitTypes.Nuke:
+                return player.units(UnitTypes.MissileSilo).length > 0
+            case UnitTypes.Port:
                 return this.canBuildPort(player, tile)
-            case BuildItems.Destroyer:
+            case UnitTypes.Destroyer:
                 return this.canBuildDestroyer(player, tile)
-            case BuildItems.MissileSilo:
+            case UnitTypes.MissileSilo:
                 return tile.owner() == player
             default:
-                throw Error(`item ${item.type} not supported`)
+                throw Error(`item ${unitType.name} not supported`)
         }
     }
 
@@ -29,7 +29,7 @@ export class BuildValidator {
     }
 
     canBuildDestroyer(player: Player, tile: Tile): boolean {
-        return player.units(UnitType.Port)
+        return player.units(UnitTypes.Port)
             .filter(u => manhattanDist(u.tile().cell(), tile.cell()) < this.game.config().boatMaxDistance()).length > 0
     }
 }

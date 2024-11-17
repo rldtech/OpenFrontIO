@@ -1,6 +1,6 @@
 import { Colord } from "colord";
 import { Theme } from "../../../core/configuration/Config";
-import { Unit, UnitEvent, Cell, Game, Tile, UnitType } from "../../../core/game/Game";
+import { Unit, UnitEvent, Cell, Game, Tile, UnitType, UnitTypes } from "../../../core/game/Game";
 import { bfs, dist, euclDist } from "../../../core/Util";
 import { Layer } from "./Layer";
 import { EventBus } from "../../../core/EventBus";
@@ -72,15 +72,15 @@ export class UnitLayer implements Layer {
 
     onUnitEvent(event: UnitEvent) {
         switch (event.unit.type()) {
-            case UnitType.TransportShip:
+            case UnitTypes.TransportShip:
                 this.handleBoatEvent(event);
                 break;
-            case UnitType.Destroyer:
+            case UnitTypes.Destroyer:
                 this.handleDestroyerEvent(event);
                 break;
-            case UnitType.TradeShip:
+            case UnitTypes.TradeShip:
                 this.handleTradeShipEvent(event)
-            case UnitType.Nuke:
+            case UnitTypes.Nuke:
                 this.handleNuke(event)
         }
     }

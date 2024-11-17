@@ -327,7 +327,7 @@ export class Transport {
             type: "build_unit",
             clientID: this.clientID,
             player: this.playerID,
-            unit: event.unit,
+            unitType: event.unit,
             x: event.cell.x,
             y: event.cell.y,
         })

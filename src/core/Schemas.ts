@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Difficulty, GameMap, PlayerType, UnitType } from './game/Game';
+import { Difficulty, GameMap, PlayerType, UnitType, UnitTypes } from './game/Game';
 
 export type GameID = string
 export type ClientID = string
@@ -67,7 +67,10 @@ const EmojiSchema = z.string().refine(
         message: "Must contain at least one emoji character"
     }
 );
-// Zod schemas
+
+export type UnitTypeKey = keyof typeof UnitTypes;
+export const UnitTypeSchema = z.enum(Object.keys(UnitTypes) as [string, ...string[]])
+
 const BaseIntentSchema = z.object({
     type: z.enum(['attack', 'spawn', 'boat', 'name', 'targetPlayer', 'emoji', 'nuke', 'troop_ratio', 'build_unit']),
     clientID: z.string(),
@@ -164,7 +167,7 @@ export const TargetTroopRatioIntentSchema = BaseIntentSchema.extend({
 export const BuildUnitIntentSchema = BaseIntentSchema.extend({
     type: z.literal('build_unit'),
     player: z.string(),
-    unit: z.nativeEnum(UnitType),
+    unitType: UnitTypeSchema,
     x: z.number(),
     y: z.number(),
 })

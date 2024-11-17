@@ -1,4 +1,4 @@
-import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerInfo, TerraNullius, Tile, PlayerType, Alliance, AllianceRequestReplyEvent, Difficulty, UnitType } from "../game/Game";
+import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerInfo, TerraNullius, Tile, PlayerType, Alliance, AllianceRequestReplyEvent, Difficulty, UnitType, UnitTypes } from "../game/Game";
 import { AttackIntent, BoatAttackIntentSchema, GameID, Intent, Turn } from "../Schemas";
 import { AttackExecution } from "./AttackExecution";
 import { SpawnExecution } from "./SpawnExecution";
@@ -84,15 +84,15 @@ export class Executor {
             case "troop_ratio":
                 return new SetTargetTroopRatioExecution(intent.player, intent.ratio);
             case "build_unit":
-                switch (intent.unit) {
-                    case UnitType.Destroyer:
+                switch (UnitTypes[intent.unitType]) {
+                    case UnitTypes.Destroyer:
                         return new DestroyerExecution(intent.player, new Cell(intent.x, intent.y))
-                    case UnitType.Port:
+                    case UnitTypes.Port:
                         return new PortExecution(intent.player, new Cell(intent.x, intent.y))
-                    case UnitType.MissileSilo:
+                    case UnitTypes.MissileSilo:
                         return new MissileSiloExecution(intent.player, new Cell(intent.x, intent.y))
                     default:
-                        throw Error(`unit type ${intent.unit} not supported`)
+                        throw Error(`unit type ${intent.unitType} not supported`)
                 }
             default:
                 throw new Error(`intent type ${intent} not found`);

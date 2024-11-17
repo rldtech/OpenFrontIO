@@ -22,28 +22,50 @@ export enum GameMap {
     Mena
 }
 
-export enum UnitType {
-    TransportShip = "Transport",
-    Destroyer = "Destroyer",
-    Port = "Port",
-    Nuke = "Nuke",
-    TradeShip = "Trade Ship",
-    MissileSilo = "Missile Silo",
+export interface UnitType {
+    name: string,
+    cost: Gold,
+    troops: number
 }
 
-export class BuildItem {
-    constructor(
-        public readonly type: UnitType,
-        public readonly cost: Gold
-    ) { }
+export type UnitTypeKey = keyof typeof UnitTypes;
+export function getUnitTypeKey(unit: UnitType): UnitTypeKey {
+    return Object.entries(UnitTypes).find(([_key, value]) => value === unit)?.[0] as UnitTypeKey;
 }
 
-export const BuildItems = {
-    Nuke: new BuildItem(UnitType.Nuke, 1_000_000),
-    Destroyer: new BuildItem(UnitType.Destroyer, 100_000),
-    Port: new BuildItem(UnitType.Port, 300_000),
-    MissileSilo: new BuildItem(UnitType.MissileSilo, 1_000_000),
-} as const;
+export const UnitTypes = {
+    TransportShip: {
+        name: "Transport Ship",
+        cost: 1_000_000,
+        troops: 0,
+    },
+    Destroyer: {
+        name: "Destroyer",
+        cost: 100_000,
+        troops: 0,
+    },
+    Port: {
+        name: "Port",
+        cost: 300_000,
+        troops: 0,
+    },
+    Nuke: {
+        name: "Nuke",
+        cost: 1_000_000,
+        troops: 0,
+    },
+    TradeShip: {
+        name: "Trade Ship",
+        cost: 0,
+        troops: 0,
+    },
+    MissileSilo: {
+        name: "Missile Silo",
+        cost: 1_000_000,
+        troops: 0,
+    }
+}
+
 
 export class Nation {
     constructor(
@@ -326,3 +348,4 @@ export class TargetPlayerEvent implements GameEvent {
 export class EmojiMessageEvent implements GameEvent {
     constructor(public readonly message: EmojiMessage) { }
 }
+

@@ -1,12 +1,13 @@
 import { Colord } from "colord";
 import { Theme } from "../../../core/configuration/Config";
-import { Unit, UnitEvent, Cell, Game, Tile, UnitType } from "../../../core/game/Game";
+import { Unit, UnitEvent, Cell, Game, Tile, UnitType, getUnitTypeKey } from "../../../core/game/Game";
 import { bfs, dist, euclDist } from "../../../core/Util";
 import { Layer } from "./Layer";
 import { EventBus } from "../../../core/EventBus";
 
 import anchorIcon from '../../../../resources/images/AnchorIcon.png';
 import missileSiloIcon from '../../../../resources/images/MissileSiloUnit.png';
+import { UnitTypeKey } from '../../../core/game/Game';
 
 interface UnitRenderConfig {
     icon: string;
@@ -23,13 +24,13 @@ export class StructureLayer implements Layer {
     private theme: Theme = null;
 
     // Configuration for supported unit types only
-    private readonly unitConfigs: Partial<Record<UnitType, UnitRenderConfig>> = {
-        [UnitType.Port]: {
+    private readonly unitConfigs: Partial<Record<UnitTypeKey, UnitRenderConfig>> = {
+        Port: {
             icon: anchorIcon,
             borderRadius: 8,
             territoryRadius: 6
         },
-        [UnitType.MissileSilo]: {
+        MissileSilo: {
             icon: missileSiloIcon,
             borderRadius: 8,
             territoryRadius: 6
@@ -90,16 +91,17 @@ export class StructureLayer implements Layer {
         );
     }
 
-    private isUnitTypeSupported(unitType: UnitType): boolean {
+    private isUnitTypeSupported(unitType: UnitTypeKey): boolean {
         return unitType in this.unitConfigs;
     }
 
     private handleUnitRendering(event: UnitEvent) {
         const unitType = event.unit.type();
-        if (!this.isUnitTypeSupported(unitType)) return;
+        const key = getUnitTypeKey(unitType)
+        if (!this.isUnitTypeSupported(key)) return;
 
-        const config = this.unitConfigs[unitType];
-        const unitImage = this.unitImages.get(unitType);
+        const config = this.unitConfigs[key];
+        const unitImage = this.unitImages.get(key);
 
         if (!config || !unitImage) return;
 

@@ -1,4 +1,3 @@
-import { PlayerInfo } from "../game/Game";
 import { DefaultConfig } from "./DefaultConfig";
 
 export const devConfig = new class extends DefaultConfig {
@@ -6,7 +5,7 @@ export const devConfig = new class extends DefaultConfig {
         return 95
     }
     numSpawnPhaseTurns(): number {
-        return 80
+        return 40
     }
     gameCreationRate(): number {
         return 20 * 1000

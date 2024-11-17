@@ -1,4 +1,4 @@
-import { BuildItems, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
+import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType, UnitTypes } from "../game/Game";
 import { AStar, PathFinder } from "../PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
 import { distSort, distSortUnit, manhattanDist } from "../Util";
@@ -38,14 +38,14 @@ export class DestroyerExecution implements Execution {
         // TODO: remove gold from player
         if (this.destroyer == null) {
             // TODO validate can build
-            const spawns = this._owner.units(UnitType.Port).map(u => u.tile()).sort(distSort(this.patrolTile))
+            const spawns = this._owner.units(UnitTypes.Port).map(u => u.tile()).sort(distSort(this.patrolTile))
             if (spawns.length == 0) {
                 console.warn(`no ports found for destoryer for player ${this._owner}`)
                 this.active = false
                 return
             }
-            this.destroyer = this._owner.addUnit(UnitType.Destroyer, 0, spawns[0])
-            this._owner.removeGold(BuildItems.Destroyer.cost)
+            this.destroyer = this._owner.addUnit(UnitTypes.Destroyer, 0, spawns[0])
+            this._owner.removeGold(UnitTypes.Destroyer.cost)
             return
         }
         if (!this.destroyer.isActive()) {
@@ -56,7 +56,7 @@ export class DestroyerExecution implements Execution {
             this.target = null
         }
         if (this.target == null) {
-            const ships = this.mg.units(UnitType.TransportShip)
+            const ships = this.mg.units(UnitTypes.TransportShip)
                 .filter(u => manhattanDist(u.tile().cell(), this.destroyer.tile().cell()) < 100)
                 .filter(u => u.owner() != this.destroyer.owner())
                 .filter(u => u != this.destroyer)

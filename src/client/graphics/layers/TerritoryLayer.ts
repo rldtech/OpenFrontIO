@@ -8,6 +8,8 @@ import { Layer } from "./Layer";
 import { TransformHandler } from "../TransformHandler";
 import { EventBus } from "../../../core/EventBus";
 
+export let tl: TerritoryLayer
+
 export class TerritoryLayer implements Layer {
     private canvas: HTMLCanvasElement
     private context: CanvasRenderingContext2D
@@ -22,6 +24,7 @@ export class TerritoryLayer implements Layer {
     constructor(private game: Game, eventBus: EventBus) {
         this.theme = game.config().theme()
         eventBus.on(TileEvent, e => this.tileUpdate(e))
+        tl = this
     }
 
     shouldTransform(): boolean {

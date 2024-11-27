@@ -194,7 +194,7 @@ export function processName(name: string): string {
         <span class="player-name" style="
             display: inline-flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.0rem;
             font-weight: 500;
             vertical-align: middle;
         ">

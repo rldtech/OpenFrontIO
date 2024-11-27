@@ -11,10 +11,13 @@ import allianceIcon from '../../../../resources/images/AllianceIcon.png';
 import crownIcon from '../../../../resources/images/CrownIcon.png';
 import targetIcon from '../../../../resources/images/TargetIcon.png';
 import { ClientID } from "../../../core/Schemas"
+import { tl } from "./TerritoryLayer"
 
 
 class RenderInfo {
     public isVisible = true
+    public icons: Map<string, HTMLImageElement> = new Map() // Track icon elements
+
     constructor(
         public player: Player,
         public lastRenderCalc: number,
@@ -50,7 +53,9 @@ export class NameLayer implements Layer {
     private firstPlace: Player | null = null
 
     private lastUpdate = 0
-    private updateFrequency = 500 // 100 ms
+    private updateFrequency = 250
+
+    private lastRect = null;
 
     constructor(private game: Game, private theme: Theme, private transformHandler: TransformHandler, private clientID: ClientID) {
         this.traitorIconImage = new Image();
@@ -136,7 +141,7 @@ export class NameLayer implements Layer {
 
     public renderLayer(mainContex: CanvasRenderingContext2D) {
         const [upperLeft, bottomRight] = this.transformHandler.screenBoundingRect()
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         const now = Date.now()
         if (now - this.lastUpdate > this.updateFrequency) {
             this.lastUpdate = now
@@ -144,6 +149,15 @@ export class NameLayer implements Layer {
                 render.isVisible = this.isVisible(render, upperLeft, bottomRight)
                 if (render.player.isAlive() && render.isVisible && render.fontSize * this.transformHandler.scale > 10) {
                     this.renderPlayerInfo(render, this.transformHandler.scale, upperLeft, bottomRight)
+                } else {
+                    render.element.style.display = 'none'
+                }
+            }
+        }
+        if (this.transformHandler.hasChanged()) {
+            for (const render of this.renders) {
+                if (render.isVisible) {
+                    this.transformPlayerInfo(render)
                 } else {
                     render.element.style.display = 'none'
                 }
@@ -158,6 +172,24 @@ export class NameLayer implements Layer {
             mainContex.canvas.height
         )
 
+    }
+
+    hasTransformChanged(): boolean {
+        const rect = this.transformHandler.boundingRect()
+        if (!this.lastRect) {
+            this.lastRect = rect;
+            return false;
+        }
+
+        const changed =
+            rect.width !== this.lastRect.width ||
+            rect.height !== this.lastRect.height ||
+            rect.x !== this.lastRect.x ||
+            rect.y !== this.lastRect.y;
+
+        console.log(`rect: ${rect.width}, ${rect.top}, ${rect.left}`)
+        this.lastRect = rect;
+        return changed;
     }
 
     isVisible(render: RenderInfo, min: Cell, max: Cell): boolean {
@@ -188,99 +220,75 @@ export class NameLayer implements Layer {
         render.fontSize = Math.max(1, Math.floor(size))
     }
 
-    renderPlayerInfo(render: RenderInfo, scale: number, uppperLeft: Cell, bottomRight: Cell) {
-        const screenPosOld = this.transformHandler.worldToScreenCoordinates(render.location)
-        const screenPos = new Cell(screenPosOld.x - window.innerWidth / 2, screenPosOld.y - window.innerHeight / 2)
-
-        render.element.style.display = 'flex'
-
-        render.element.style.transform = `translate(${screenPos.x}px, ${screenPos.y}px) scale(${this.transformHandler.scale})`
-        render.element.style.fontSize = `${render.fontSize}px`
-
+    renderPlayerInfo(render: RenderInfo, scale: number, upperLeft: Cell, bottomRight: Cell) {
         // Update troops count
         const troopsDiv = render.element.children[1] as HTMLDivElement
         troopsDiv.textContent = renderTroops(render.player.troops())
-    }
-    renderPlayerInfoOld(render: RenderInfo, scale: number, uppperLeft: Cell, bottomRight: Cell) {
-        const nameCenter = this.transformHandler.worldToScreenCoordinates(render.location)
 
-        this.context.font = '24px Arial';
-        this.context.fillStyle = 'white';
-        this.context.textAlign = 'center';
-        this.context.textBaseline = 'middle';
-
-        const iconSize = render.fontSize * 2; // Adjust size as needed
-        // const iconX = nameCenterX + render.fontSize * 2; // Position to the right of the name
-        // const iconY = nameCenterY - render.fontSize / 2;
-
-        if (render.player == this.firstPlace) {
-            this.context.drawImage(
-                this.crownIconImage,
-                nameCenter.x - iconSize / 2,
-                nameCenter.y - iconSize / 2,
-                iconSize,
-                iconSize
-            );
-        }
-
-        if (render.player.isTraitor() && this.traitorIconImage.complete) {
-            this.context.drawImage(
-                this.traitorIconImage,
-                nameCenter.x - iconSize / 2,
-                nameCenter.y - iconSize / 2,
-                iconSize,
-                iconSize
-            );
-        }
-
+        // Get icons container
+        const iconsDiv = render.element.children[2] as HTMLDivElement
+        const iconSize = Math.floor(render.fontSize * 2)
         const myPlayer = this.getPlayer()
-        if (myPlayer != null && myPlayer.isAlliedWith(render.player)) {
-            this.context.drawImage(
-                this.allianceIconImage,
-                nameCenter.x - iconSize / 2,
-                nameCenter.y - iconSize / 2,
-                iconSize,
-                iconSize
-            );
-        }
 
-        if (myPlayer != null && new Set(myPlayer.transitiveTargets()).has(render.player)) {
-            this.context.drawImage(
-                this.targetIconImage,
-                nameCenter.x - iconSize / 2,
-                nameCenter.y - iconSize / 2,
-                iconSize,
-                iconSize
-            );
-        }
-
-        if (myPlayer != null) {
-            const emojis = render.player.outgoingEmojis().filter(e => e.recipient == AllPlayers || e.recipient == myPlayer)
-            if (emojis.length > 0) {
-                this.context.font = `${render.fontSize * 4}px ${this.theme.font()}`;
-                this.context.fillStyle = this.theme.playerInfoColor(render.player.id()).toHex();
-                this.context.textAlign = 'center';
-                this.context.textBaseline = 'middle';
-
-                this.context.fillText(emojis[0].emoji, nameCenter.x, nameCenter.y + render.fontSize / 2);
+        // Handle crown icon
+        const existingCrown = iconsDiv.querySelector('[data-icon="crown"]')
+        if (render.player === this.firstPlace) {
+            if (!existingCrown) {
+                iconsDiv.appendChild(this.createIconElement(this.crownIconImage.src, iconSize, 'crown'))
             }
+        } else if (existingCrown) {
+            existingCrown.remove()
         }
 
-        this.context.textRendering = "optimizeSpeed";
+        // Handle traitor icon
+        const existingTraitor = iconsDiv.querySelector('[data-icon="traitor"]')
+        if (render.player.isTraitor()) {
+            if (!existingTraitor) {
+                iconsDiv.appendChild(this.createIconElement(this.traitorIconImage.src, iconSize, 'traitor'))
+            }
+        } else if (existingTraitor) {
+            existingTraitor.remove()
+        }
 
-        this.context.font = `${render.fontSize}px ${this.theme.font()}`;
-        this.context.fillStyle = this.theme.playerInfoColor(render.player.id()).toHex();
-        this.context.textAlign = 'center';
-        this.context.textBaseline = 'middle';
+        // Handle alliance icon
+        const existingAlliance = iconsDiv.querySelector('[data-icon="alliance"]')
+        if (myPlayer != null && myPlayer.isAlliedWith(render.player)) {
+            if (!existingAlliance) {
+                iconsDiv.appendChild(this.createIconElement(this.allianceIconImage.src, iconSize, 'alliance'))
+            }
+        } else if (existingAlliance) {
+            existingAlliance.remove()
+        }
 
-        this.context.fillText(render.player.name(), nameCenter.x, nameCenter.y - render.fontSize / 2);
-        this.context.font = `bold ${render.fontSize}px ${this.theme.font()}`;
+        // Handle target icon
+        const existingTarget = iconsDiv.querySelector('[data-icon="target"]')
+        if (myPlayer != null && new Set(myPlayer.transitiveTargets()).has(render.player)) {
+            if (!existingTarget) {
+                iconsDiv.appendChild(this.createIconElement(this.targetIconImage.src, iconSize, 'target'))
+            }
+        } else if (existingTarget) {
+            existingTarget.remove()
+        }
 
-        this.context.fillText(renderTroops(render.player.troops()), nameCenter.x, nameCenter.y + render.fontSize);
+        // Update icon sizes based on scale
+        const icons = iconsDiv.getElementsByTagName('img')
+        for (const icon of icons) {
+            icon.style.width = `${iconSize}px`
+            icon.style.height = `${iconSize}px`
+            icon.style.transform = `translateY(${iconSize / 4}px)`
+        }
+
+        this.transformPlayerInfo(render)
     }
 
+    transformPlayerInfo(render: RenderInfo) {
+        render.element.style.display = 'flex'
+        const screenPosOld = this.transformHandler.worldToScreenCoordinates(render.location)
+        const screenPos = new Cell(screenPosOld.x - window.innerWidth / 2, screenPosOld.y - window.innerHeight / 2)
 
-
+        render.element.style.fontSize = `${render.fontSize}px`
+        render.element.style.transform = `translate(${screenPos.x}px, ${screenPos.y}px) scale(${this.transformHandler.scale})`
+    }
 
     private createPlayerElement(player: Player): HTMLDivElement {
         const element = document.createElement('div')
@@ -294,7 +302,8 @@ export class NameLayer implements Layer {
 
         // Name text
         const nameDiv = document.createElement('div')
-        nameDiv.textContent = player.name()
+        nameDiv.innerHTML = player.displayName()
+        // nameDiv.textContent = player.displayName()
         nameDiv.style.color = this.theme.playerInfoColor(player.id()).toHex()
         nameDiv.style.fontFamily = this.theme.font()
         element.appendChild(nameDiv)
@@ -315,6 +324,16 @@ export class NameLayer implements Layer {
 
         this.container.appendChild(element)
         return element
+    }
+
+    private createIconElement(src: string, size: number, id: string): HTMLImageElement {
+        const icon = document.createElement('img')
+        icon.src = src
+        icon.style.width = `${size}px`
+        icon.style.height = `${size}px`
+        icon.setAttribute('data-icon', id)
+        icon.style.transform = `translateY(${size / 4}px)`
+        return icon
     }
 
     private getPlayer(): Player | null {

@@ -51,7 +51,7 @@ export class TransformHandler {
         return new Cell(Math.floor(gameX), Math.floor(gameY));
     }
 
-    worldToScreenCoordinates(cell: Cell): Cell {
+    worldToScreenCoordinates(cell: Cell): { x: number, y: number } {
         // Step 1: Convert from Cell coordinates to game coordinates
         // (reverse of Math.floor operation - we'll use the exact values)
         const gameX = cell.x;
@@ -73,7 +73,7 @@ export class TransformHandler {
         const canvasRect = this.boundingRect();
         const screenX = canvasX + canvasRect.left;
         const screenY = canvasY + canvasRect.top;
-        return new Cell(screenX, screenY)
+        return { x: screenX, y: screenY }
     }
 
     screenBoundingRect(): [Cell, Cell] {

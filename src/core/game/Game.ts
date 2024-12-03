@@ -59,6 +59,7 @@ export class EmojiMessage {
     ) { }
 }
 
+// This class is serialized, don't add methods
 export class Cell {
 
     private strRepr: string
@@ -142,6 +143,7 @@ export interface TerrainMap {
 
 export interface TerrainTile extends SearchNode {
     terrainType(): TerrainType
+    neighbors(): TerrainTile[]
 }
 
 export interface DefenseBonus {
@@ -159,7 +161,9 @@ export interface Tile extends SearchNode {
     isShorelineWater(): boolean
     isOcean(): boolean
     isLake(): boolean
+    // TODO move all terrain properties to TerainTile
     terrain(): TerrainType
+    terrainTile(): TerrainTile
     magnitude(): number
     owner(): Player | TerraNullius
     hasOwner(): boolean

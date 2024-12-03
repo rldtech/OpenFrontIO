@@ -20,6 +20,10 @@ export class TileImpl implements Tile {
         private readonly _terrain: TerrainTileImpl
     ) { }
 
+    terrainTile(): TerrainTile {
+        return this._terrain
+    }
+
     defenseBonus(player: Player): number {
         if (this.owner() == player) {
             throw Error(`cannot get defense bonus of tile already owned by player`)

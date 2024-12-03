@@ -1,4 +1,4 @@
-import { Game, Tile } from "../game/Game";
+import { Cell, Game, TerrainTile, TerrainType, Tile } from "../game/Game";
 import { manhattanDist } from "../Util";
 import { AStar, PathFindResultType, TileResult } from "./AStar";
 import { ParallelAStar, WorkerClient } from "../worker/WorkerClient";
@@ -9,23 +9,25 @@ export class PathFinder {
 
     private curr: Tile = null
     private dst: Tile = null
-    private path: Tile[]
+    private path: Cell[]
     private aStar: AStar
     private computeFinished = true
 
     private constructor(
+        private game: Game,
         private newAStar: (curr: Tile, dst: Tile) => AStar
     ) { }
 
 
-    public static Mini(game: Game, iterations: number, canMove: (t: Tile) => boolean, maxTries: number = 20) {
+    public static Mini(game: Game, iterations: number, canMove: (t: TerrainTile) => boolean, maxTries: number = 20) {
         return new PathFinder(
+            game,
             (curr: Tile, dst: Tile) => {
                 return new MiniAStar(
                     game.terrainMap(),
                     game.terrainMiniMap(),
-                    curr,
-                    dst,
+                    curr.cell(),
+                    dst.cell(),
                     canMove,
                     iterations,
                     maxTries
@@ -34,12 +36,13 @@ export class PathFinder {
         )
     }
 
-    public static Serial(iterations: number, canMove: (t: Tile) => boolean, maxTries: number = 20): PathFinder {
+    public static Serial(game: Game, iterations: number, canMove: (t: TerrainTile) => boolean, maxTries: number = 20): PathFinder {
         return new PathFinder(
+            game,
             (curr: Tile, dst: Tile) => {
                 return new SerialAStar(
-                    curr,
-                    dst,
+                    game.terrainMap().terrain(curr.cell()),
+                    dst.terrainTile(),
                     canMove,
                     iterations,
                     maxTries
@@ -48,10 +51,14 @@ export class PathFinder {
         )
     }
 
-    public static Parallel(worker: WorkerClient, numTicks: number): PathFinder {
+    public static Parallel(game: Game, worker: WorkerClient, numTicks: number, ...terrainTypes: TerrainType[]): PathFinder {
+        if (terrainTypes.length == 0) {
+            terrainTypes = [TerrainType.Ocean]
+        }
         return new PathFinder(
+            game,
             (curr: Tile, dst: Tile) => {
-                return worker.createParallelAStar(curr, dst, numTicks)
+                return worker.createParallelAStar(curr, dst, numTicks, terrainTypes)
             }
         )
     }
@@ -77,14 +84,14 @@ export class PathFinder {
                 this.computeFinished = false
                 return this.nextTile(curr, dst)
             } else {
-                return { type: PathFindResultType.NextTile, tile: this.path.shift() }
+                return { type: PathFindResultType.NextTile, tile: this.game.tile(this.path.shift()) }
             }
         }
 
         switch (this.aStar.compute()) {
             case PathFindResultType.Completed:
                 this.computeFinished = true
-                this.path = this.aStar.reconstructPath() as Tile[]
+                this.path = this.aStar.reconstructPath()
                 // Remove the start tile
                 this.path.shift()
                 return this.nextTile(curr, dst)

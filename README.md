@@ -10,6 +10,12 @@ This is a fork/rewrite of WarFront.io. Credit to https://github.com/WarFrontIO.
 
 To build the project, you will need to have Node.js and npm installed.
 
+To start the game server:
+
+```bash
+cd game
+```
+
 Before building the project, install the dependencies:
 
 ```bash

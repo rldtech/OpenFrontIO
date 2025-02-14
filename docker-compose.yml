@@ -1,11 +1,32 @@
 version: "3"
 services:
   game-server:
-    build: .
+    build:
+      context: ./game
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+    env_file:
+      - ./game/.env
+  state-service:
+    build:
+      context: ./state-service
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - ./crud/.env
+  discord-bot:
+    build:
+      context: ./discord-bot
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - ./discord-bot/.env
   nginx:
     image: nginx:latest
     ports:
@@ -16,3 +37,4 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt
     depends_on:
       - game-server
+      - state-service

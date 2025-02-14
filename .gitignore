@@ -1,10 +1,25 @@
-build/
-node_modules/
-out/
+# IDE and OS files
+.DS_Store
+**/.DS_Store
+.vscode/
+.idea/
+
+# Dependencies
+**/node_modules/
+
+# Build outputs
+**/build/
+**/out/
+**/dist/
+
+# Environment files
+**/.env
+
+# Misc
 TODO.txt
-resources/images/.DS_Store
-resources/.DS_Store
-.env
 .prettierrc
 .prettierignore
-.DS_Store
+
+# Service specific ignores
+game/resources/images/.DS_Store
+game/resources/.DS_Store

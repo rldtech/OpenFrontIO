@@ -1,0 +1,22 @@
+{
+  "name": "state-service",
+  "version": "1.0.0",
+  "main": "dist/Server.js",
+  "scripts": {
+    "build": "webpack",
+    "start": "node dist/Server.js",
+    "dev": "webpack --watch"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-node-externals": "^3.0.0"
+  }
+}

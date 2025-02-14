@@ -17,9 +17,9 @@
     },
     {
       "coordinates": [650, 500],
-      "name": "United Kingdom",
+      "name": "England",
       "strength": 3,
-      "flag": "gb"
+      "flag": "gb-eng"
     },
     {
       "coordinates": [560, 800],
@@ -78,7 +78,7 @@
     {
       "coordinates": [1000, 480],
       "name": "Germany",
-      "strength": 1,
+      "strength": 3,
       "flag": "de"
     },
     {
@@ -88,7 +88,7 @@
       "flag": "at"
     },
     {
-      "coordinates": [1120, 477],
+      "coordinates": [1250, 477],
       "name": "Poland",
       "strength": 1,
       "flag": "pl"
@@ -100,7 +100,7 @@
       "flag": "cz"
     },
     {
-      "coordinates": [1540, 602],
+      "coordinates": [1690, 602],
       "name": "Ukraine",
       "strength": 1,
       "flag": "ua"
@@ -112,7 +112,7 @@
       "flag": "by"
     },
     {
-      "coordinates": [1400, 670],
+      "coordinates": [1500, 670],
       "name": "Romania",
       "strength": 1,
       "flag": "ro"
@@ -156,7 +156,7 @@
     {
       "coordinates": [950, 930],
       "name": "Tunisia",
-      "strength": 1,
+      "strength": 2,
       "flag": "tn"
     },
     {
@@ -188,6 +188,30 @@
       "name": "Hungary",
       "strength": 1,
       "flag": "hu"
+    },
+    {
+      "coordinates": [580, 400],
+      "name": "Scotland",
+      "strength": 1,
+      "flag": "gb-sct"
+    },
+    {
+      "coordinates": [600, 500],
+      "name": "Wales",
+      "strength": 1,
+      "flag": "gb-wls"
+    },
+    {
+      "coordinates": [1400, 750],
+      "name": "Bulgaria",
+      "strength": 1,
+      "flag": "bg"
+    },
+    {
+      "coordinates": [1420, 350],
+      "name": "Estonia",
+      "strength": 1,
+      "flag": "ee"
     }
   ]
 }

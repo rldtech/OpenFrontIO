@@ -17,8 +17,8 @@ steps:
       [
         "build",
         "-t",
-        "us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/crud-service:${TAG_NAME}-${SHORT_SHA}",
-        "./crud",
+        "us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/state-service:${TAG_NAME}-${SHORT_SHA}",
+        "./state-service",
       ]
 
   # Build the Discord bot image
@@ -42,7 +42,7 @@ steps:
     args:
       [
         "push",
-        "us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/crud-service:${TAG_NAME}-${SHORT_SHA}",
+        "us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/state-service:${TAG_NAME}-${SHORT_SHA}",
       ]
   - name: "gcr.io/cloud-builders/docker"
     args:
@@ -61,7 +61,7 @@ steps:
       - "--container-image"
       - "us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/game-server:${TAG_NAME}-${SHORT_SHA}"
       - "--container-image"
-      - "us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/crud-service:${TAG_NAME}-${SHORT_SHA}"
+      - "us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/state-service:${TAG_NAME}-${SHORT_SHA}"
       - "--container-image"
       - "us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/discord-bot:${TAG_NAME}-${SHORT_SHA}"
       - "--zone=us-central1-a"
@@ -77,5 +77,5 @@ options:
 
 images:
   - "us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/game-server:${TAG_NAME}-${SHORT_SHA}"
-  - "us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/crud-service:${TAG_NAME}-${SHORT_SHA}"
+  - "us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/state-service:${TAG_NAME}-${SHORT_SHA}"
   - "us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/discord-bot:${TAG_NAME}-${SHORT_SHA}"

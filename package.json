@@ -4,7 +4,7 @@
   "private": true,
   "workspaces": [
     "game",
-    "crud",
+    "state-service",
     "discord-bot"
   ],
   "scripts": {
@@ -13,7 +13,7 @@
     "dev": "npm run dev --workspace=game",
     "build": "docker-compose build",
     "build:game": "npm run build --workspace=game",
-    "build:crud": "npm run build --workspace=crud",
+    "build:state": "npm run build --workspace=crud",
     "build:discord": "npm run build --workspace=discord-bot",
     "test": "npm run test --workspaces",
     "clean": "rm -rf **/node_modules **/build **/dist **/out"

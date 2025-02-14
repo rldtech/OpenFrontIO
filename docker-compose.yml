@@ -17,7 +17,7 @@ services:
     environment:
       - NODE_ENV=production
     env_file:
-      - ./crud/.env
+      - ./state-service/.env
   discord-bot:
     build:
       context: ./discord-bot

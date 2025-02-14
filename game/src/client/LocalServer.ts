@@ -1,4 +1,4 @@
-import { Config, GameEnv, ServerConfig } from "../core/configuration/Config";
+import { Config, ServerConfig } from "../core/configuration/Config";
 import { consolex } from "../core/Consolex";
 import { GameEvent } from "../core/EventBus";
 import {

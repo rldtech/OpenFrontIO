@@ -21,12 +21,8 @@ import { DevConfig, DevServerConfig } from "./DevConfig";
 import { GameMap, TileRef } from "../game/GameMap";
 import { PlayerView } from "../game/GameView";
 import { UserSettings } from "../game/UserSettings";
+import { GameEnv } from "@openfrontio/shared/src/Utils";
 
-export enum GameEnv {
-  Dev,
-  Preprod,
-  Prod,
-}
 export function getConfig(
   gameConfig: GameConfig,
   userSettings: UserSettings | null = null,

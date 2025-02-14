@@ -11,11 +11,7 @@ import {
   GameRecordSchema,
   LogSeverity,
 } from "../core/Schemas";
-import {
-  GameEnv,
-  getConfig,
-  getServerConfig,
-} from "../core/configuration/Config";
+import { getServerConfig } from "../core/configuration/Config";
 import { slog } from "./StructuredLog";
 import { Client } from "./Client";
 import { GamePhase, GameServer } from "./GameServer";
@@ -29,6 +25,8 @@ import { Request, Response } from "express";
 import { SecretManagerServiceClient } from "@google-cloud/secret-manager";
 import dotenv from "dotenv";
 import crypto from "crypto";
+import { GameEnv } from "@openfrontio/shared/src/Utils";
+
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

@@ -1,3 +1,4 @@
+import { GameEnv } from "@openfrontio/shared/src/Utils";
 import {
   Difficulty,
   Game,
@@ -17,7 +18,7 @@ import { PlayerView } from "../game/GameView";
 import { UserSettings } from "../game/UserSettings";
 import { GameConfig } from "../Schemas";
 import { assertNever, within } from "../Util";
-import { Config, GameEnv, ServerConfig, Theme } from "./Config";
+import { Config, ServerConfig, Theme } from "./Config";
 import { pastelTheme } from "./PastelTheme";
 
 export abstract class DefaultServerConfig implements ServerConfig {

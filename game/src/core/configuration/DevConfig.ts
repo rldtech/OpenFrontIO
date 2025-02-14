@@ -1,7 +1,8 @@
 import { GameType, Player, PlayerInfo, UnitInfo, UnitType } from "../game/Game";
 import { UserSettings } from "../game/UserSettings";
 import { GameConfig } from "../Schemas";
-import { GameEnv, ServerConfig } from "./Config";
+import { ServerConfig } from "./Config";
+import { GameEnv } from "@openfrontio/shared/src/Utils";
 import { DefaultConfig, DefaultServerConfig } from "./DefaultConfig";
 
 export class DevServerConfig extends DefaultServerConfig {

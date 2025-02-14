@@ -1,4 +1,4 @@
-import { GameEnv } from "./Config";
+import { GameEnv } from "@openfrontio/shared/src/Utils";
 import { DefaultConfig, DefaultServerConfig } from "./DefaultConfig";
 
 export const preprodConfig = new (class extends DefaultServerConfig {

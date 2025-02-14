@@ -6,6 +6,11 @@ module.exports = {
   mode: "development",
   entry: "./src/Server.ts",
   externals: [nodeExternals()],
+  ignoreWarnings: [
+    {
+      module: /pg-native/,
+    },
+  ],
   module: {
     rules: [
       {
@@ -17,6 +22,9 @@ module.exports = {
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
+    fallback: {
+      "pg-native": false,
+    },
   },
   output: {
     filename: "Server.js",

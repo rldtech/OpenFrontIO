@@ -1,5 +1,7 @@
-import { Pool, PoolClient } from 'pg';
-import { schemas } from './Schema';
+import { Pool, PoolClient } from "pg";
+import { schemas } from "./Schema";
+import dotenv from "dotenv";
+dotenv.config();
 
 // Environment variable interface for type safety
 interface DBConfig {
@@ -16,27 +18,28 @@ interface DBConfig {
 // Create the config from environment variables
 const createDBConfig = (): DBConfig => {
   const config: DBConfig = {
-    user: process.env.DB_USER || '',
-    host: process.env.DB_HOST || '',
-    database: process.env.DB_NAME || '',
-    password: process.env.DB_PASSWORD || '',
-    port: parseInt(process.env.DB_PORT || '5432'),
+    user: process.env.DB_USER || "",
+    host: process.env.DB_HOST || "",
+    database: process.env.DB_NAME || "",
+    password: process.env.DB_PASSWORD || "",
+    port: parseInt(process.env.DB_PORT || "5432"),
   };
 
   // Add SSL if enabled
-  if (process.env.DB_SSL === 'true') {
+  if (process.env.DB_SSL === "true") {
     config.ssl = { rejectUnauthorized: false };
   }
 
   return config;
 };
 
+console.log(`got db config: ${JSON.stringify(createDBConfig())}`);
 // Create pool instance
 const pool = new Pool(createDBConfig());
 
 // Error handling for the pool
-pool.on('error', (err: Error) => {
-  console.error('Unexpected error on idle client', err);
+pool.on("error", (err: Error) => {
+  console.error("Unexpected error on idle client", err);
   process.exit(-1);
 });
 
@@ -45,14 +48,14 @@ export const initDB = async (): Promise<void> => {
   let client: PoolClient | null = null;
   try {
     client = await pool.connect();
-    console.log('Connected to database, initializing schemas...');
-    
+    console.log("Connected to database, initializing schemas...");
+
     // Execute all schema creation queries
     await client.query(schemas.playerSessions);
-    
-    console.log('Database initialization completed');
+
+    console.log("Database initialization completed");
   } catch (error) {
-    console.error('Error initializing database:', error);
+    console.error("Error initializing database:", error);
     throw error;
   } finally {
     if (client) {
@@ -79,16 +82,16 @@ export const query = async (text: string, params?: any[]) => {
 
 // Transaction helper
 export const transaction = async <T>(
-  callback: (client: PoolClient) => Promise<T>
+  callback: (client: PoolClient) => Promise<T>,
 ): Promise<T> => {
   const client = await pool.connect();
   try {
-    await client.query('BEGIN');
+    await client.query("BEGIN");
     const result = await callback(client);
-    await client.query('COMMIT');
+    await client.query("COMMIT");
     return result;
   } catch (error) {
-    await client.query('ROLLBACK');
+    await client.query("ROLLBACK");
     throw error;
   } finally {
     client.release();
@@ -100,13 +103,13 @@ export const checkConnection = async (): Promise<boolean> => {
   try {
     const client = await pool.connect();
     try {
-      await client.query('SELECT 1');
+      await client.query("SELECT 1");
       return true;
     } finally {
       client.release();
     }
   } catch (error) {
-    console.error('Database connection check failed:', error);
+    console.error("Database connection check failed:", error);
     return false;
   }
 };

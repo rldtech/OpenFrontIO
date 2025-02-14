@@ -1,10 +1,10 @@
 // src/db/schema.ts
 export const TABLES = {
-    PLAYER_SESSIONS: 'player_sessions'
-  } as const;
-  
-  export const schemas = {
-    playerSessions: `
+  PLAYER_SESSIONS: "player_sessions",
+} as const;
+
+export const schemas = {
+  playerSessions: `
       CREATE TABLE IF NOT EXISTS ${TABLES.PLAYER_SESSIONS} (
         id SERIAL PRIMARY KEY,
         discord_id TEXT NOT NULL,
@@ -18,5 +18,5 @@ export const TABLES = {
         ON ${TABLES.PLAYER_SESSIONS}(discord_id);
       CREATE INDEX IF NOT EXISTS idx_session_id 
         ON ${TABLES.PLAYER_SESSIONS}(session_id);
-    `
-  };
+    `,
+};

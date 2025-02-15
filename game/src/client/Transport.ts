@@ -2,11 +2,9 @@ import { Config, ServerConfig } from "../core/configuration/Config";
 import { SendLogEvent } from "../core/Consolex";
 import { EventBus, GameEvent } from "../core/EventBus";
 import {
-  AllianceRequest,
   AllPlayers,
   Cell,
   GameType,
-  Player,
   PlayerID,
   PlayerType,
   UnitType,
@@ -15,7 +13,6 @@ import {
   ClientID,
   ClientIntentMessageSchema,
   ClientJoinMessageSchema,
-  GameID,
   Intent,
   ServerMessage,
   ServerMessageSchema,
@@ -26,10 +23,6 @@ import {
 } from "../core/Schemas";
 import { LobbyConfig } from "./ClientGameRunner";
 import { LocalServer } from "./LocalServer";
-import { UsernameInput } from "./UsernameInput";
-import { HostLobbyModal as HostPrivateLobbyModal } from "./HostLobbyModal";
-import { JoinPrivateLobbyModal } from "./JoinPrivateLobbyModal";
-import { SinglePlayerModal } from "./SinglePlayerModal";
 import { PlayerView } from "../core/game/GameView";
 
 export class PauseGameEvent implements GameEvent {

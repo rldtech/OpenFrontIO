@@ -4,13 +4,15 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
 
 // Create or update session
 app.post("/api/sessions", async (req: Request, res: Response) => {
   const { discord_id, session_id, metadata = {} } = req.body;
+
+  console.log(`state-service adding session ${session_id}`);
 
   try {
     const result = await pool.query(
@@ -21,7 +23,7 @@ app.post("/api/sessions", async (req: Request, res: Response) => {
          last_active = CURRENT_TIMESTAMP,
          metadata = player_sessions.metadata || $3::jsonb
        RETURNING *`,
-      [discord_id, session_id, metadata],
+      [discord_id, session_id, metadata]
     );
 
     res.status(201).json(result.rows[0]);
@@ -36,7 +38,7 @@ app.get("/api/sessions/:sessionId", async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
       "SELECT * FROM player_sessions WHERE session_id = $1",
-      [req.params.sessionId],
+      [req.params.sessionId]
     );
 
     if (result.rows.length === 0) {
@@ -57,14 +59,14 @@ app.get(
     try {
       const result = await pool.query(
         "SELECT * FROM player_sessions WHERE discord_id = $1 ORDER BY last_active DESC",
-        [req.params.discordId],
+        [req.params.discordId]
       );
       res.json(result.rows);
     } catch (error) {
       console.error("Error fetching sessions:", error);
       res.status(500).json({ error: "Failed to fetch sessions" });
     }
-  },
+  }
 );
 
 // Delete session
@@ -72,7 +74,7 @@ app.delete("/api/sessions/:sessionId", async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
       "DELETE FROM player_sessions WHERE session_id = $1 RETURNING *",
-      [req.params.sessionId],
+      [req.params.sessionId]
     );
 
     if (result.rows.length === 0) {
@@ -90,7 +92,7 @@ app.delete("/api/sessions/:sessionId", async (req: Request, res: Response) => {
 initDB()
   .then(() => {
     app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`State server running on http://localhost:${PORT}`);
     });
   })
   .catch((error) => {

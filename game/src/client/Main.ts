@@ -4,6 +4,7 @@ import favicon from "../../resources/images/Favicon.svg";
 
 import "./PublicLobby";
 import "./UsernameInput";
+import "./AuthElement";
 import "./styles.css";
 import { UsernameInput } from "./UsernameInput";
 import { SinglePlayerModal } from "./SinglePlayerModal";

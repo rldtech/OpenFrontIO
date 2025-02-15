@@ -140,6 +140,7 @@ export default (env, argv) => {
                 "/validate-username",
                 "/auth/callback",
                 "/auth/discord",
+                "/api/user",
               ],
               target: "http://localhost:3000",
               secure: false,

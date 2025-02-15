@@ -14,12 +14,14 @@
     "dev": "npm run dev --workspace=game",
     "build": "docker-compose build",
     "build:game": "npm run build --workspace=game",
-    "build:state": "npm run build --workspace=crud",
+    "build:state": "npm run build --workspace=state-service",
     "build:discord": "npm run build --workspace=discord-bot",
+    "stack": "concurrently \"npm run dev --workspace=state-service\" \"npm run dev --workspace=game\"",
     "test": "npm run test --workspaces",
     "clean": "rm -rf **/node_modules **/build **/dist **/out"
   },
   "devDependencies": {
+    "concurrently": "^9.1.2",
     "lint-staged": "^15.4.3",
     "prettier": "^3.5.1",
     "typescript": "^5.3.0"
@@ -27,5 +29,8 @@
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7"
   }
 }

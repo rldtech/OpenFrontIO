@@ -26,6 +26,7 @@ import { SecretManagerServiceClient } from "@google-cloud/secret-manager";
 import dotenv from "dotenv";
 import crypto from "crypto";
 import { GameEnv } from "@openfrontio/shared/src/Utils";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -43,14 +44,50 @@ const secretManager = new SecretManagerServiceClient();
 // Discord OAuth Configuration (will be populated from secrets)
 let DISCORD_CLIENT_ID: string;
 let DISCORD_CLIENT_SECRET: string;
+let STATE_SERVICE_ENDPOINT: string = "http://localhost:3001";
 
 // Serve static files from the 'out' directory
 app.use(express.static(path.join(__dirname, "../../out")));
 app.use(express.json());
+app.use(cookieParser());
 
 const gm = new GameManager(serverConfig);
 
 let lobbiesString = "";
+
+// Add this endpoint to server.ts
+app.get("/api/user", async (req: Request, res: Response) => {
+  const sessionToken = req.cookies?.session;
+
+  if (!sessionToken) {
+    console.log("no session token");
+    return res.json({ loggedIn: false });
+  }
+  console.log(`got session token: ${sessionToken}`);
+
+  try {
+    // Check session in state service
+    const sessionResponse = await fetch(
+      `${STATE_SERVICE_ENDPOINT}/api/sessions/${sessionToken}`,
+    );
+
+    if (!sessionResponse.ok) {
+      console.log(`session data not found`);
+      return res.json({ loggedIn: false });
+    }
+
+    const sessionData = await sessionResponse.json();
+
+    return res.json({
+      loggedIn: true,
+      discordId: sessionData.discord_id,
+      metadata: sessionData.metadata,
+    });
+  } catch (error) {
+    console.error("Error checking user session:", error);
+    return res.json({ loggedIn: false });
+  }
+});
 
 // Discord OAuth callback endpoint
 app.get("/auth/callback", async (req: Request, res: Response) => {
@@ -82,6 +119,8 @@ app.get("/auth/callback", async (req: Request, res: Response) => {
 
     const tokenData = await tokenResponse.json();
 
+    console.log(`got token data ${JSON.stringify(tokenData)}`);
+
     // Get user information
     const userResponse = await fetch("https://discord.com/api/users/@me", {
       headers: {
@@ -96,13 +135,30 @@ app.get("/auth/callback", async (req: Request, res: Response) => {
     const userData = await userResponse.json();
     const sessionToken = crypto.randomBytes(32).toString("hex");
 
-    // TODO: store userData and sessionToken in database.
+    console.log(`got user data ${JSON.stringify(userData)}`);
+    // Update session data
+    await fetch(`${STATE_SERVICE_ENDPOINT}/api/sessions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        discord_id: userData.id,
+        session_id: sessionToken,
+        metadata: {
+          lastActive: new Date().toISOString(),
+        },
+      }),
+    });
+
+    console.log(`after auth have session token: ${sessionToken}`);
 
     res.cookie("session", sessionToken, {
       httpOnly: true,
       secure: true,
       sameSite: "strict",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
+      domain: "localhost", // Add this for local testing
     });
     res.redirect(`/`);
   } catch (error) {

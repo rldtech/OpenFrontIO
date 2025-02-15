@@ -3,7 +3,7 @@
   "scripts": {
     "build-map": "node --loader ts-node/esm --experimental-specifier-resolution=node src/scripts/TerrainMapGenerator.ts",
     "build-dev": "webpack --config webpack.config.js --mode development",
-    "build-prod": "webpack --config webpack.config.js --mode production",
+    "build": "webpack --config webpack.config.js --mode production",
     "start:client": "webpack serve --open --node-env development",
     "start:server": "node --loader ts-node/esm --experimental-specifier-resolution=node src/server/Server.ts",
     "start:server-dev": "cross-env GAME_ENV=dev node --loader ts-node/esm --experimental-specifier-resolution=node src/server/Server.ts",
@@ -78,7 +78,7 @@
     "@google-cloud/bigquery": "^7.9.1",
     "@google-cloud/secret-manager": "^5.6.0",
     "@google-cloud/storage": "^7.14.0",
-    "@openfrontio/shared": "*",
+    "@openfrontio/shared": "file:../shared",
     "@types/dompurify": "^3.0.5",
     "@types/express": "^4.17.21",
     "@types/google-protobuf": "^3.15.12",

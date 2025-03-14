@@ -1,0 +1,53 @@
+# API Worker Configuration
+[build]
+command = "cd .. && npm run build"
+
+# --- PRODUCTION ---
+[env.prod]
+name = "api-worker-prod"
+main = "../dist/api/API.js"
+compatibility_date = "2023-08-01"
+
+[[env.prod.d1_databases]]
+binding = "DB"
+database_name = "openfront-prod"
+database_id = "965dbb87-0327-4079-8eae-3676d35bd54e"
+
+pattern = "api.openfront.io/*"
+zone_name = "openfront.io"
+
+# --- STAGING ---
+[env.staging]
+name = "api-worker-staging"
+main = "../dist/api/API.js"
+compatibility_date = "2023-08-01"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "openfront-staging"
+database_id = "1230b426-862e-49f9-b47e-5cb3587a94b4"
+
+# Add these lines for domain routing
+[[env.staging.routes]]
+pattern = "api.openfront.dev/*"
+zone_name = "openfront.dev"
+
+
+# --- DEVELOPMENT ---
+
+[dev]
+port = 8787
+
+[env.dev]
+name = "api-worker-dev"
+main = "../dist/api/API.js"
+compatibility_date = "2023-08-01"
+workers_dev = true
+
+[[env.dev.d1_databases]]
+binding = "DB"
+database_name = "openfront-dev"
+database_id = "1230b426-862e-49f9-b47e-5cb3587a94b4"
+
+[env.dev.vars]
+WORKER_KEY = "dummy-key"

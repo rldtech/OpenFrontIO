@@ -1,0 +1,39 @@
+{
+  "name": "game-cloudflare-workers",
+  "version": "1.0.0",
+  "description": "Cloudflare Workers for game analytics and data storage",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev:analytics": "cd analytics && wrangler dev --env dev",
+    "trigger:analytics": "cd analytics && wrangler dev --env dev --test-scheduled --log-level debug",
+    "deploy:analytics:prod": "cd analytics && wrangler deploy --env prod",
+    "deploy:analytics:staging": "cd analytics && wrangler deploy --env staging",
+    "dev:api": "cd api && wrangler dev --env dev",
+    "deploy:api:prod": "cd api && wrangler deploy --env prod",
+    "deploy:api:staging": "cd api && wrangler deploy --env staging",
+    "format": "prettier --write 'workers/**/*.{js,ts}'",
+    "lint": "eslint 'workers/**/*.{js,ts}'",
+    "db:create-prod": "wrangler d1 create openfront-prod",
+    "db:create-staging": "wrangler d1 create openfront-staging",
+    "db:migrate:prod": "cd api && wrangler d1 execute --env prod openfront-prod --file=../db/schema.sql",
+    "db:migrate:staging": "cd api && wrangler d1 execute --env staging openfront-staging --file=../db/schema.sql"
+  },
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "game",
+    "analytics"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20230518.0",
+    "@types/node": "^18.15.11",
+    "esbuild": "^0.17.18",
+    "eslint": "^8.38.0",
+    "prettier": "^2.8.7",
+    "typescript": "^5.0.4",
+    "wrangler": "^4.0.0"
+  }
+}

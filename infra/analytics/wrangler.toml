@@ -1,0 +1,59 @@
+# Analytics Worker Configuration
+[build]
+command = "cd .. && npm run build"
+
+
+# --- PRODUCTION ---
+
+[env.prod]
+name = "analytics-worker-prod"
+main = "../dist/analytics/AnalyticsProcessor.js"
+compatibility_date = "2023-08-01"
+
+[env.prod.triggers]
+crons = ["*/30 * * * *"]  # Run every 30 minutes
+
+[env.prod.vars]
+API_ENDPOINT = "api.openfront.io"
+
+[[env.prod.r2_buckets]]
+binding = "BUCKET"
+bucket_name = "openfront-prod"
+
+
+# --- STAGING ---
+
+[env.staging]
+name = "analytics-worker-staging"
+main = "../dist/analytics/AnalyticsProcessor.js"
+compatibility_date = "2023-08-01"
+workers_dev = true
+
+[env.staging.triggers]
+crons = ["*/30 * * * *"]
+
+[env.staging.vars]
+API_ENDPOINT = "api.openfront.dev"
+
+[[env.staging.r2_buckets]]
+binding = "BUCKET"
+bucket_name = "openfront-staging"
+
+
+# --- DEVELOPMENT ---
+[env.dev]
+name = "analytics-worker-dev"
+main = "../dist/analytics/AnalyticsProcessor.js"
+compatibility_date = "2023-08-01"
+workers_dev = true
+
+[env.dev.triggers]
+crons = ["@manual"]
+
+[env.dev.vars]
+WORKER_KEY = "dummy-key"
+API_ENDPOINT = "localhost:8787"
+
+[[env.dev.r2_buckets]]
+binding = "BUCKET"
+bucket_name = "openfront-dev"

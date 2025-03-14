@@ -25,12 +25,12 @@
     "@babel/preset-env": "^7.25.3",
     "@babel/preset-typescript": "^7.24.7",
     "@eslint/js": "^9.21.0",
+    "@types/bun": "latest",
     "@types/chai": "^4.3.17",
     "@types/d3": "^7.4.3",
     "@types/jest": "^29.5.12",
     "@types/jquery": "^3.5.31",
     "@types/mocha": "^10.0.7",
-    "@types/bun": "latest",
     "@types/pg": "^8.11.11",
     "@types/sinon": "^17.0.3",
     "@types/systeminformation": "^3.23.1",
@@ -70,7 +70,8 @@
     "tsx": "^4.17.0",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.26.0",
-    "worker-loader": "^3.0.8"
+    "worker-loader": "^3.0.8",
+    "wrangler": "^4.0.0"
   },
   "dependencies": {
     "@aws-sdk/client-redshift-data": "^3.758.0",

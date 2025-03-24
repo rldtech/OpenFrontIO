@@ -1,5 +1,5 @@
 import { LitElement, html } from "lit";
-import { customElement, query, property, state } from "lit/decorators.js";
+import { customElement, query, state } from "lit/decorators.js";
 import { Difficulty, GameMapType, GameType } from "../core/game/Game";
 import { generateID as generateID } from "../core/Util";
 import { consolex } from "../core/Consolex";
@@ -30,193 +30,185 @@ export class SinglePlayerModal extends LitElement {
 
   render() {
     return html`
-      <div
-        class="modal-overlay"
-        style="display: ${this.isModalOpen ? "flex" : "none"}"
-      >
-        <div
-          style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%;"
-          class="${this.isModalOpen ? "" : "hidden"}"
-          @click=${this.close}
-        ></div>
-        <div class="modal-content">
-          <span class="close" @click=${this.close}>&times;</span>
-
-          <div class="title">Single Player</div>
-
-          <div class="options-layout">
-            <!-- Map Selection -->
-            <div class="options-section">
-              <div class="option-title">Map</div>
-              <div class="option-cards">
-                ${Object.entries(GameMapType)
-                  .filter(([key]) => isNaN(Number(key)))
-                  .map(
-                    ([key, value]) => html`
-                      <div
-                        @click=${function () {
-                          this.handleMapSelection(value);
-                        }}
-                      >
-                        <map-display
-                          .mapKey=${key}
-                          .selected=${!this.useRandomMap &&
-                          this.selectedMap === value}
-                        ></map-display>
-                      </div>
-                    `,
-                  )}
-                <div
-                  class="option-card random-map ${this.useRandomMap
-                    ? "selected"
-                    : ""}"
-                  @click=${this.handleRandomMapToggle}
-                >
-                  <div class="option-image">
-                    <img
-                      src=${randomMap}
-                      alt="Random Map"
-                      style="width:100%; aspect-ratio: 4/2; object-fit:cover; border-radius:8px;"
-                    />
-                  </div>
-                  <div class="option-card-title">Random</div>
+      <o-modal title="Single Player">
+        <div class="options-layout">
+          <!-- Map Selection -->
+          <div class="options-section">
+            <div class="option-title">Map</div>
+            <div class="option-cards">
+              ${Object.entries(GameMapType)
+                .filter(([key]) => isNaN(Number(key)))
+                .map(
+                  ([key, value]) => html`
+                    <div
+                      @click=${function () {
+                        this.handleMapSelection(value);
+                      }}
+                    >
+                      <map-display
+                        .mapKey=${key}
+                        .selected=${!this.useRandomMap &&
+                        this.selectedMap === value}
+                      ></map-display>
+                    </div>
+                  `,
+                )}
+              <div
+                class="option-card random-map ${this.useRandomMap
+                  ? "selected"
+                  : ""}"
+                @click=${this.handleRandomMapToggle}
+              >
+                <div class="option-image">
+                  <img
+                    src=${randomMap}
+                    alt="Random Map"
+                    style="width:100%; aspect-ratio: 4/2; object-fit:cover; border-radius:8px;"
+                  />
                 </div>
-              </div>
-            </div>
-
-            <!-- Difficulty Selection -->
-            <div class="options-section">
-              <div class="option-title">Difficulty</div>
-              <div class="option-cards">
-                ${Object.entries(Difficulty)
-                  .filter(([key]) => isNaN(Number(key)))
-                  .map(
-                    ([key, value]) => html`
-                      <div
-                        class="option-card ${this.selectedDifficulty === value
-                          ? "selected"
-                          : ""}"
-                        @click=${() => this.handleDifficultySelection(value)}
-                      >
-                        <difficulty-display
-                          .difficultyKey=${key}
-                        ></difficulty-display>
-                        <p class="option-card-title">
-                          ${DifficultyDescription[key]}
-                        </p>
-                      </div>
-                    `,
-                  )}
-              </div>
-            </div>
-
-            <!-- Game Options -->
-            <div class="options-section">
-              <div class="option-title">Options</div>
-              <div class="option-cards">
-                <label for="bots-count" class="option-card">
-                  <input
-                    type="range"
-                    id="bots-count"
-                    min="0"
-                    max="400"
-                    step="1"
-                    @input=${this.handleBotsChange}
-                    @change=${this.handleBotsChange}
-                    .value="${this.bots}"
-                  />
-                  <div class="option-card-title">
-                    Bots: ${this.bots == 0 ? "Disabled" : this.bots}
-                  </div>
-                </label>
-
-                <label
-                  for="disable-npcs"
-                  class="option-card ${this.disableNPCs ? "selected" : ""}"
-                >
-                  <div class="checkbox-icon"></div>
-                  <input
-                    type="checkbox"
-                    id="disable-npcs"
-                    @change=${this.handleDisableNPCsChange}
-                    .checked=${this.disableNPCs}
-                  />
-                  <div class="option-card-title">Disable Nations</div>
-                </label>
-                <label
-                  for="instant-build"
-                  class="option-card ${this.instantBuild ? "selected" : ""}"
-                >
-                  <div class="checkbox-icon"></div>
-                  <input
-                    type="checkbox"
-                    id="instant-build"
-                    @change=${this.handleInstantBuildChange}
-                    .checked=${this.instantBuild}
-                  />
-                  <div class="option-card-title">Instant build</div>
-                </label>
-
-                <label
-                  for="infinite-gold"
-                  class="option-card ${this.infiniteGold ? "selected" : ""}"
-                >
-                  <div class="checkbox-icon"></div>
-                  <input
-                    type="checkbox"
-                    id="infinite-gold"
-                    @change=${this.handleInfiniteGoldChange}
-                    .checked=${this.infiniteGold}
-                  />
-                  <div class="option-card-title">Infinite gold</div>
-                </label>
-
-                <label
-                  for="infinite-troops"
-                  class="option-card ${this.infiniteTroops ? "selected" : ""}"
-                >
-                  <div class="checkbox-icon"></div>
-                  <input
-                    type="checkbox"
-                    id="infinite-troops"
-                    @change=${this.handleInfiniteTroopsChange}
-                    .checked=${this.infiniteTroops}
-                  />
-                  <div class="option-card-title">Infinite troops</div>
-                </label>
-
-                <label
-                  for="disable-nukes"
-                  class="option-card ${this.disableNukes ? "selected" : ""}"
-                >
-                  <div class="checkbox-icon"></div>
-                  <input
-                    type="checkbox"
-                    id="disable-nukes"
-                    @change=${this.handleDisableNukesChange}
-                    .checked=${this.disableNukes}
-                  />
-                  <div class="option-card-title">Disable Nukes</div>
-                </label>
+                <div class="option-card-title">Random</div>
               </div>
             </div>
           </div>
 
-          <button @click=${this.startGame} class="start-game-button">
-            Start Game
-          </button>
+          <!-- Difficulty Selection -->
+          <div class="options-section">
+            <div class="option-title">Difficulty</div>
+            <div class="option-cards">
+              ${Object.entries(Difficulty)
+                .filter(([key]) => isNaN(Number(key)))
+                .map(
+                  ([key, value]) => html`
+                    <div
+                      class="option-card ${this.selectedDifficulty === value
+                        ? "selected"
+                        : ""}"
+                      @click=${() => this.handleDifficultySelection(value)}
+                    >
+                      <difficulty-display
+                        .difficultyKey=${key}
+                      ></difficulty-display>
+                      <p class="option-card-title">
+                        ${DifficultyDescription[key]}
+                      </p>
+                    </div>
+                  `,
+                )}
+            </div>
+          </div>
+
+          <!-- Game Options -->
+          <div class="options-section">
+            <div class="option-title">Options</div>
+            <div class="option-cards">
+              <label for="bots-count" class="option-card">
+                <input
+                  type="range"
+                  id="bots-count"
+                  min="0"
+                  max="400"
+                  step="1"
+                  @input=${this.handleBotsChange}
+                  @change=${this.handleBotsChange}
+                  .value="${this.bots}"
+                />
+                <div class="option-card-title">
+                  Bots: ${this.bots == 0 ? "Disabled" : this.bots}
+                </div>
+              </label>
+
+              <label
+                for="disable-npcs"
+                class="option-card ${this.disableNPCs ? "selected" : ""}"
+              >
+                <div class="checkbox-icon"></div>
+                <input
+                  type="checkbox"
+                  id="disable-npcs"
+                  @change=${this.handleDisableNPCsChange}
+                  .checked=${this.disableNPCs}
+                />
+                <div class="option-card-title">Disable Nations</div>
+              </label>
+              <label
+                for="instant-build"
+                class="option-card ${this.instantBuild ? "selected" : ""}"
+              >
+                <div class="checkbox-icon"></div>
+                <input
+                  type="checkbox"
+                  id="instant-build"
+                  @change=${this.handleInstantBuildChange}
+                  .checked=${this.instantBuild}
+                />
+                <div class="option-card-title">Instant build</div>
+              </label>
+
+              <label
+                for="infinite-gold"
+                class="option-card ${this.infiniteGold ? "selected" : ""}"
+              >
+                <div class="checkbox-icon"></div>
+                <input
+                  type="checkbox"
+                  id="infinite-gold"
+                  @change=${this.handleInfiniteGoldChange}
+                  .checked=${this.infiniteGold}
+                />
+                <div class="option-card-title">Infinite gold</div>
+              </label>
+
+              <label
+                for="infinite-troops"
+                class="option-card ${this.infiniteTroops ? "selected" : ""}"
+              >
+                <div class="checkbox-icon"></div>
+                <input
+                  type="checkbox"
+                  id="infinite-troops"
+                  @change=${this.handleInfiniteTroopsChange}
+                  .checked=${this.infiniteTroops}
+                />
+                <div class="option-card-title">Infinite troops</div>
+              </label>
+
+              <label
+                for="disable-nukes"
+                class="option-card ${this.disableNukes ? "selected" : ""}"
+              >
+                <div class="checkbox-icon"></div>
+                <input
+                  type="checkbox"
+                  id="disable-nukes"
+                  @change=${this.handleDisableNukesChange}
+                  .checked=${this.disableNukes}
+                />
+                <div class="option-card-title">Disable Nukes</div>
+              </label>
+            </div>
+          </div>
         </div>
-      </div>
+
+        <o-button
+          title="Start Game"
+          @click=${this.startGame}
+          blockDesktop
+        ></o-button>
+      </o-modal>
     `;
   }
 
+  createRenderRoot() {
+    return this; // light DOM
+  }
+
   public open() {
-    this.isModalOpen = true;
+    this.modalEl?.open();
     this.useRandomMap = false;
   }
 
   public close() {
-    this.isModalOpen = false;
+    this.modalEl?.close();
   }
 
   private handleRandomMapToggle() {
@@ -255,6 +247,7 @@ export class SinglePlayerModal extends LitElement {
   private handleDisableNPCsChange(e: Event) {
     this.disableNPCs = Boolean((e.target as HTMLInputElement).checked);
   }
+
   private handleDisableNukesChange(e: Event) {
     this.disableNukes = Boolean((e.target as HTMLInputElement).checked);
   }

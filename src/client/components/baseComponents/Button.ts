@@ -1,10 +1,11 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
 @customElement("o-button")
 export class OButton extends LitElement {
   @property({ type: String }) title = "";
+  @property({ type: String }) translationKey = "";
   @property({ type: Boolean }) secondary = false;
   @property({ type: Boolean }) block = false;
   @property({ type: Boolean }) blockDesktop = false;
@@ -17,6 +18,7 @@ export class OButton extends LitElement {
   render() {
     return html`
       <button
+        data-i18n="${this.translationKey}"
         class=${classMap({
           "c-button": true,
           "c-button--block": this.block,

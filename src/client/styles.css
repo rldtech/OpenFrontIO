@@ -167,7 +167,6 @@ label.option-card:hover {
 
 .copy-success {
   position: relative;
-  transform: translateY(-10px);
   color: green;
   font-size: 14px;
   margin-top: 5px;
@@ -231,8 +230,23 @@ label.option-card:hover {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-#bots-count {
+#bots-count,
+#private-lobby-bots-count {
   width: 80%;
+  height: 16px;
+}
+
+#bots-count::-webkit-slider-runnable-track,
+#private-lobby-bots-count::-webkit-slider-runnable-track {
+  background: #0075ff;
+  height: 8px;
+}
+#bots-count::-webkit-slider-thumb,
+#private-lobby-bots-count::-webkit-slider-thumb {
+  background: #0075ff;
+  border-color: #0075ff;
+  position: relative;
+  top: -3px;
 }
 
 .random-map {
@@ -482,7 +496,7 @@ label.option-card:hover {
 .c-button:hover,
 .c-button:active,
 .c-button:focus {
-  background: oklch(from #464be8 calc(l + 0.02) c h);
+  background: #1d4ed8;
 }
 
 .c-button:disabled {
@@ -499,7 +513,7 @@ label.option-card:hover {
 .c-button--secondary:hover,
 .c-button--secondary:active,
 .c-button--secondary:focus {
-  background: oklch(from #dbeafe calc(l + 0.02) c h);
+  background: #bfdbfe;
 }
 
 .c-button--block {
@@ -508,6 +522,9 @@ label.option-card:hover {
 }
 
 .c-button--blockDesktop {
+  display: block;
+  width: 100%;
+
   @media (min-width: 1024px) {
     width: auto;
     margin: 0 auto;
@@ -561,4 +578,13 @@ label.option-card:hover {
   max-height: 60dvh;
   overflow-y: scroll;
   backdrop-filter: blur(8px);
+}
+
+/*This will be removed in future*/
+o-modal o-button {
+  @media (min-width: 1024px) {
+    margin: 0 auto;
+    display: block;
+    text-align: center;
+  }
 }

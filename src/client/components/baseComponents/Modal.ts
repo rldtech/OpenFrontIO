@@ -5,7 +5,7 @@ import { customElement, property, state } from "lit/decorators.js";
 export class OModal extends LitElement {
   @state() public isModalOpen = false;
   @property({ type: String }) title = "";
-  @property({ type: Object }) content: unknown = html``; // default to empty
+  @property({ type: String }) translationKey = "";
 
   static styles = css`
     .c-modal {
@@ -74,7 +74,10 @@ export class OModal extends LitElement {
         ? html`
             <aside class="c-modal">
               <div class="c-modal__wrapper">
-                <header class="c-modal__header">
+                <header
+                  class="c-modal__header"
+                  data-i18n="${this.translationKey}"
+                >
                   ${this.title}
                   <div class="c-modal__close" @click=${this.close}>X</div>
                 </header>

@@ -16,8 +16,7 @@ import { fileURLToPath } from "url";
 import { gatekeeper, LimiterType } from "./Gatekeeper";
 import { setupMetricsServer } from "./MasterMetrics";
 import { logger } from "./Logger";
-import { Profile } from 'passport-discord';
-res.json({ loggedIn: true, username: (req.user as Profile).username });
+
 
 
 
@@ -357,16 +356,16 @@ function sleep(ms: number): Promise<void> {
 //discord routes
 app.get('/auth/discord', passport.authenticate('discord'));
 
-app.get('/auth/discord/callback', 
+app.get('/auth/discord/callback',
   passport.authenticate('discord', { failureRedirect: '/login' }),
-  (req, res) => {
-    
+  (req: any, res: Response) => {
     res.redirect('/');
   }
 );
 
+
 // Logout
-app.get('/logout', (req, res, next) => {
+app.get('/logout', (req: any, res: Response, next: NextFunction) => {
   req.logout(function(err) {
     if (err) { return next(err); }
     res.redirect('/');
@@ -374,7 +373,7 @@ app.get('/logout', (req, res, next) => {
 });
 
 // Endpoint for auth status
-app.get('/api/auth-status', (req, res) => {
+app.get('/api/auth-status', (req: any, res: Response) => {
   if (req.isAuthenticated()) {
     res.json({ loggedIn: true, username: req.user.username });
   } else {

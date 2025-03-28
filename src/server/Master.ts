@@ -16,6 +16,10 @@ import { fileURLToPath } from "url";
 import { gatekeeper, LimiterType } from "./Gatekeeper";
 import { setupMetricsServer } from "./MasterMetrics";
 import { logger } from "./Logger";
+import { Profile } from 'passport-discord';
+res.json({ loggedIn: true, username: (req.user as Profile).username });
+
+
 
 const config = getServerConfigFromServer();
 const readyWorkers = new Set();

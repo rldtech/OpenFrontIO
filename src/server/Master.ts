@@ -1,6 +1,7 @@
 import cluster from "cluster";
 import http from "http";
 import express from "express";
+import 'passport';
 import { GameMapType, GameType, Difficulty } from "../core/game/Game";
 import { generateID } from "../core/Util";
 import { PseudoRandom } from "../core/PseudoRandom";

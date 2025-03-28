@@ -7,7 +7,6 @@ import { PseudoRandom } from "../core/PseudoRandom";
 import { getServerConfigFromServer } from "../core/configuration/ConfigLoader";
 import { GameConfig, GameInfo } from "../core/Schemas";
 import path from "path";
-import express from 'express';
 import session from 'express-session';
 import passport from 'passport';
 import { Strategy as DiscordStrategy } from 'passport-discord';
@@ -73,16 +72,16 @@ let publicLobbiesJsonStr = "";
 const publicLobbyIDs: Set<string> = new Set();
 //discord stuff
 app.use(session({
-  secret: Config.sessionSecret(),
+  secret: config.sessionSecret(),
   resave: false,
   saveUninitialized: false,
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new DiscordStrategy({
-  clientID: serverConfig.discordClientID(),
-  clientSecret: serverConfig.discordClientSecret(),
-  callbackURL: serverConfig.discordRedirectURI(),
+  clientID: config.discordClientID(),
+  clientSecret: config.discordClientSecret(),
+  callbackURL: config.discordRedirectURI(),
   scope: ['identify', 'email'], // adjust scopes as needed
 }, (accessToken, refreshToken, profile, done) => {
   // Database stuff just passing the profile for now

@@ -65,7 +65,6 @@ export abstract class DefaultServerConfig implements ServerConfig {
   }
   abstract numWorkers(): number;
   abstract env(): GameEnv;
-  abstract discordRedirectURI(): string;
   turnIntervalMs(): number {
     return 100;
   }

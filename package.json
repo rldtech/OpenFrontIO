@@ -123,7 +123,10 @@
     "wheelnav": "^1.7.1",
     "winston": "^3.17.0",
     "ws": "^8.18.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "express-session": "^1.17.3",
+    "passport": "^0.6.0",
+    "passport-discord": "^0.1.4"
   },
   "type": "module"
 }

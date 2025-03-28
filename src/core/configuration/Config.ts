@@ -28,6 +28,9 @@ export interface ServerConfig {
   gameCreationRate(): number;
   lobbyMaxPlayers(map: GameMapType): number;
   discordRedirectURI(): string;
+  sessionSecret(): string;
+  discordClientID(): string;
+  discordClientSecret(): string;
   numWorkers(): number;
   workerIndex(gameID: GameID): number;
   workerPath(gameID: GameID): string;

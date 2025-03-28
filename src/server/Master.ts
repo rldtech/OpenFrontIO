@@ -7,6 +7,10 @@ import { PseudoRandom } from "../core/PseudoRandom";
 import { getServerConfigFromServer } from "../core/configuration/ConfigLoader";
 import { GameConfig, GameInfo } from "../core/Schemas";
 import path from "path";
+import express from 'express';
+import session from 'express-session';
+import passport from 'passport';
+import { Strategy as DiscordStrategy } from 'passport-discord';
 import rateLimit from "express-rate-limit";
 import { fileURLToPath } from "url";
 import { gatekeeper, LimiterType } from "./Gatekeeper";
@@ -67,6 +71,30 @@ app.use(
 let publicLobbiesJsonStr = "";
 
 const publicLobbyIDs: Set<string> = new Set();
+//discord stuff
+app.use(session({
+  secret: Config.sessionSecret(),
+  resave: false,
+  saveUninitialized: false,
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new DiscordStrategy({
+  clientID: serverConfig.discordClientID(),
+  clientSecret: serverConfig.discordClientSecret(),
+  callbackURL: serverConfig.discordRedirectURI(),
+  scope: ['identify', 'email'], // adjust scopes as needed
+}, (accessToken, refreshToken, profile, done) => {
+  // Database stuff just passing the profile for now
+  return done(null, profile);
+}));
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((obj, done) => {
+  done(null, obj);
+});
 
 // Start the master process
 export async function startMaster() {
@@ -322,6 +350,33 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+//discord routes
+app.get('/auth/discord', passport.authenticate('discord'));
+
+app.get('/auth/discord/callback', 
+  passport.authenticate('discord', { failureRedirect: '/login' }),
+  (req, res) => {
+    
+    res.redirect('/');
+  }
+);
+
+// Logout
+app.get('/logout', (req, res, next) => {
+  req.logout(function(err) {
+    if (err) { return next(err); }
+    res.redirect('/');
+  });
+});
+
+// Endpoint for auth status
+app.get('/api/auth-status', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.json({ loggedIn: true, username: req.user.username });
+  } else {
+    res.json({ loggedIn: false });
+  }
+});
 // SPA fallback route
 app.get("*", function (req, res) {
   res.sendFile(path.join(__dirname, "../../static/index.html"));

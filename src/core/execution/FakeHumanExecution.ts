@@ -298,8 +298,7 @@ export class FakeHumanExecution implements Execution {
     const silos = this.player.units(UnitType.MissileSilo);
     if (
       silos.length == 0 ||
-      this.player.gold() <
-        this.mg.config().unitInfo(UnitType.AtomBomb).cost(this.player) ||
+      this.player.gold() < this.cost(UnitType.AtomBomb) ||
       this.player.isOnSameTeam(other)
     ) {
       return;
@@ -462,9 +461,7 @@ export class FakeHumanExecution implements Execution {
     if (units.length >= maxNum) {
       return;
     }
-    if (
-      this.player.gold() < this.mg.config().unitInfo(type).cost(this.player)
-    ) {
+    if (this.player.gold() < this.cost(type)) {
       return;
     }
     const tile = this.randTerritoryTile(this.player);

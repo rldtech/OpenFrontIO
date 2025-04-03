@@ -434,29 +434,16 @@ export class FakeHumanExecution implements Execution {
       }
       return;
     }
-    this.maybeSpawnStructure(
-      UnitType.City,
-      2,
-      (t) => new ConstructionExecution(this.player.id(), t, UnitType.City),
-    );
+    this.maybeSpawnStructure(UnitType.City, 2);
     if (this.maybeSpawnWarship()) {
       return;
     }
     if (!this.mg.config().disableNukes()) {
-      this.maybeSpawnStructure(
-        UnitType.MissileSilo,
-        1,
-        (t) =>
-          new ConstructionExecution(this.player.id(), t, UnitType.MissileSilo),
-      );
+      this.maybeSpawnStructure(UnitType.MissileSilo, 1);
     }
   }
 
-  private maybeSpawnStructure(
-    type: UnitType,
-    maxNum: number,
-    build: (tile: TileRef) => Execution,
-  ) {
+  private maybeSpawnStructure(type: UnitType, maxNum: number) {
     const units = this.player.units(type);
     if (units.length >= maxNum) {
       return;
@@ -472,7 +459,9 @@ export class FakeHumanExecution implements Execution {
     if (canBuild == false) {
       return;
     }
-    this.mg.addExecution(build(tile));
+    this.mg.addExecution(
+      new ConstructionExecution(this.player.id(), tile, type),
+    );
   }
 
   private maybeSpawnWarship(): boolean {

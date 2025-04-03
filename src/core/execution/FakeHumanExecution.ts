@@ -38,14 +38,15 @@ export class FakeHumanExecution implements Execution {
   private player: Player = null;
 
   private enemy: Player | null = null;
+  private attackRate: number;
+  private attackTick: number;
+  private triggerRatio: number;
+  private reserveRatio: number;
 
   private lastEnemyUpdateTick: number = 0;
   private lastEmojiSent = new Map<Player, Tick>();
   private lastNukeSent: [Tick, TileRef][] = [];
   private embargoMalusApplied = new Set<PlayerID>();
-
-  private attackRate: number;
-  private attackTick: number;
 
   constructor(
     gameID: GameID,
@@ -56,6 +57,8 @@ export class FakeHumanExecution implements Execution {
     );
     this.attackRate = this.random.nextInt(40, 80);
     this.attackTick = this.random.nextInt(0, this.attackRate);
+    this.triggerRatio = this.random.nextInt(45, 80);
+    this.reserveRatio = this.random.nextInt(20, 40);
   }
 
   init(mg: Game, ticks: number) {
@@ -156,6 +159,14 @@ export class FakeHumanExecution implements Execution {
         (t) => this.mg.isLand(t) && this.mg.ownerID(t) != this.player.smallID(),
       );
 
+    const enemiesWithTN = enemyborder.map((t) =>
+      this.mg.playerBySmallID(this.mg.ownerID(t)),
+    );
+    if (enemiesWithTN.filter((o) => !o.isPlayer()).length > 0) {
+      this.sendAttack(this.mg.terraNullius());
+      return;
+    }
+
     if (enemyborder.length == 0) {
       if (this.random.chance(5)) {
         this.sendBoat();
@@ -167,23 +178,17 @@ export class FakeHumanExecution implements Execution {
       return;
     }
 
-    const enemiesWithTN = enemyborder.map((t) =>
-      this.mg.playerBySmallID(this.mg.ownerID(t)),
-    );
-    if (enemiesWithTN.filter((o) => !o.isPlayer()).length > 0) {
-      this.sendAttack(this.mg.terraNullius());
-      return;
-    }
-
     const enemies = enemiesWithTN
       .filter((o) => o.isPlayer())
       .sort((a, b) => a.troops() - b.troops());
 
+    // 5% chance to send a random alliance request
     if (this.random.chance(20)) {
-      const toAlly = this.random.randElement(enemies);
-      if (this.player.canSendAllianceRequest(toAlly)) {
-        this.player.createAllianceRequest(toAlly);
-        return;
+      for (const toAlly of enemies) {
+        if (this.player.canSendAllianceRequest(toAlly)) {
+          this.player.createAllianceRequest(toAlly);
+          return;
+        }
       }
     }
 
@@ -213,7 +218,7 @@ export class FakeHumanExecution implements Execution {
     }
   }
 
-  shouldDiscourageAttack(other: Player) {
+  private shouldDiscourageAttack(other: Player) {
     if (other.isTraitor()) {
       return false;
     }
@@ -233,29 +238,31 @@ export class FakeHumanExecution implements Execution {
       this.enemy = null;
     }
 
-    const target =
-      this.player
-        .allies()
-        .filter((ally) => this.player.relation(ally) == Relation.Friendly)
-        .filter((ally) => ally.targets().length > 0)
-        .map((ally) => ({ ally: ally, t: ally.targets()[0] }))[0] ?? null;
+    outer: for (const ally of this.player.allies()) {
+      if (this.player.relation(ally) < Relation.Friendly) continue;
+      for (const target of ally.targets()) {
+        if (target === this.player) continue;
+        if (this.player.isAlliedWith(target)) continue;
 
-    if (
-      target != null &&
-      target.t != this.player &&
-      !this.player.isAlliedWith(target.t)
-    ) {
-      this.player.updateRelation(target.ally, -20);
-      this.enemy = target.t;
-      this.lastEnemyUpdateTick = this.mg.ticks();
-      if (target.ally.type() == PlayerType.Human) {
-        this.mg.addExecution(
-          new EmojiExecution(this.player.id(), target.ally.id(), "👍"),
-        );
+        this.player.updateRelation(ally, -20);
+        this.enemy = target;
+        this.lastEnemyUpdateTick = this.mg.ticks();
+        if (ally.type() == PlayerType.Human) {
+          this.mg.addExecution(
+            new EmojiExecution(this.player.id(), ally.id(), "👍"),
+          );
+        }
+        break outer;
       }
     }
 
-    if (this.enemy == null) {
+    if (this.enemy === null) {
+      // Save up troops until we reach the trigger ratio
+      const ratio =
+        this.player.population() / this.mg.config().maxPopulation(this.player);
+      if (ratio * 100 < this.triggerRatio) return;
+
+      // Choose a new enemy
       const mostHated = this.player.allRelationsSorted()[0] ?? null;
       if (mostHated != null && mostHated.relation == Relation.Hostile) {
         this.enemy = mostHated.player;
@@ -652,9 +659,13 @@ export class FakeHumanExecution implements Execution {
 
   sendAttack(toAttack: Player | TerraNullius) {
     if (toAttack.isPlayer() && this.player.isOnSameTeam(toAttack)) return;
+    const max = this.mg.config().maxPopulation(this.player);
+    const target = (max * this.reserveRatio) / 100;
+    const troops = this.player.population() - target;
+    if (troops < 1) return;
     this.mg.addExecution(
       new AttackExecution(
-        this.player.troops() / 5,
+        troops,
         this.player.id(),
         toAttack.isPlayer() ? toAttack.id() : null,
       ),

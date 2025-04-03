@@ -3,6 +3,7 @@ import {
   Game,
   Player,
   PlayerType,
+  Relation,
   TerraNullius,
 } from "../game/Game";
 import { PseudoRandom } from "../PseudoRandom";
@@ -12,15 +13,15 @@ import { AttackExecution } from "./AttackExecution";
 export class BotExecution implements Execution {
   private active = true;
   private random: PseudoRandom;
-  private attackRate: number;
-  private attackTick: number;
+  private updateRate: number;
+  private updateTick: number;
   private mg: Game;
   private neighborsTerraNullius = true;
 
   constructor(private bot: Player) {
     this.random = new PseudoRandom(simpleHash(bot.id()));
-    this.attackRate = this.random.nextInt(10, 50);
-    this.attackTick = this.random.nextInt(0, this.attackRate - 1);
+    this.updateRate = this.random.nextInt(10, 50);
+    this.updateTick = this.random.nextInt(0, this.updateRate);
   }
   activeDuringSpawnPhase(): boolean {
     return false;
@@ -33,21 +34,31 @@ export class BotExecution implements Execution {
   }
 
   tick(ticks: number) {
+    if (ticks % this.updateRate != this.updateTick) return;
+
     if (!this.bot.isAlive()) {
       this.active = false;
       return;
     }
 
-    if (ticks % this.attackRate != this.attackTick) return;
+    this.handleAllianceRequests();
+    this.maybeAttack();
+  }
 
+  private handleAllianceRequests() {
     this.bot.incomingAllianceRequests().forEach((ar) => {
-      if (ar.requestor().isTraitor()) {
+      if (
+        ar.requestor().isTraitor() ||
+        this.bot.relation(ar.requestor()) <= Relation.Distrustful
+      ) {
         ar.reject();
       } else {
         ar.accept();
       }
     });
+  }
 
+  private maybeAttack() {
     const traitors = this.bot
       .neighbors()
       .filter((n) => n.isPlayer() && n.isTraitor()) as Player[];

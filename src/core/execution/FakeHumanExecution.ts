@@ -55,7 +55,7 @@ export class FakeHumanExecution implements Execution {
       simpleHash(playerInfo.id) + simpleHash(gameID),
     );
     this.attackRate = this.random.nextInt(40, 80);
-    this.attackTick = this.random.nextInt(0, this.attackRate - 1);
+    this.attackTick = this.random.nextInt(0, this.attackRate);
   }
 
   init(mg: Game, ticks: number) {
@@ -106,17 +106,18 @@ export class FakeHumanExecution implements Execution {
   }
 
   tick(ticks: number) {
+    if (ticks % this.attackRate != this.attackTick) return;
+
     if (this.mg.inSpawnPhase()) {
-      if (ticks % this.random.nextInt(5, 30) == 0) {
-        const rl = this.randomLand();
-        if (rl == null) {
-          consolex.warn(`cannot spawn ${this.playerInfo.name}`);
-          return;
-        }
-        this.mg.addExecution(new SpawnExecution(this.playerInfo, rl));
+      const rl = this.randomLand();
+      if (rl == null) {
+        consolex.warn(`cannot spawn ${this.playerInfo.name}`);
+        return;
       }
+      this.mg.addExecution(new SpawnExecution(this.playerInfo, rl));
       return;
     }
+
     if (this.player == null) {
       this.player = this.mg.players().find((p) => p.id() == this.playerInfo.id);
       if (this.player == null) {
@@ -133,8 +134,6 @@ export class FakeHumanExecution implements Execution {
       return;
     }
 
-    if (ticks % this.attackRate != this.attackTick) return;
-
     if (
       this.player.troops() > 100_000 &&
       this.player.targetTroopRatio() > 0.7
@@ -147,7 +146,10 @@ export class FakeHumanExecution implements Execution {
     this.handleEnemies();
     this.handleUnits();
     this.handleEmbargoesToHostileNations();
+    this.maybeAttack();
+  }
 
+  private maybeAttack() {
     const enemyborder = Array.from(this.player.borderTiles())
       .flatMap((t) => this.mg.neighbors(t))
       .filter(
@@ -554,7 +556,7 @@ export class FakeHumanExecution implements Execution {
     return this.mg.unitInfo(type).cost(this.player);
   }
 
-  handleAllianceRequests() {
+  private handleAllianceRequests() {
     for (const req of this.player.incomingAllianceRequests()) {
       if (req.requestor().isTraitor()) {
         this.replyToAllianceRequest(req, false);

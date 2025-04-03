@@ -177,7 +177,6 @@ export class FakeHumanExecution implements Execution {
 
     const enemies = enemiesWithTN
       .filter((o) => o.isPlayer())
-      .map((o) => o as Player)
       .sort((a, b) => a.troops() - b.troops());
 
     if (this.random.chance(20)) {

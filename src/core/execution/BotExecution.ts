@@ -13,12 +13,14 @@ export class BotExecution implements Execution {
   private active = true;
   private random: PseudoRandom;
   private attackRate: number;
+  private attackTick: number;
   private mg: Game;
   private neighborsTerraNullius = true;
 
   constructor(private bot: Player) {
     this.random = new PseudoRandom(simpleHash(bot.id()));
     this.attackRate = this.random.nextInt(10, 50);
+    this.attackTick = this.random.nextInt(0, this.attackRate - 1);
   }
   activeDuringSpawnPhase(): boolean {
     return false;
@@ -36,9 +38,7 @@ export class BotExecution implements Execution {
       return;
     }
 
-    if (ticks % this.attackRate != 0) {
-      return;
-    }
+    if (ticks % this.attackRate != this.attackTick) return;
 
     this.bot.incomingAllianceRequests().forEach((ar) => {
       if (ar.requestor().isTraitor()) {

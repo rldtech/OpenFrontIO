@@ -44,6 +44,9 @@ export class FakeHumanExecution implements Execution {
   private lastNukeSent: [Tick, TileRef][] = [];
   private embargoMalusApplied = new Set<PlayerID>();
 
+  private attackRate: number;
+  private attackTick: number;
+
   constructor(
     gameID: GameID,
     private playerInfo: PlayerInfo,
@@ -51,6 +54,8 @@ export class FakeHumanExecution implements Execution {
     this.random = new PseudoRandom(
       simpleHash(playerInfo.id) + simpleHash(gameID),
     );
+    this.attackRate = this.random.nextInt(40, 80);
+    this.attackTick = this.random.nextInt(0, this.attackRate - 1);
   }
 
   init(mg: Game, ticks: number) {
@@ -128,9 +133,7 @@ export class FakeHumanExecution implements Execution {
       return;
     }
 
-    if (ticks % this.random.nextInt(40, 80) != 0) {
-      return;
-    }
+    if (ticks % this.attackRate != this.attackTick) return;
 
     if (
       this.player.troops() > 100_000 &&

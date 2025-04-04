@@ -238,6 +238,16 @@ export class FakeHumanExecution implements Execution {
       this.enemy = null;
     }
 
+    // Switch enemies if we're under attack
+    const incomingAttacks = this.player.incomingAttacks();
+    if (incomingAttacks.length > 0) {
+      this.enemy = incomingAttacks
+        .sort((a, b) => b.troops() - a.troops())[0]
+        .attacker();
+      this.lastEnemyUpdateTick = this.mg.ticks();
+    }
+
+    // Attack allies' targets
     outer: for (const ally of this.player.allies()) {
       if (this.player.relation(ally) < Relation.Friendly) continue;
       for (const target of ally.targets()) {
@@ -659,9 +669,11 @@ export class FakeHumanExecution implements Execution {
 
   sendAttack(toAttack: Player | TerraNullius) {
     if (toAttack.isPlayer() && this.player.isOnSameTeam(toAttack)) return;
-    const max = this.mg.config().maxPopulation(this.player);
+    const max =
+      this.mg.config().maxPopulation(this.player) *
+      this.player.targetTroopRatio();
     const target = (max * this.reserveRatio) / 100;
-    const troops = this.player.population() - target;
+    const troops = this.player.troops() - target;
     if (troops < 1) return;
     this.mg.addExecution(
       new AttackExecution(

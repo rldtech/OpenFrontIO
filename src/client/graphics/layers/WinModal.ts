@@ -1,23 +1,23 @@
-import { LitElement, html, css } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
-import { Player, TeamName } from "../../../core/game/Game";
-import { ClientID } from "../../../core/Schemas";
-import { GameView, PlayerView } from "../../../core/game/GameView";
-import { Layer } from "./Layer";
+import { LitElement, css, html } from "lit";
+import { customElement, state } from "lit/decorators.js";
+import { EventBus } from "../../../core/EventBus";
+import { TeamName } from "../../../core/game/Game";
 import { GameUpdateType } from "../../../core/game/GameUpdates";
+import { GameView, PlayerView } from "../../../core/game/GameView";
 import { PseudoRandom } from "../../../core/PseudoRandom";
 import { simpleHash } from "../../../core/Util";
-import { EventBus } from "../../../core/EventBus";
 import { SendWinnerEvent } from "../../Transport";
+import { Layer } from "./Layer";
 
 // Add this at the top of your file
 declare global {
   interface Window {
-    adsbygoogle: any[];
+    adsbygoogle: unknown[];
   }
 }
+
 // Add this at the top of your file
-declare let adsbygoogle: any[];
+declare let adsbygoogle: unknown[];
 
 @customElement("win-modal")
 export class WinModal extends LitElement implements Layer {
@@ -211,7 +211,13 @@ export class WinModal extends LitElement implements Layer {
 
   tick() {
     const myPlayer = this.game.myPlayer();
-    if (!this.hasShownDeathModal && myPlayer && !myPlayer.isAlive()) {
+    if (
+      !this.hasShownDeathModal &&
+      myPlayer &&
+      !myPlayer.isAlive() &&
+      !this.game.inSpawnPhase() &&
+      myPlayer.hasSpawned()
+    ) {
       this.hasShownDeathModal = true;
       this._title = "You died";
       this.won = false;
@@ -253,7 +259,7 @@ export class WinModal extends LitElement implements Layer {
     });
   }
 
-  renderLayer(context: CanvasRenderingContext2D) {}
+  renderLayer(/* context: CanvasRenderingContext2D */) {}
 
   shouldTransform(): boolean {
     return false;

@@ -57,8 +57,8 @@ export class FakeHumanExecution implements Execution {
     );
     this.attackRate = this.random.nextInt(40, 80);
     this.attackTick = this.random.nextInt(0, this.attackRate);
-    this.triggerRatio = this.random.nextInt(45, 80);
-    this.reserveRatio = this.random.nextInt(20, 40);
+    this.triggerRatio = this.random.nextInt(60, 90) / 100;
+    this.reserveRatio = this.random.nextInt(30, 60) / 100;
   }
 
   init(mg: Game, ticks: number) {
@@ -268,9 +268,9 @@ export class FakeHumanExecution implements Execution {
 
     if (this.enemy === null) {
       // Save up troops until we reach the trigger ratio
-      const ratio =
-        this.player.population() / this.mg.config().maxPopulation(this.player);
-      if (ratio * 100 < this.triggerRatio) return;
+      const maxPop = this.mg.config().maxPopulation(this.player);
+      const ratio = this.player.population() / maxPop;
+      if (ratio < this.triggerRatio) return;
 
       // Choose a new enemy
       const mostHated = this.player.allRelationsSorted()[0] ?? null;
@@ -672,7 +672,7 @@ export class FakeHumanExecution implements Execution {
     const max =
       this.mg.config().maxPopulation(this.player) *
       this.player.targetTroopRatio();
-    const target = (max * this.reserveRatio) / 100;
+    const target = max * this.reserveRatio;
     const troops = this.player.troops() - target;
     if (troops < 1) return;
     this.mg.addExecution(

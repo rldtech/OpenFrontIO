@@ -17,7 +17,7 @@ export class BotExecution implements Execution {
   private mg: Game;
   private neighborsTerraNullius = true;
 
-  private enemy: Player;
+  private enemy: Player | null = null;
   private lastEnemyUpdateTick: Tick;
   private attackRate: number;
   private attackTick: number;
@@ -26,10 +26,10 @@ export class BotExecution implements Execution {
 
   constructor(private bot: Player) {
     this.random = new PseudoRandom(simpleHash(bot.id()));
-    this.attackRate = this.random.nextInt(10, 50);
+    this.attackRate = this.random.nextInt(40, 80);
     this.attackTick = this.random.nextInt(0, this.attackRate);
-    this.triggerRatio = this.random.nextInt(20, 30);
-    this.reserveRatio = this.random.nextInt(10, 20);
+    this.triggerRatio = this.random.nextInt(60, 90) / 100;
+    this.reserveRatio = this.random.nextInt(30, 60) / 100;
   }
 
   activeDuringSpawnPhase(): boolean {
@@ -55,9 +55,12 @@ export class BotExecution implements Execution {
 
   private handleAllianceRequests() {
     this.bot.incomingAllianceRequests().forEach((ar) => {
+      const requestorIsMuchLarger =
+        ar.requestor().numTilesOwned() > this.bot.numTilesOwned() * 3;
       if (
         ar.requestor().isTraitor() ||
-        this.bot.relation(ar.requestor()) <= Relation.Distrustful
+        this.bot.relation(ar.requestor()) < Relation.Neutral ||
+        (!requestorIsMuchLarger && ar.requestor().alliances().length >= 3)
       ) {
         ar.reject();
       } else {
@@ -94,14 +97,16 @@ export class BotExecution implements Execution {
 
     if (this.enemy === null) {
       // Save up troops until we reach the trigger ratio
-      const ratio =
-        this.bot.population() / this.mg.config().maxPopulation(this.bot);
-      if (ratio * 100 < this.triggerRatio) return;
+      const maxPop = this.mg.config().maxPopulation(this.bot);
+      const ratio = this.bot.population() / maxPop;
+      if (ratio < this.triggerRatio) return;
 
       // Choose a new enemy randomly
       const border = Array.from(this.bot.borderTiles())
         .flatMap((t) => this.mg.neighbors(t))
-        .filter((t) => this.mg.hasOwner(t) && this.mg.owner(t) != this.bot);
+        .filter(
+          (t) => this.mg.isLand(t) && this.mg.ownerID(t) != this.bot.smallID(),
+        );
       if (border.length > 0) {
         const toAttack = this.random.randElement(border);
         const owner = this.mg.owner(toAttack);
@@ -114,7 +119,7 @@ export class BotExecution implements Execution {
         this.lastEnemyUpdateTick = this.mg.ticks();
       }
 
-      // Select an allied traitor as an enemy
+      // Select a traitor as an enemy
       const traitors = this.bot
         .neighbors()
         .filter((n) => n.isPlayer() && n.isTraitor()) as Player[];
@@ -129,7 +134,7 @@ export class BotExecution implements Execution {
     }
 
     if (this.enemy) {
-      if (this.bot.isFriendly(this.enemy)) {
+      if (this.bot.isFriendly(this.enemy) && this.random.chance(50)) {
         this.enemy = null;
         return;
       }
@@ -144,9 +149,9 @@ export class BotExecution implements Execution {
 
   private sendAttack(toAttack: Player | TerraNullius) {
     if (toAttack.isPlayer() && this.bot.isOnSameTeam(toAttack)) return;
-    const max =
-      this.mg.config().maxPopulation(this.bot) * this.bot.targetTroopRatio();
-    const target = (max * this.reserveRatio) / 100;
+    const maxPop = this.mg.config().maxPopulation(this.bot);
+    const max = maxPop * this.bot.targetTroopRatio();
+    const target = max * this.reserveRatio;
     const troops = this.bot.troops() - target;
     if (troops < 1) return;
     this.mg.addExecution(

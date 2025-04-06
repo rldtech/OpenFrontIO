@@ -125,12 +125,9 @@ const GameConfigSchema = z.object({
 
 const SafeString = z
   .string()
-  // Remove common dangerous characters and patterns
-  // The weird \u stuff is to allow emojis
   .regex(
-    /^[a-zA-Z0-9\s.,!?@#$%&*()-_+=\[\]{}|;:"'\/\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff]|üÜ]+$/,
+    /^([a-zA-Z0-9\s.,!?@#$%&*()-_+=\[\]{}|;:"'\/\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff]|üÜ])*$/,
   )
-  // Reasonable max length to prevent DOS
   .max(1000);
 
 const EmojiSchema = z.string().refine(
@@ -396,6 +393,7 @@ export const ClientJoinMessageSchema = ClientBaseMessageSchema.extend({
   type: z.literal("join"),
   lastTurn: z.number(), // The last turn the client saw.
   username: SafeString,
+  flag: SafeString.nullable().optional(),
 });
 
 export const ClientMessageSchema = z.union([

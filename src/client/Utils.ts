@@ -1,3 +1,4 @@
+import { ColorShortNames, LayerShortNames } from "./FlagInput";
 import { LangSelector } from "./LangSelector";
 
 export function renderTroops(troops: number): string {
@@ -94,3 +95,60 @@ export const translateText = (
 
   return langSelector.translateText(key, params);
 };
+
+export function renderPlayerFlag(flagCode: string, target: HTMLElement) {
+  const reverseNameMap = Object.fromEntries(
+    Object.entries(LayerShortNames).map(([k, v]) => [v, k]),
+  );
+
+  const reverseColorMap = Object.fromEntries(
+    Object.entries(ColorShortNames).map(([k, v]) => [v, k]),
+  );
+
+  if (!flagCode.startsWith("ctmfg")) return;
+
+  const code = flagCode.replace("ctmfg", "");
+  const layers = code.split("_").map((segment) => {
+    const [shortName, shortColor] = segment.split("-");
+    const name = reverseNameMap[shortName] || shortName;
+    const color = reverseColorMap[shortColor] || shortColor;
+    return { name, color };
+  });
+
+  target.innerHTML = "";
+  target.style.overflow = "hidden";
+  target.style.position = "relative";
+  target.style.aspectRatio = "3/4";
+
+  for (const { name, color } of layers) {
+    const mask = `/flags/custom/${name}.svg`;
+    if (!mask) continue;
+
+    const layer = document.createElement("div");
+    layer.style.position = "absolute";
+    layer.style.top = "0";
+    layer.style.left = "0";
+    layer.style.width = "100%";
+    layer.style.height = "100%";
+
+    const isSpecial = !color.startsWith("#");
+
+    if (isSpecial) {
+      layer.classList.add(`flag-color-${color}`);
+    } else {
+      layer.style.backgroundColor = color;
+    }
+
+    layer.style.maskImage = `url(${mask})`;
+    layer.style.maskRepeat = "no-repeat";
+    layer.style.maskPosition = "center";
+    layer.style.maskSize = "contain";
+
+    layer.style.webkitMaskImage = `url(${mask})`;
+    layer.style.webkitMaskRepeat = "no-repeat";
+    layer.style.webkitMaskPosition = "center";
+    layer.style.webkitMaskSize = "contain";
+
+    target.appendChild(layer);
+  }
+}

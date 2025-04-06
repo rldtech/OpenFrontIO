@@ -11,7 +11,7 @@ import { ClientID } from "../../../core/Schemas";
 import { Theme } from "../../../core/configuration/Config";
 import { AllPlayers, Cell, nukeTypes } from "../../../core/game/Game";
 import { GameView, PlayerView } from "../../../core/game/GameView";
-import { createCanvas, renderTroops } from "../../Utils";
+import { createCanvas, renderPlayerFlag, renderTroops } from "../../Utils";
 import { TransformHandler } from "../TransformHandler";
 import { Layer } from "./Layer";
 
@@ -176,14 +176,26 @@ export class NameLayer implements Layer {
 
     const nameDiv = document.createElement("div");
     if (player.flag()) {
-      const flagImg = document.createElement("img");
-      flagImg.classList.add("player-flag");
-      flagImg.style.opacity = "0.8";
-      flagImg.src = "/flags/" + player.flag() + ".svg";
-      // this.renderPlayerFlag(player.flag(), flagImg);
-      flagImg.style.zIndex = "1";
-      flagImg.style.aspectRatio = "3/4";
-      nameDiv.appendChild(flagImg);
+      const flagCode = player.flag();
+
+      if (flagCode.startsWith("ctmfg")) {
+        const flagWrapper = document.createElement("div");
+        flagWrapper.classList.add("player-flag");
+        flagWrapper.style.opacity = "0.8";
+        flagWrapper.style.zIndex = "1";
+        flagWrapper.style.aspectRatio = "3/4";
+
+        renderPlayerFlag(flagCode, flagWrapper);
+        nameDiv.appendChild(flagWrapper);
+      } else {
+        const flagImg = document.createElement("img");
+        flagImg.classList.add("player-flag");
+        flagImg.style.opacity = "0.8";
+        flagImg.style.zIndex = "1";
+        flagImg.style.aspectRatio = "3/4";
+        flagImg.src = "/flags/" + flagCode + ".svg";
+        nameDiv.appendChild(flagImg);
+      }
     }
     nameDiv.classList.add("player-name");
     nameDiv.style.color = this.theme.textColor(player);
@@ -217,102 +229,6 @@ export class NameLayer implements Layer {
     return element;
   }
 
-  renderPlayerFlag(flagCode: string, target: HTMLElement) {
-    if (!flagCode.startsWith("ctmfg")) {
-      if (target instanceof HTMLImageElement) {
-        target.src = "/flags/" + flagCode + ".svg";
-      } else {
-        target.innerHTML = `<img src="/flags/${flagCode}.svg" class="w-full h-full" />`;
-      }
-      return;
-    }
-
-    // ctmfg → カスタム旗表示に差し替え
-    const reverseNameMap = {
-      cc: "center_circle",
-      fr: "frame",
-      fu: "full",
-      ts: "test",
-    };
-
-    const reverseColorMap = {
-      r: "#ff0000",
-      o: "#ffa500",
-      y: "#ffff00",
-      g: "#008000",
-      c: "#00ffff",
-      b: "#0000ff",
-      p: "#800080",
-      h: "#ff69b4",
-      br: "#a52a2a",
-      gr: "#808080",
-      bl: "#000000",
-      w: "#ffffff",
-      t: "#20b2aa",
-      tm: "#ff6347",
-      sb: "#4682b4",
-    };
-
-    const flagMap: Record<string, string> = {
-      center_circle: "/flags/custom/center_circle.svg",
-      frame: "/flags/custom/frame.svg",
-      full: "/flags/custom/full.svg",
-      test: "/flags/custom/test.svg",
-    };
-
-    const code = flagCode.replace("ctmfg", "");
-    const layers = code.split("_").map((segment) => {
-      const [shortName, shortColor] = segment.split("-");
-      const name = reverseNameMap[shortName] || shortName;
-      const color = reverseColorMap[shortColor] || "#" + shortColor;
-      return { name, color };
-    });
-
-    // img要素だった場合、置き換える
-    if (target instanceof HTMLImageElement) {
-      const wrapper = document.createElement("div");
-      wrapper.style.width = target.width + "px";
-      wrapper.style.height = target.height + "px";
-      wrapper.className = target.className;
-      wrapper.style.position = target.style.position || "relative";
-      wrapper.style.zIndex = target.style.zIndex;
-      wrapper.style.opacity = target.style.opacity;
-
-      // 古い画像を削除
-      target.replaceWith(wrapper);
-      target = wrapper;
-    }
-
-    // divに描画
-    target.innerHTML = "";
-    target.style.backgroundColor = "white";
-    target.style.overflow = "hidden";
-    target.style.position = "relative";
-    target.style.aspectRatio = "3/4";
-    target.style.border = "1px solid gray";
-
-    for (const { name, color } of layers) {
-      const mask = flagMap[name];
-      if (!mask) continue;
-
-      const layer = document.createElement("div");
-      layer.style.position = "absolute";
-      layer.style.top = "0";
-      layer.style.left = "0";
-      layer.style.width = "100%";
-      layer.style.height = "100%";
-      layer.style.backgroundColor = color;
-      layer.style.maskImage = `url(${mask})`;
-      layer.style.maskRepeat = "no-repeat";
-      layer.style.maskPosition = "center";
-      layer.style.maskSize = "contain";
-      layer.style.webkitMaskImage = `url(${mask})`;
-      layer.style.webkitMaskRepeat = "no-repeat";
-      layer.style.webkitMaskPosition = "center";
-      layer.style.webkitMaskSize = "contain";
-      target.appendChild(layer);
-    }
-  }
   renderPlayerInfo(render: RenderInfo) {
     if (!render.player.nameLocation() || !render.player.isAlive()) {
       this.renders = this.renders.filter((r) => r != render);

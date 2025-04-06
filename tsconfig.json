@@ -15,6 +15,7 @@
     // Type Checking
     "allowSyntheticDefaultImports": true,
     "allowUnusedLabels": false,
+    "alwaysStrict": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "resolveJsonModule": true,

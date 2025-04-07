@@ -19,6 +19,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "resolveJsonModule": true,
+    "strictNullChecks": true,
     "useDefineForClassFields": false
   },
   "include": [

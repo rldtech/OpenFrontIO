@@ -65,7 +65,7 @@ export class TerritoryLayer implements Layer {
     const updates = this.game.updatesSinceLastTick();
     const unitUpdates = updates !== null ? updates[GameUpdateType.Unit] : [];
     unitUpdates.forEach((update) => {
-      if (update.unitType == UnitType.DefensePost && update.isActive) {
+      if (update.unitType === UnitType.DefensePost && update.isActive) {
         const tile = update.pos;
         this.game
           .bfs(
@@ -75,7 +75,7 @@ export class TerritoryLayer implements Layer {
           .forEach((t) => {
             if (
               this.game.isBorder(t) &&
-              this.game.ownerID(t) == update.ownerID
+              this.game.ownerID(t) === update.ownerID
             ) {
               this.enqueueTile(t);
             }
@@ -97,7 +97,7 @@ export class TerritoryLayer implements Layer {
     if (!this.game.inSpawnPhase()) {
       return;
     }
-    if (this.game.ticks() % 5 == 0) {
+    if (this.game.ticks() % 5 === 0) {
       return;
     }
 
@@ -109,7 +109,7 @@ export class TerritoryLayer implements Layer {
     );
     const humans = this.game
       .playerViews()
-      .filter((p) => p.type() == PlayerType.Human);
+      .filter((p) => p.type() === PlayerType.Human);
 
     for (const human of humans) {
       const center = human.nameLocation();
@@ -221,7 +221,7 @@ export class TerritoryLayer implements Layer {
 
   renderTerritory() {
     let numToRender = Math.floor(this.tileToRenderQueue.size() / 10);
-    if (numToRender == 0 || this.game.inSpawnPhase()) {
+    if (numToRender === 0 || this.game.inSpawnPhase()) {
       numToRender = this.tileToRenderQueue.size();
     }
 
@@ -254,7 +254,7 @@ export class TerritoryLayer implements Layer {
     }
     const owner = this.game.owner(tile) as PlayerView;
     if (this.game.isBorder(tile)) {
-      const playerIsFocused = owner && this.game.focusedPlayer() == owner;
+      const playerIsFocused = owner && this.game.focusedPlayer() === owner;
       if (
         this.game
           .nearbyUnits(
@@ -262,7 +262,7 @@ export class TerritoryLayer implements Layer {
             this.game.config().defensePostRange(),
             UnitType.DefensePost,
           )
-          .filter((u) => u.unit.owner() == owner).length > 0
+          .filter((u) => u.unit.owner() === owner).length > 0
       ) {
         const useDefendedBorderColor = playerIsFocused
           ? this.theme.focusedDefendedBorderColor()

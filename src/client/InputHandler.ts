@@ -131,7 +131,7 @@ export class InputHandler {
       this.onContextMenu(e);
     });
     window.addEventListener("mousemove", (e) => {
-      if (e.movementX == 0 && e.movementY == 0) {
+      if (e.movementX === 0 && e.movementY === 0) {
         return;
       }
       this.eventBus.emit(new MouseMoveEvent(e.clientX, e.clientY));
@@ -307,7 +307,7 @@ export class InputHandler {
       Math.abs(event.x - this.lastPointerDownX) +
       Math.abs(event.y - this.lastPointerDownY);
     if (dist < 10) {
-      if (event.pointerType == "touch") {
+      if (event.pointerType === "touch") {
         this.eventBus.emit(new ContextMenuEvent(event.clientX, event.clientY));
         event.preventDefault();
         return;

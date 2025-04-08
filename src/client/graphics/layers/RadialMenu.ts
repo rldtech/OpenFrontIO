@@ -108,7 +108,7 @@ export class RadialMenu implements Layer {
         e.x,
         e.y,
       );
-      if (clickedCell == null) {
+      if (clickedCell === null) {
         return;
       }
       if (!this.g.isValidCoord(clickedCell.x, clickedCell.y)) {
@@ -116,7 +116,7 @@ export class RadialMenu implements Layer {
       }
       const tile = this.g.ref(clickedCell.x, clickedCell.y);
       const p = this.g.playerByClientID(this.clientID);
-      if (p == null) {
+      if (p === null) {
         return;
       }
       this.buildMenu.showMenu(tile);
@@ -323,8 +323,8 @@ export class RadialMenu implements Layer {
 
     const myPlayer = this.g
       .playerViews()
-      .find((p) => p.clientID() == this.clientID);
-    if (!myPlayer) {
+      .find((p) => p.clientID() === this.clientID);
+    if (myPlayer === undefined) {
       consolex.warn("my player not found");
       return;
     }
@@ -428,7 +428,7 @@ export class RadialMenu implements Layer {
       this.eventBus.emit(new SendSpawnIntentEvent(this.clickedCell));
     } else {
       const myPlayer = this.g.myPlayer();
-      if (myPlayer != null && this.g.owner(clicked) != myPlayer) {
+      if (myPlayer !== null && this.g.owner(clicked) !== myPlayer) {
         this.eventBus.emit(
           new SendAttackIntentEvent(
             this.g.owner(clicked).id(),

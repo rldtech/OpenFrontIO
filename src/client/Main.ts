@@ -40,7 +40,7 @@ export interface JoinLobbyEvent {
 }
 
 class Client {
-  private gameStop: (() => void) | null;
+  private gameStop: (() => void) | null = null;
 
   private usernameInput: UsernameInput | null = null;
   private flagInput: FlagInput | null = null;
@@ -93,7 +93,7 @@ class Client {
 
     window.addEventListener("beforeunload", () => {
       consolex.log("Browser is closing");
-      if (this.gameStop != null) {
+      if (this.gameStop !== null) {
         this.gameStop();
       }
     });
@@ -186,7 +186,7 @@ class Client {
   private async handleJoinLobby(event: CustomEvent) {
     const lobby = event.detail as JoinLobbyEvent;
     consolex.log(`joining lobby ${lobby.gameID}`);
-    if (this.gameStop != null) {
+    if (this.gameStop !== null) {
       consolex.log("joining lobby, stopping existing game");
       this.gameStop();
     }
@@ -197,7 +197,7 @@ class Client {
         gameID: lobby.gameID,
         serverConfig: config,
         flag:
-          this.flagInput === null || this.flagInput.getCurrentFlag() == "xx"
+          this.flagInput === null || this.flagInput.getCurrentFlag() === "xx"
             ? ""
             : this.flagInput.getCurrentFlag(),
         playerName: this.usernameInput?.getCurrentUsername() ?? "",
@@ -220,7 +220,7 @@ class Client {
           (ad as HTMLElement).style.display = "none";
         });
 
-        if (event.detail.gameConfig?.gameType != GameType.Singleplayer) {
+        if (event.detail.gameConfig?.gameType !== GameType.Singleplayer) {
           window.history.pushState({}, "", `/join/${lobby.gameID}`);
           sessionStorage.setItem("inLobby", "true");
         }
@@ -229,7 +229,7 @@ class Client {
   }
 
   private async handleLeaveLobby(/* event: CustomEvent */) {
-    if (this.gameStop == null) {
+    if (this.gameStop === null) {
       return;
     }
     consolex.log("leaving lobby, cancelling game");

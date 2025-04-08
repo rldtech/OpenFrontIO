@@ -178,7 +178,7 @@ export class HostLobbyModal extends LitElement {
                 />
                 <div class="option-card-title">
                   <span>${translateText("host_modal.bots")}</span>${
-                    this.bots == 0
+                    this.bots === 0
                       ? translateText("host_modal.bots_disabled")
                       : this.bots
                   }

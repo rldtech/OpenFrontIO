@@ -118,7 +118,7 @@ export class OptionsMenu extends LitElement implements Layer {
   init() {
     console.log("init called from OptionsMenu");
     this.showPauseButton =
-      this.game.config().gameConfig().gameType == GameType.Singleplayer;
+      this.game.config().gameConfig().gameType === GameType.Singleplayer;
     this.isVisible = true;
     this.requestUpdate();
   }
@@ -130,7 +130,7 @@ export class OptionsMenu extends LitElement implements Layer {
     }
     if (this.game.inSpawnPhase()) {
       this.timer = 0;
-    } else if (!this.hasWinner && this.game.ticks() % 10 == 0) {
+    } else if (!this.hasWinner && this.game.ticks() % 10 === 0) {
       this.timer++;
     }
     this.isVisible = true;

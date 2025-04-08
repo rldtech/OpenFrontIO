@@ -123,7 +123,7 @@ export class PublicLobby extends LitElement {
                 )}
               </div>
               <div class="text-md font-medium text-blue-100">
-                ${lobby.gameConfig.gameMode == GameMode.Team
+                ${lobby.gameConfig.gameMode === GameMode.Team
                   ? translateText("game_mode.teams")
                   : translateText("game_mode.ffa")}
               </div>
@@ -160,7 +160,7 @@ export class PublicLobby extends LitElement {
       this.isButtonDebounced = false;
     }, this.debounceDelay);
 
-    if (this.currLobby == null) {
+    if (this.currLobby === null) {
       this.isLobbyHighlighted = true;
       this.currLobby = lobby;
       this.dispatchEvent(

@@ -71,13 +71,13 @@ export class LocalServer {
     const clientMsg: ClientMessage = ClientMessageSchema.parse(
       JSON.parse(message),
     );
-    if (clientMsg.type == "intent") {
+    if (clientMsg.type === "intent") {
       if (this.lobbyConfig.gameRecord) {
         // If we are replaying a game, we don't want to process intents
         return;
       }
       if (this.paused) {
-        if (clientMsg.intent.type == "troop_ratio") {
+        if (clientMsg.intent.type === "troop_ratio") {
           // Store troop change events because otherwise they are
           // not registered when game is paused.
           this.intents.push(clientMsg.intent);
@@ -86,7 +86,7 @@ export class LocalServer {
       }
       this.intents.push(clientMsg.intent);
     }
-    if (clientMsg.type == "hash") {
+    if (clientMsg.type === "hash") {
       if (!this.lobbyConfig.gameRecord) {
         // If we are playing a singleplayer then store hash.
         this.turns[clientMsg.turnNumber].hash = clientMsg.hash;
@@ -100,7 +100,7 @@ export class LocalServer {
         );
         return;
       }
-      if (archivedHash != clientMsg.hash) {
+      if (archivedHash !== clientMsg.hash) {
         console.error(
           `desync detected on turn ${clientMsg.turnNumber}, client hash: ${clientMsg.hash}, server hash: ${archivedHash}`,
         );
@@ -118,7 +118,7 @@ export class LocalServer {
         );
       }
     }
-    if (clientMsg.type == "winner") {
+    if (clientMsg.type === "winner") {
       this.winner = clientMsg;
       this.allPlayersStats = clientMsg.allPlayersStats;
     }

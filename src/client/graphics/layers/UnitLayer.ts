@@ -64,7 +64,7 @@ export class UnitLayer implements Layer {
   }
 
   tick() {
-    if (this.myPlayer == null) {
+    if (this.myPlayer === null) {
       this.myPlayer = this.game.playerByClientID(this.clientID);
     }
     const updates = this.game.updatesSinceLastTick();
@@ -96,7 +96,7 @@ export class UnitLayer implements Layer {
     const clickRef = this.game.ref(cell.x, cell.y);
 
     // Make sure we have the current player
-    if (this.myPlayer == null) {
+    if (this.myPlayer === null) {
       this.myPlayer = this.game.playerByClientID(this.clientID);
     }
 
@@ -215,10 +215,10 @@ export class UnitLayer implements Layer {
   }
 
   private relationship(unit: UnitView): Relationship {
-    if (this.myPlayer == null) {
+    if (this.myPlayer === null) {
       return Relationship.Enemy;
     }
-    if (this.myPlayer == unit.owner()) {
+    if (this.myPlayer === unit.owner()) {
       return Relationship.Self;
     }
     if (this.myPlayer.isFriendly(unit.owner())) {
@@ -279,9 +279,9 @@ export class UnitLayer implements Layer {
     if (unit.warshipTargetId()) {
       const targetOwner = this.game
         .units()
-        .find((u) => u.id() == unit.warshipTargetId())
+        .find((u) => u.id() === unit.warshipTargetId())
         ?.owner();
-      if (targetOwner == this.myPlayer) {
+      if (targetOwner === this.myPlayer) {
         outerColor = colord({ r: 200, b: 0, g: 0 });
       }
     }

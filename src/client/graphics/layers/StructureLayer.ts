@@ -198,7 +198,7 @@ export class StructureLayer implements Layer {
     )) {
       this.paintCell(
         new Cell(this.game.x(tile), this.game.y(tile)),
-        unit.type() == UnitType.Construction
+        unit.type() === UnitType.Construction
           ? underConstructionColor
           : this.theme.territoryColor(unit.owner()),
         130,
@@ -227,13 +227,13 @@ export class StructureLayer implements Layer {
     const config = this.unitConfigs[unitType];
     let icon: ImageData | undefined;
 
-    if (unitType == UnitType.SAMLauncher && unit.isCooldown()) {
+    if (unitType === UnitType.SAMLauncher && unit.isCooldown()) {
       icon = this.unitIcons.get("reloadingSam");
     } else {
       icon = this.unitIcons.get(iconType);
     }
 
-    if (unitType == UnitType.MissileSilo && unit.isCooldown()) {
+    if (unitType === UnitType.MissileSilo && unit.isCooldown()) {
       icon = this.unitIcons.get("reloadingSilo");
     } else {
       icon = this.unitIcons.get(iconType);
@@ -253,15 +253,15 @@ export class StructureLayer implements Layer {
     if (!unit.isActive()) return;
 
     let borderColor = this.theme.borderColor(unit.owner());
-    if (unitType == UnitType.SAMLauncher && unit.isCooldown()) {
+    if (unitType === UnitType.SAMLauncher && unit.isCooldown()) {
       borderColor = reloadingColor;
-    } else if (unit.type() == UnitType.Construction) {
+    } else if (unit.type() === UnitType.Construction) {
       borderColor = underConstructionColor;
     }
 
-    if (unitType == UnitType.MissileSilo && unit.isCooldown()) {
+    if (unitType === UnitType.MissileSilo && unit.isCooldown()) {
       borderColor = reloadingColor;
-    } else if (unit.type() == UnitType.Construction) {
+    } else if (unit.type() === UnitType.Construction) {
       borderColor = underConstructionColor;
     }
 
@@ -282,7 +282,7 @@ export class StructureLayer implements Layer {
     unit: UnitView,
   ) {
     let color = this.theme.borderColor(unit.owner());
-    if (unit.type() == UnitType.Construction) {
+    if (unit.type() === UnitType.Construction) {
       color = underConstructionColor;
     }
     for (let y = 0; y < height; y++) {

@@ -232,7 +232,7 @@ export class TransformHandler {
   }
 
   private clearTarget() {
-    if (this.intervalID != null) {
+    if (this.intervalID !== null) {
       clearInterval(this.intervalID);
       this.intervalID = null;
     }

@@ -132,16 +132,16 @@ export class EventsDisplay extends LitElement implements Layer {
     // Update attacks
     this.incomingAttacks = myPlayer.incomingAttacks().filter((a) => {
       const t = (this.game.playerBySmallID(a.attackerID) as PlayerView).type();
-      return t != PlayerType.Bot;
+      return t !== PlayerType.Bot;
     });
 
     this.outgoingAttacks = myPlayer
       .outgoingAttacks()
-      .filter((a) => a.targetID != 0);
+      .filter((a) => a.targetID !== 0);
 
     this.outgoingLandAttacks = myPlayer
       .outgoingAttacks()
-      .filter((a) => a.targetID == 0);
+      .filter((a) => a.targetID === 0);
 
     this.outgoingBoats = myPlayer
       .units()
@@ -152,7 +152,7 @@ export class EventsDisplay extends LitElement implements Layer {
 
   private addEvent(event: Event) {
     this.events = [...this.events, event];
-    if (this._hidden == true) {
+    if (this._hidden === true) {
       this.newEvents++;
     }
     this.requestUpdate();
@@ -174,7 +174,7 @@ export class EventsDisplay extends LitElement implements Layer {
   onDisplayMessageEvent(event: DisplayMessageUpdate) {
     const myPlayer = this.game.playerByClientID(this.clientID);
     if (
-      event.playerID != null &&
+      event.playerID !== null &&
       (!myPlayer || myPlayer.smallID() !== event.playerID)
     ) {
       return;
@@ -353,14 +353,14 @@ export class EventsDisplay extends LitElement implements Layer {
     if (!myPlayer) return;
 
     const recipient =
-      update.emoji.recipientID == AllPlayers
+      update.emoji.recipientID === AllPlayers
         ? AllPlayers
         : this.game.playerBySmallID(update.emoji.recipientID);
     const sender = this.game.playerBySmallID(
       update.emoji.senderID,
     ) as PlayerView;
 
-    if (recipient == myPlayer) {
+    if (recipient === myPlayer) {
       this.addEvent({
         description: `${sender.displayName()}:${update.emoji.message}`,
         unsafeDescription: true,
@@ -545,7 +545,7 @@ export class EventsDisplay extends LitElement implements Layer {
     this.events.sort((a, b) => {
       const aPrior = a.priority ?? 100000;
       const bPrior = b.priority ?? 100000;
-      if (aPrior == bPrior) {
+      if (aPrior === bPrior) {
         return a.createdAt - b.createdAt;
       }
       return bPrior - aPrior;

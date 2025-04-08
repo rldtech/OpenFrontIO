@@ -292,11 +292,11 @@ export class BuildMenu extends LitElement implements Layer {
   private _hidden = true;
 
   private canBuild(item: BuildItemDisplay): boolean {
-    if (this.game?.myPlayer() == null || this.playerActions == null) {
+    if (this.game?.myPlayer() === null || this.playerActions === null) {
       return false;
     }
     const unit = this.playerActions.buildableUnits.filter(
-      (u) => u.type == item.unitType,
+      (u) => u.type === item.unitType,
     );
     if (!unit) {
       return false;
@@ -306,7 +306,7 @@ export class BuildMenu extends LitElement implements Layer {
 
   private cost(item: BuildItemDisplay): number {
     for (const bu of this.playerActions?.buildableUnits ?? []) {
-      if (bu.type == item.unitType) {
+      if (bu.type === item.unitType) {
         return bu.cost;
       }
     }

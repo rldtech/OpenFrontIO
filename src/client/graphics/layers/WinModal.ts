@@ -162,7 +162,6 @@ export class WinModal extends LitElement implements Layer {
     return html`
       <div style="text-align: center; margin: 15px 0; line-height: 1.5;">
         <p>
-          <span style="color: red;">Time's running out!</span> <br />
           I need your support to continue working on OpenFront full-time. Please
           donate now to keep the updates, new features, and improvements coming.
         </p>

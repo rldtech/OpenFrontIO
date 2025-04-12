@@ -11,7 +11,8 @@ import { ClientID } from "../../../core/Schemas";
 import { Theme } from "../../../core/configuration/Config";
 import { AllPlayers, Cell, nukeTypes } from "../../../core/game/Game";
 import { GameView, PlayerView } from "../../../core/game/GameView";
-import { createCanvas, renderPlayerFlag, renderTroops } from "../../Utils";
+import { renderPlayerFlag } from "../../FlagInput";
+import { createCanvas, renderTroops } from "../../Utils";
 import { TransformHandler } from "../TransformHandler";
 import { Layer } from "./Layer";
 

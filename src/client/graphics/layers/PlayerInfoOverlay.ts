@@ -12,8 +12,9 @@ import {
 import { TileRef } from "../../../core/game/GameMap";
 import { GameView, PlayerView, UnitView } from "../../../core/game/GameView";
 import { ClientID } from "../../../core/Schemas";
+import { renderPlayerFlag } from "../../FlagInput";
 import { MouseMoveEvent } from "../../InputHandler";
-import { renderNumber, renderPlayerFlag, renderTroops } from "../../Utils";
+import { renderNumber, renderTroops } from "../../Utils";
 import { TransformHandler } from "../TransformHandler";
 import { Layer } from "./Layer";
 

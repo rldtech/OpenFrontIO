@@ -244,6 +244,8 @@ export class ChatModal extends LitElement {
     this.selectedCategory = null;
     this.requiresPlayerSelection = false;
     this.close();
+
+    this.requestUpdate();
   }
 
   private onPlayerSearchInput(e: Event) {

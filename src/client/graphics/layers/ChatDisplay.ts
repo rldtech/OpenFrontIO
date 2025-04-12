@@ -83,8 +83,6 @@ export class ChatDisplay extends LitElement implements Layer {
       | DisplayMessageUpdate[]
       | undefined;
 
-    console.log("message:", messages);
-
     if (messages) {
       for (const msg of messages) {
         if (msg.messageType === MessageType.CHAT) {

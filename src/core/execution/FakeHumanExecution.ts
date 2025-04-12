@@ -61,7 +61,7 @@ export class FakeHumanExecution implements Execution {
   private updateRelationsFromEmbargos() {
     const player = this.player;
     if (player === null) return;
-    const others = this.mg.players().filter((p) => p.id() != player.id());
+    const others = this.mg.players().filter((p) => p.id() !== player.id());
 
     others.forEach((other: Player) => {
       const embargoMalus = -20;
@@ -84,7 +84,7 @@ export class FakeHumanExecution implements Execution {
   private handleEmbargoesToHostileNations() {
     const player = this.player;
     if (player === null) return;
-    const others = this.mg.players().filter((p) => p.id() != player.id());
+    const others = this.mg.players().filter((p) => p.id() !== player.id());
 
     others.forEach((other: Player) => {
       /* When player is hostile starts embargo. Do not stop until neutral again */
@@ -104,9 +104,9 @@ export class FakeHumanExecution implements Execution {
 
   tick(ticks: number) {
     if (this.mg.inSpawnPhase()) {
-      if (ticks % this.random.nextInt(5, 30) == 0) {
+      if (ticks % this.random.nextInt(5, 30) === 0) {
         const rl = this.randomLand();
-        if (rl == null) {
+        if (rl === null) {
           consolex.warn(`cannot spawn ${this.playerInfo.name}`);
           return;
         }
@@ -114,10 +114,10 @@ export class FakeHumanExecution implements Execution {
       }
       return;
     }
-    if (this.player == null) {
+    if (this.player === null) {
       this.player =
-        this.mg.players().find((p) => p.id() == this.playerInfo.id) ?? null;
-      if (this.player == null) {
+        this.mg.players().find((p) => p.id() === this.playerInfo.id) ?? null;
+      if (this.player === null) {
         return;
       }
     }
@@ -131,7 +131,7 @@ export class FakeHumanExecution implements Execution {
       return;
     }
 
-    if (ticks % this.random.nextInt(40, 80) != 0) {
+    if (ticks % this.random.nextInt(40, 80) !== 0) {
       return;
     }
 
@@ -152,10 +152,10 @@ export class FakeHumanExecution implements Execution {
       .flatMap((t) => this.mg.neighbors(t))
       .filter(
         (t) =>
-          this.mg.isLand(t) && this.mg.ownerID(t) != this.player?.smallID(),
+          this.mg.isLand(t) && this.mg.ownerID(t) !== this.player?.smallID(),
       );
 
-    if (enemyborder.length == 0) {
+    if (enemyborder.length === 0) {
       if (this.random.chance(10)) {
         this.sendBoatRandomly();
       }
@@ -219,10 +219,13 @@ export class FakeHumanExecution implements Execution {
       return false;
     }
     const difficulty = this.mg.config().gameConfig().difficulty;
-    if (difficulty == Difficulty.Hard || difficulty == Difficulty.Impossible) {
+    if (
+      difficulty === Difficulty.Hard ||
+      difficulty === Difficulty.Impossible
+    ) {
       return false;
     }
-    if (other.type() != PlayerType.Human) {
+    if (other.type() !== PlayerType.Human) {
       return false;
     }
     // Only discourage attacks on Humans who are not traitors on easy or medium difficulty.
@@ -240,28 +243,28 @@ export class FakeHumanExecution implements Execution {
     const target =
       player
         .allies()
-        .filter((ally) => player.relation(ally) == Relation.Friendly)
+        .filter((ally) => player.relation(ally) === Relation.Friendly)
         .filter((ally) => ally.targets().length > 0)
         .map((ally) => ({ ally: ally, t: ally.targets()[0] }))[0] ?? null;
 
     if (
-      target != null &&
-      target.t != player &&
+      target !== null &&
+      target.t !== player &&
       !player.isAlliedWith(target.t)
     ) {
       player.updateRelation(target.ally, -20);
       this.enemy = target.t;
       this.lastEnemyUpdateTick = this.mg.ticks();
-      if (target.ally.type() == PlayerType.Human) {
+      if (target.ally.type() === PlayerType.Human) {
         this.mg.addExecution(
           new EmojiExecution(player.id(), target.ally.id(), "👍"),
         );
       }
     }
 
-    if (this.enemy == null) {
+    if (this.enemy === null) {
       const mostHated = player.allRelationsSorted()[0] ?? null;
-      if (mostHated != null && mostHated.relation == Relation.Hostile) {
+      if (mostHated !== null && mostHated.relation === Relation.Hostile) {
         this.enemy = mostHated.player;
         this.lastEnemyUpdateTick = this.mg.ticks();
       }
@@ -286,7 +289,7 @@ export class FakeHumanExecution implements Execution {
   private maybeSendEmoji() {
     if (this.player === null) throw new Error("not initialized");
     if (this.enemy === null) return;
-    if (this.enemy.type() != PlayerType.Human) return;
+    if (this.enemy.type() !== PlayerType.Human) return;
     const lastSent = this.lastEmojiSent.get(this.enemy) ?? -300;
     if (this.mg.ticks() - lastSent <= 300) return;
     this.lastEmojiSent.set(this.enemy, this.mg.ticks());
@@ -302,7 +305,7 @@ export class FakeHumanExecution implements Execution {
   private maybeSendNuke(other: Player) {
     if (this.player === null) throw new Error("not initialized");
     if (
-      this.player.units(UnitType.MissileSilo).length == 0 ||
+      this.player.units(UnitType.MissileSilo).length === 0 ||
       this.player.gold() <
         this.mg.config().unitInfo(UnitType.AtomBomb).cost(this.player) ||
       this.player.isOnSameTeam(other)
@@ -311,12 +314,12 @@ export class FakeHumanExecution implements Execution {
     }
     outer: for (let i = 0; i < 10; i++) {
       const tile = this.randTerritoryTile(other);
-      if (tile == null) {
+      if (tile === null) {
         return;
       }
       for (const t of this.mg.bfs(tile, manhattanDistFN(tile, 15))) {
         // Make sure we nuke at least 15 tiles in border
-        if (this.mg.owner(t) != other) {
+        if (this.mg.owner(t) !== other) {
           continue outer;
         }
       }
@@ -339,7 +342,7 @@ export class FakeHumanExecution implements Execution {
       ),
       Array.from(other.borderTiles()).filter((t) => this.mg.isOceanShore(t)),
     );
-    if (closest == null) {
+    if (closest === null) {
       return;
     }
     this.mg.addExecution(
@@ -356,7 +359,7 @@ export class FakeHumanExecution implements Execution {
     const player = this.player;
     if (player === null) return;
     const ports = player.units(UnitType.Port);
-    if (ports.length == 0 && player.gold() > this.cost(UnitType.Port)) {
+    if (ports.length === 0 && player.gold() > this.cost(UnitType.Port)) {
       const oceanTiles = Array.from(player.borderTiles()).filter((t) =>
         this.mg.isOceanShore(t),
       );
@@ -401,11 +404,11 @@ export class FakeHumanExecution implements Execution {
       return;
     }
     const tile = this.randTerritoryTile(this.player);
-    if (tile == null) {
+    if (tile === null) {
       return;
     }
     const canBuild = this.player.canBuild(type, tile);
-    if (canBuild == false) {
+    if (canBuild === false) {
       return;
     }
     this.mg.addExecution(build(tile));
@@ -420,16 +423,16 @@ export class FakeHumanExecution implements Execution {
     const ships = this.player.units(UnitType.Warship);
     if (
       ports.length > 0 &&
-      ships.length == 0 &&
+      ships.length === 0 &&
       this.player.gold() > this.cost(UnitType.Warship)
     ) {
       const port = this.random.randElement(ports);
       const targetTile = this.warshipSpawnTile(port.tile());
-      if (targetTile == null) {
+      if (targetTile === null) {
         return false;
       }
       const canBuild = this.player.canBuild(UnitType.Warship, targetTile);
-      if (canBuild == false) {
+      if (canBuild === false) {
         consolex.warn("cannot spawn destroyer");
         return false;
       }
@@ -455,7 +458,7 @@ export class FakeHumanExecution implements Execution {
         continue;
       }
       const randTile = this.mg.ref(randX, randY);
-      if (this.mg.owner(randTile) == p) {
+      if (this.mg.owner(randTile) === p) {
         return randTile;
       }
     }
@@ -528,14 +531,14 @@ export class FakeHumanExecution implements Execution {
     const oceanShore = Array.from(this.player.borderTiles()).filter((t) =>
       this.mg.isOceanShore(t),
     );
-    if (oceanShore.length == 0) {
+    if (oceanShore.length === 0) {
       return;
     }
 
     const src = this.random.randElement(oceanShore);
 
     const dst = this.randOceanShoreTile(src, 150);
-    if (dst == null) {
+    if (dst === null) {
       return;
     }
 
@@ -564,7 +567,7 @@ export class FakeHumanExecution implements Execution {
       const tile = this.mg.ref(x, y);
       if (this.mg.isLand(tile) && !this.mg.hasOwner(tile)) {
         if (
-          this.mg.terrainType(tile) == TerrainType.Mountain &&
+          this.mg.terrainType(tile) === TerrainType.Mountain &&
           this.random.chance(2)
         ) {
           continue;

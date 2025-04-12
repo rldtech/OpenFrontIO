@@ -93,7 +93,7 @@ export function closestShoreFromPlayer(
   const shoreTiles = Array.from(player.borderTiles()).filter((t) =>
     gm.isShore(t),
   );
-  if (shoreTiles.length == 0) {
+  if (shoreTiles.length === 0) {
     return null;
   }
 
@@ -117,7 +117,7 @@ function closestShoreTN(
   )
     .filter((t) => gm.isShore(t))
     .sort((a, b) => gm.manhattanDist(tile, a) - gm.manhattanDist(tile, b));
-  if (tn.length == 0) {
+  if (tn.length === 0) {
     return null;
   }
   return tn[0];
@@ -274,12 +274,12 @@ export function createGameRecord(
   };
 
   for (const turn of turns) {
-    if (turn.intents.length != 0 || turn.hash != undefined) {
+    if (turn.intents.length !== 0 || turn.hash !== undefined) {
       record.turns.push(turn);
       for (const intent of turn.intents) {
-        if (intent.type == "spawn") {
+        if (intent.type === "spawn") {
           for (const playerRecord of players) {
-            if (playerRecord.clientID == intent.clientID) {
+            if (playerRecord.clientID === intent.clientID) {
               playerRecord.username = intent.name;
             }
           }

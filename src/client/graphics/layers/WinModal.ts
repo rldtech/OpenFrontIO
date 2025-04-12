@@ -230,7 +230,7 @@ export class WinModal extends LitElement implements Layer {
         this.eventBus.emit(
           new SendWinnerEvent(wu.winner as Team, wu.allPlayersStats, "team"),
         );
-        if (wu.winner == this.game.myPlayer()?.team()) {
+        if (wu.winner === this.game.myPlayer()?.team()) {
           this._title = "Your team won!";
           this.won = true;
         } else {
@@ -248,7 +248,7 @@ export class WinModal extends LitElement implements Layer {
             new SendWinnerEvent(winnerClient, wu.allPlayersStats, "player"),
           );
         }
-        if (winner == this.game.myPlayer()) {
+        if (winner === this.game.myPlayer()) {
           this._title = "You Won!";
           this.won = true;
         } else {

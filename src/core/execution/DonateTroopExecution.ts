@@ -27,7 +27,7 @@ export class DonateTroopsExecution implements Execution {
 
     this.sender = mg.player(this.senderID);
     this.recipient = mg.player(this.recipientID);
-    if (this.troops == null) {
+    if (this.troops === null) {
       this.troops = mg.config().defaultDonationAmount(this.sender);
     }
   }

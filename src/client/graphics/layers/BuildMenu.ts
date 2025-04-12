@@ -295,10 +295,9 @@ export class BuildMenu extends LitElement implements Layer {
     if (this.game?.myPlayer() === null || this.playerActions === null) {
       return false;
     }
-    const unit = this.playerActions.buildableUnits.filter(
-      (u) => u.type === item.unitType,
-    );
-    if (!unit) {
+    const buildableUnits = this.playerActions?.buildableUnits ?? [];
+    const unit = buildableUnits.filter((u) => u.type === item.unitType);
+    if (unit.length === 0) {
       return false;
     }
     return unit[0].canBuild;

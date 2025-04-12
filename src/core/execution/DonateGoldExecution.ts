@@ -27,7 +27,7 @@ export class DonateGoldExecution implements Execution {
 
     this.sender = mg.player(this.senderID);
     this.recipient = mg.player(this.recipientID);
-    if (this.gold == null) {
+    if (this.gold === null) {
       this.gold = Math.round(this.sender.gold() / 3);
     }
   }

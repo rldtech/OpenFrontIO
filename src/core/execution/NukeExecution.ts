@@ -14,10 +14,10 @@ import { TileRef } from "../game/GameMap";
 import { PseudoRandom } from "../PseudoRandom";
 
 export class NukeExecution implements Execution {
-  private player: Player;
   private active = true;
-  private mg: Game;
-  private nuke: Unit;
+  private player: Player | null = null;
+  private mg: Game | null = null;
+  private nuke: Unit | null = null;
 
   private random: PseudoRandom;
 
@@ -40,27 +40,36 @@ export class NukeExecution implements Execution {
     this.mg = mg;
     this.player = mg.player(this.senderID);
     this.random = new PseudoRandom(ticks);
-    if (this.speed == -1) {
+    if (this.speed === -1) {
       this.speed = this.mg.config().defaultNukeSpeed();
     }
   }
 
   public target(): Player | TerraNullius {
+    if (this.mg === null) {
+      throw new Error("Not initialized");
+    }
     return this.mg.owner(this.dst);
   }
 
   private tilesToDestroy(): Set<TileRef> {
+    if (this.mg === null || this.nuke === null) {
+      throw new Error("Not initialized");
+    }
     const magnitude = this.mg.config().nukeMagnitudes(this.nuke.type());
     const rand = new PseudoRandom(this.mg.ticks());
     const inner2 = magnitude.inner * magnitude.inner;
     const outer2 = magnitude.outer * magnitude.outer;
     return this.mg.bfs(this.dst, (_, n: TileRef) => {
-      const d2 = this.mg.euclideanDistSquared(this.dst, n);
+      const d2 = this.mg?.euclideanDistSquared(this.dst, n) ?? 0;
       return d2 <= outer2 && (d2 <= inner2 || rand.chance(2));
     });
   }
 
   private breakAlliances(toDestroy: Set<TileRef>) {
+    if (this.mg === null || this.player === null || this.nuke === null) {
+      throw new Error("Not initialized");
+    }
     const attacked = new Map<Player, number>();
     for (const tile of toDestroy) {
       const owner = this.mg.owner(tile);
@@ -71,13 +80,13 @@ export class NukeExecution implements Execution {
     }
 
     for (const [other, tilesDestroyed] of attacked) {
-      if (tilesDestroyed > 100 && this.nuke.type() != UnitType.MIRVWarhead) {
+      if (tilesDestroyed > 100 && this.nuke.type() !== UnitType.MIRVWarhead) {
         // Mirv warheads shouldn't break alliances
         const alliance = this.player.allianceWith(other);
-        if (alliance != null) {
+        if (alliance !== null) {
           this.player.breakAlliance(alliance);
         }
-        if (other != this.player) {
+        if (other !== this.player) {
           other.updateRelation(this.player, -100);
         }
       }
@@ -85,9 +94,13 @@ export class NukeExecution implements Execution {
   }
 
   tick(ticks: number): void {
-    if (this.nuke == null) {
+    if (this.mg === null || this.player === null) {
+      throw new Error("Not initialized");
+    }
+
+    if (this.nuke === null) {
       const spawn = this.src ?? this.player.canBuild(this.type, this.dst);
-      if (spawn == false) {
+      if (spawn === false) {
         consolex.warn(`cannot build Nuke`);
         this.active = false;
         return;
@@ -97,14 +110,14 @@ export class NukeExecution implements Execution {
       });
       if (this.mg.hasOwner(this.dst)) {
         const target = this.mg.owner(this.dst) as Player;
-        if (this.type == UnitType.AtomBomb) {
+        if (this.type === UnitType.AtomBomb) {
           this.mg.displayMessage(
             `${this.player.name()} - atom bomb inbound`,
             MessageType.ERROR,
             target.id(),
           );
         }
-        if (this.type == UnitType.HydrogenBomb) {
+        if (this.type === UnitType.HydrogenBomb) {
           this.mg.displayMessage(
             `${this.player.name()} - hydrogen bomb inbound`,
             MessageType.ERROR,
@@ -166,7 +179,7 @@ export class NukeExecution implements Execution {
         1 + Math.abs(dstY - y) / (Math.abs(dstX - x) + 1),
       );
 
-      if (this.random.chance(ratio) && x != dstX) {
+      if (this.random.chance(ratio) && x !== dstX) {
         if (x < dstX) nextX++;
         else if (x > dstX) nextX--;
       } else {
@@ -187,6 +200,9 @@ export class NukeExecution implements Execution {
   }
 
   private detonate() {
+    if (this.mg === null || this.nuke === null) {
+      throw new Error("Not initialized");
+    }
     const magnitude = this.mg.config().nukeMagnitudes(this.nuke.type());
     const toDestroy = this.tilesToDestroy();
     this.breakAlliances(toDestroy);
@@ -206,15 +222,17 @@ export class NukeExecution implements Execution {
             .nukeDeathFactor(owner.workers(), owner.numTilesOwned()),
         );
         owner.outgoingAttacks().forEach((attack) => {
-          const deaths = this.mg
-            .config()
-            .nukeDeathFactor(attack.troops(), owner.numTilesOwned());
+          const deaths =
+            this.mg
+              ?.config()
+              .nukeDeathFactor(attack.troops(), owner.numTilesOwned()) ?? 0;
           attack.setTroops(attack.troops() - deaths);
         });
         owner.units(UnitType.TransportShip).forEach((attack) => {
-          const deaths = this.mg
-            .config()
-            .nukeDeathFactor(attack.troops(), owner.numTilesOwned());
+          const deaths =
+            this.mg
+              ?.config()
+              .nukeDeathFactor(attack.troops(), owner.numTilesOwned()) ?? 0;
           attack.setTroops(attack.troops() - deaths);
         });
       }
@@ -227,10 +245,10 @@ export class NukeExecution implements Execution {
     const outer2 = magnitude.outer * magnitude.outer;
     for (const unit of this.mg.units()) {
       if (
-        unit.type() != UnitType.AtomBomb &&
-        unit.type() != UnitType.HydrogenBomb &&
-        unit.type() != UnitType.MIRVWarhead &&
-        unit.type() != UnitType.MIRV
+        unit.type() !== UnitType.AtomBomb &&
+        unit.type() !== UnitType.HydrogenBomb &&
+        unit.type() !== UnitType.MIRVWarhead &&
+        unit.type() !== UnitType.MIRV
       ) {
         if (this.mg.euclideanDistSquared(this.dst, unit.tile()) < outer2) {
           unit.delete();
@@ -242,6 +260,9 @@ export class NukeExecution implements Execution {
   }
 
   owner(): Player {
+    if (this.player === null) {
+      throw new Error("Not initialized");
+    }
     return this.player;
   }
 

@@ -31,7 +31,7 @@ export class SAMMissileExecution implements Execution {
   }
 
   tick(ticks: number): void {
-    if (this.SAMMissile == null) {
+    if (this.SAMMissile === null) {
       this.SAMMissile = this._owner.buildUnit(
         UnitType.SAMMissile,
         0,
@@ -47,7 +47,7 @@ export class SAMMissileExecution implements Execution {
     if (
       !this.target.isActive() ||
       !this.ownerUnit.isActive() ||
-      this.target.owner() == this.SAMMissile.owner() ||
+      this.target.owner() === this.SAMMissile.owner() ||
       !nukesWhitelist.includes(this.target.type())
     ) {
       this.SAMMissile.delete(false);

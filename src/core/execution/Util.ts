@@ -14,7 +14,7 @@ export function closestTwoTiles(
   const xSorted = Array.from(x).sort((a, b) => gm.x(a) - gm.x(b));
   const ySorted = Array.from(y).sort((a, b) => gm.x(a) - gm.x(b));
 
-  if (xSorted.length == 0 || ySorted.length == 0) {
+  if (xSorted.length === 0 || ySorted.length === 0) {
     return null;
   }
 

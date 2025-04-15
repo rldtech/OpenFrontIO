@@ -6,9 +6,9 @@ import { PathFinder } from "../pathfinding/PathFinding";
 
 export class ShellExecution implements Execution {
   private active = true;
-  private pathFinder: PathFinder;
-  private shell: Unit;
-  private mg: Game;
+  private pathFinder: PathFinder | null = null;
+  private shell: Unit | null = null;
+  private mg: Game | null = null;
   private destroyAtTick: number = -1;
 
   constructor(
@@ -24,7 +24,10 @@ export class ShellExecution implements Execution {
   }
 
   tick(ticks: number): void {
-    if (this.shell == null) {
+    if (this.mg === null || this.pathFinder === null) {
+      throw new Error("Not initialized");
+    }
+    if (this.shell === null) {
       this.shell = this._owner.buildUnit(UnitType.Shell, 0, this.spawn);
     }
     if (!this.shell.isActive()) {
@@ -33,15 +36,15 @@ export class ShellExecution implements Execution {
     }
     if (
       !this.target.isActive() ||
-      this.target.owner() == this.shell.owner() ||
-      (this.destroyAtTick != -1 && this.mg.ticks() >= this.destroyAtTick)
+      this.target.owner() === this.shell.owner() ||
+      (this.destroyAtTick !== -1 && this.mg.ticks() >= this.destroyAtTick)
     ) {
       this.shell.delete(false);
       this.active = false;
       return;
     }
 
-    if (this.destroyAtTick == -1 && !this.ownerUnit.isActive()) {
+    if (this.destroyAtTick === -1 && !this.ownerUnit.isActive()) {
       this.destroyAtTick =
         this.mg.ticks() + this.mg.config().warshipShellLifetime();
     }

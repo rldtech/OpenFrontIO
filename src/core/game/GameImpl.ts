@@ -102,13 +102,13 @@ export class GameImpl implements Game {
   }
 
   private addHumans() {
-    if (this.config().gameConfig().gameMode != GameMode.Team) {
+    if (this.config().gameConfig().gameMode !== GameMode.Team) {
       this._humans.forEach((p) => this.addPlayer(p));
       return;
     }
     const playerToTeam = assignTeams(this._humans);
     for (const [playerInfo, team] of playerToTeam.entries()) {
-      if (team == "kicked") {
+      if (team === "kicked") {
         console.warn(`Player ${playerInfo.name} was kicked from team`);
         continue;
       }
@@ -124,7 +124,7 @@ export class GameImpl implements Game {
     return this.playerBySmallID(this.ownerID(ref));
   }
   playerBySmallID(id: number): Player | TerraNullius {
-    if (id == 0) {
+    if (id === 0) {
       return this.terraNullius();
     }
     return this._playersBySmallID[id - 1];
@@ -181,15 +181,15 @@ export class GameImpl implements Game {
     if (
       recipient
         .incomingAllianceRequests()
-        .find((ar) => ar.requestor() == requestor) != null
+        .find((ar) => ar.requestor() === requestor) !== undefined
     ) {
       consolex.log(`duplicate alliance request from ${requestor.name()}`);
       return null;
     }
     const correspondingReq = requestor
       .incomingAllianceRequests()
-      .find((ar) => ar.requestor() == recipient);
-    if (correspondingReq != null) {
+      .find((ar) => ar.requestor() === recipient);
+    if (correspondingReq !== undefined) {
       consolex.log(`got corresponding alliance requests, accepting`);
       correspondingReq.accept();
       return null;
@@ -201,7 +201,9 @@ export class GameImpl implements Game {
   }
 
   acceptAllianceRequest(request: AllianceRequestImpl) {
-    this.allianceRequests = this.allianceRequests.filter((ar) => ar != request);
+    this.allianceRequests = this.allianceRequests.filter(
+      (ar) => ar !== request,
+    );
     const alliance = new AllianceImpl(
       this,
       request.requestor() as PlayerImpl,
@@ -220,7 +222,9 @@ export class GameImpl implements Game {
   }
 
   rejectAllianceRequest(request: AllianceRequestImpl) {
-    this.allianceRequests = this.allianceRequests.filter((ar) => ar != request);
+    this.allianceRequests = this.allianceRequests.filter(
+      (ar) => ar !== request,
+    );
     (request.requestor() as PlayerImpl).pastOutgoingAllianceRequests.push(
       request,
     );
@@ -275,7 +279,7 @@ export class GameImpl implements Game {
       // Players change each to so always add them
       this.addUpdate(player.toUpdate());
     }
-    if (this.ticks() % 10 == 0) {
+    if (this.ticks() % 10 === 0) {
       this.addUpdate({
         type: GameUpdateType.Hash,
         tick: this.ticks(),
@@ -360,10 +364,10 @@ export class GameImpl implements Game {
   }
 
   private maybeAssignTeam(player: PlayerInfo): Team | null {
-    if (this._config.gameConfig().gameMode != GameMode.Team) {
+    if (this._config.gameConfig().gameMode !== GameMode.Team) {
       return null;
     }
-    if (player.playerType == PlayerType.Bot) {
+    if (player.playerType === PlayerType.Bot) {
       return this.botTeam;
     }
     const rand = simpleHash(player.id);
@@ -372,7 +376,7 @@ export class GameImpl implements Game {
 
   player(id: PlayerID): Player {
     const player = this._players.get(id);
-    if (typeof player === "undefined") {
+    if (player === undefined) {
       throw new Error(`Player with id ${id} not found`);
     }
     return player;
@@ -380,7 +384,7 @@ export class GameImpl implements Game {
 
   playerByClientID(id: ClientID): Player | null {
     for (const [, player] of this._players) {
-      if (player.clientID() == id) {
+      if (player.clientID() === id) {
         return player;
       }
     }
@@ -482,7 +486,7 @@ export class GameImpl implements Game {
       return false;
     }
     for (const neighbor of this.neighbors(tile)) {
-      const bordersEnemy = this.owner(tile) != this.owner(neighbor);
+      const bordersEnemy = this.owner(tile) !== this.owner(neighbor);
       if (bordersEnemy) {
         return true;
       }
@@ -500,7 +504,7 @@ export class GameImpl implements Game {
 
   public breakAlliance(breaker: Player, alliance: Alliance) {
     let other: Player;
-    if (alliance.requestor() == breaker) {
+    if (alliance.requestor() === breaker) {
       other = alliance.recipient();
     } else {
       other = alliance.requestor();
@@ -516,12 +520,12 @@ export class GameImpl implements Game {
 
     const breakerSet = new Set(breaker.alliances());
     const alliances = other.alliances().filter((a) => breakerSet.has(a));
-    if (alliances.length != 1) {
+    if (alliances.length !== 1) {
       throw new Error(
         `must have exactly one alliance, have ${alliances.length}`,
       );
     }
-    this.alliances_ = this.alliances_.filter((a) => a != alliances[0]);
+    this.alliances_ = this.alliances_.filter((a) => a !== alliances[0]);
     this.addUpdate({
       type: GameUpdateType.BrokeAlliance,
       traitorID: breaker.smallID(),
@@ -535,12 +539,12 @@ export class GameImpl implements Game {
       .requestor()
       .alliances()
       .filter((a) => p1Set.has(a));
-    if (alliances.length != 1) {
+    if (alliances.length !== 1) {
       throw new Error(
         `cannot expire alliance: must have exactly one alliance, have ${alliances.length}`,
       );
     }
-    this.alliances_ = this.alliances_.filter((a) => a != alliances[0]);
+    this.alliances_ = this.alliances_.filter((a) => a !== alliances[0]);
     this.addUpdate({
       type: GameUpdateType.AllianceExpired,
       player1ID: alliance.requestor().smallID(),
@@ -565,7 +569,7 @@ export class GameImpl implements Game {
   }
 
   teams(): Team[] {
-    if (this._config.gameConfig().gameMode != GameMode.Team) {
+    if (this._config.gameConfig().gameMode !== GameMode.Team) {
       return [];
     }
     return [this.botTeam, ...this.playerTeams];
@@ -577,7 +581,7 @@ export class GameImpl implements Game {
     playerID: PlayerID | null,
   ): void {
     let id: number | null = null;
-    if (playerID != null) {
+    if (playerID !== null) {
       id = this.player(playerID).smallID();
     }
     this.addUpdate({

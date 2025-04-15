@@ -3,8 +3,8 @@ import { Execution, Game, Player, PlayerID } from "../../game/Game";
 
 export class AllianceRequestReplyExecution implements Execution {
   private active = true;
-  private requestor: Player;
-  private recipient: Player;
+  private requestor: Player | null = null;
+  private recipient: Player | null = null;
 
   constructor(
     private requestorID: PlayerID,
@@ -32,13 +32,16 @@ export class AllianceRequestReplyExecution implements Execution {
   }
 
   tick(ticks: number): void {
+    if (this.requestor === null || this.recipient === null) {
+      throw new Error("Not initialized");
+    }
     if (this.requestor.isFriendly(this.recipient)) {
       consolex.warn("already allied");
     } else {
       const request = this.requestor
         .outgoingAllianceRequests()
-        .find((ar) => ar.recipient() == this.recipient);
-      if (request == null) {
+        .find((ar) => ar.recipient() === this.recipient);
+      if (request === undefined) {
         consolex.warn("no alliance request found");
       } else {
         if (this.accept) {

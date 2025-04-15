@@ -8,7 +8,7 @@ export class WinEvent implements GameEvent {
 export class WinCheckExecution implements Execution {
   private active = true;
 
-  private mg: Game;
+  private mg: Game | null = null;
 
   constructor() {}
 
@@ -17,10 +17,11 @@ export class WinCheckExecution implements Execution {
   }
 
   tick(ticks: number) {
-    if (ticks % 10 != 0) {
+    if (ticks % 10 !== 0) {
       return;
     }
-    if (this.mg.config().gameConfig().gameMode == GameMode.FFA) {
+    if (this.mg === null) throw new Error("Not initialized");
+    if (this.mg.config().gameConfig().gameMode === GameMode.FFA) {
       this.checkWinnerFFA();
     } else {
       this.checkWinnerTeam();
@@ -28,10 +29,11 @@ export class WinCheckExecution implements Execution {
   }
 
   checkWinnerFFA(): void {
+    if (this.mg === null) throw new Error("Not initialized");
     const sorted = this.mg
       .players()
       .sort((a, b) => b.numTilesOwned() - a.numTilesOwned());
-    if (sorted.length == 0) {
+    if (sorted.length === 0) {
       return;
     }
     const max = sorted[0];
@@ -48,6 +50,7 @@ export class WinCheckExecution implements Execution {
   }
 
   checkWinnerTeam(): void {
+    if (this.mg === null) throw new Error("Not initialized");
     const teamToTiles = new Map<Team, number>();
     for (const player of this.mg.players()) {
       const team = player.team();
@@ -61,7 +64,7 @@ export class WinCheckExecution implements Execution {
     const sorted = Array.from(teamToTiles.entries()).sort(
       (a, b) => b[1] - a[1],
     );
-    if (sorted.length == 0) {
+    if (sorted.length === 0) {
       return;
     }
     const max = sorted[0];
@@ -69,7 +72,7 @@ export class WinCheckExecution implements Execution {
       this.mg.numLandTiles() - this.mg.numTilesWithFallout();
     const percentage = (max[1] / numTilesWithoutFallout) * 100;
     if (percentage > this.mg.config().percentageTilesOwnedToWin()) {
-      if (max[0] == Team.Bot) return;
+      if (max[0] === Team.Bot) return;
       this.mg.setWinner(max[0], this.mg.stats().stats());
       console.log(`${max[0]} has won the game`);
       this.active = false;

@@ -168,12 +168,12 @@ export class FakeHumanExecution implements Execution {
     }
 
     if (enemyborder.length == 0) {
-      if (this.random.chance(5)) {
+      if (this.random.chance(10)) {
         this.sendBoatRandomly();
       }
       return;
     }
-    if (this.random.chance(10)) {
+    if (this.random.chance(20)) {
       this.sendBoatRandomly();
       return;
     }
@@ -598,7 +598,7 @@ export class FakeHumanExecution implements Execution {
 
     const src = this.random.randElement(oceanShore);
 
-    const dst = this.randOceanShoreTile(src, 250);
+    const dst = this.randOceanShoreTile(src, 150);
     if (dst == null) {
       return;
     }

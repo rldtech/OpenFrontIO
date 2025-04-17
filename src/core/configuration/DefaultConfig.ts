@@ -131,6 +131,10 @@ export class DefaultConfig implements Config {
     private _userSettings: UserSettings,
   ) {}
 
+  numPlayerTeams(): number {
+    return this.gameConfig().numPlayerTeams;
+  }
+
   samHittingChance(): number {
     return 0.8;
   }
@@ -168,7 +172,7 @@ export class DefaultConfig implements Config {
   }
 
   cityPopulationIncrease(): number {
-    return 250_000;
+    return 500_000;
   }
 
   falloutDefenseModifier(falloutRatio: number): number {
@@ -184,13 +188,10 @@ export class DefaultConfig implements Config {
   }
 
   defensePostRange(): number {
-    return 30;
+    return 40;
   }
   defensePostDefenseBonus(): number {
     return 5;
-  }
-  numPlayerTeams(): number {
-    return this._gameConfig.numPlayerTeams ?? 0;
   }
   spawnNPCs(): boolean {
     return !this._gameConfig.disableNPCs;
@@ -214,12 +215,7 @@ export class DefaultConfig implements Config {
     return 10000 + 150 * Math.pow(dist, 1.1);
   }
   tradeShipSpawnRate(numberOfPorts: number): number {
-    if (numberOfPorts <= 3) return 18;
-    if (numberOfPorts <= 5) return 25;
-    if (numberOfPorts <= 8) return 35;
-    if (numberOfPorts <= 10) return 40;
-    if (numberOfPorts <= 12) return 45;
-    return 50;
+    return Math.round(10 * Math.pow(numberOfPorts, 0.6));
   }
 
   unitInfo(type: UnitType): UnitInfo {
@@ -339,7 +335,7 @@ export class DefaultConfig implements Config {
             p.type() == PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
-                  1_000_000,
+                  2_000_000,
                   Math.pow(
                     2,
                     p.unitsIncludingConstruction(UnitType.City).length,
@@ -391,7 +387,7 @@ export class DefaultConfig implements Config {
     return 3;
   }
   numSpawnPhaseTurns(): number {
-    return this._gameConfig.gameType == GameType.Singleplayer ? 100 : 300;
+    return this._gameConfig.gameType == GameType.Singleplayer ? 50 : 300;
   }
   numBots(): number {
     return this.bots();
@@ -416,16 +412,16 @@ export class DefaultConfig implements Config {
     const type = gm.terrainType(tileToConquer);
     switch (type) {
       case TerrainType.Plains:
-        mag = 85;
+        mag = 0.85;
         speed = 16.5;
         break;
       case TerrainType.Highland:
-        mag = 100;
+        mag = 1;
         speed = 20;
         break;
       case TerrainType.Mountain:
-        mag = 120;
-        speed = 25;
+        mag = 1.2;
+        speed = 30;
         break;
       default:
         throw new Error(`terrain type ${type} not supported`);
@@ -446,8 +442,8 @@ export class DefaultConfig implements Config {
 
     if (gm.hasFallout(tileToConquer)) {
       const falloutRatio = gm.numTilesWithFallout() / gm.numLandTiles();
-      mag *= this.falloutDefenseModifier(falloutRatio);
-      speed *= this.falloutDefenseModifier(falloutRatio);
+      //mag *= this.falloutDefenseModifier(falloutRatio);
+      //speed *= this.falloutDefenseModifier(falloutRatio);
     }
 
     if (attacker.isPlayer() && defender.isPlayer()) {
@@ -476,36 +472,29 @@ export class DefaultConfig implements Config {
     }
 
     if (defender.isPlayer()) {
-      const ratio = within(
-        Math.pow(defender.troops() / attackTroops, 0.4),
-        0.1,
-        10,
-      );
-      const speedRatio = within(
-        defender.troops() / (5 * attackTroops),
-        0.1,
-        10,
-      );
+      const defenderdensity = defender.troops() / defender.numTilesOwned();
 
       return {
         attackerTroopLoss:
-          ratio *
-          mag *
-          largeLossModifier *
-          (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
-        defenderTroopLoss: defender.population() / defender.numTilesOwned(),
-        tilesPerTickUsed: Math.floor(speedRatio * speed * largeSpeedMalus),
+          mag * 10 +
+          defenderdensity *
+            mag *
+            (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
+        defenderTroopLoss: defenderdensity,
+        tilesPerTickUsed:
+          within(
+            (defender.troops() / defender.numTilesOwned()) *
+              Math.max(defender.troops() / attackTroops, 0.3) ** 0.5,
+            10,
+            125,
+          ) * speed,
       };
     } else {
       return {
         attackerTroopLoss:
-          attacker.type() == PlayerType.Bot ? mag / 10 : mag / 5,
+          attacker.type() == PlayerType.Bot ? mag * 10 : mag * 10,
         defenderTroopLoss: 0,
-        tilesPerTickUsed: within(
-          (2000 * Math.max(10, speed)) / attackTroops,
-          5,
-          100,
-        ),
+        tilesPerTickUsed: speed,
       };
     }
   }
@@ -518,12 +507,10 @@ export class DefaultConfig implements Config {
   ): number {
     if (defender.isPlayer()) {
       return (
-        within(((5 * attackTroops) / defender.troops()) * 2, 0.01, 0.5) *
-        numAdjacentTilesWithEnemy *
-        3
+        120 * numAdjacentTilesWithEnemy //increase to increase attack speed across-the-board
       );
     } else {
-      return numAdjacentTilesWithEnemy * 2;
+      return 5 * numAdjacentTilesWithEnemy;
     }
   }
 
@@ -574,7 +561,7 @@ export class DefaultConfig implements Config {
     const maxPop =
       player.type() == PlayerType.Human && this.infiniteTroops()
         ? 1_000_000_000
-        : 2 * (Math.pow(player.numTilesOwned(), 0.6) * 1000 + 50000) +
+        : 1 * (Math.pow(player.numTilesOwned(), 1) * 30 + 100000) +
           player.units(UnitType.City).length * this.cityPopulationIncrease();
 
     if (player.type() == PlayerType.Bot) {
@@ -630,8 +617,7 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): number {
-    const ratio = Math.pow(player.workers() / player.population(), 1.3);
-    return Math.floor(Math.sqrt(player.workers()) * ratio * 5);
+    return (player.workers() ** 0.6 * player.numTilesOwned() ** 0.4) / 400;
   }
 
   troopAdjustmentRate(player: Player): number {

@@ -1,4 +1,4 @@
-import { UserSettingModal } from "./UserSettingModal";
+import { UserSettingModal } from "./components/UserSettingModal";
 
 export function renderTroops(troops: number): string {
   return renderNumber(troops / 10);

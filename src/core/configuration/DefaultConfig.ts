@@ -53,7 +53,7 @@ export abstract class DefaultServerConfig implements ServerConfig {
   abstract env(): GameEnv;
   abstract discordRedirectURI(): string;
   turnIntervalMs(): number {
-    return 100;
+    return 120;
   }
   gameCreationRate(): number {
     return 60 * 1000;
@@ -503,7 +503,7 @@ export class DefaultConfig implements Config {
             defenderdensity ** 0.6 *
             within(defender.troops() / attackTroops, 0.3, 10) ** 0.5 *
             speed,
-          8,
+          10,
           480,
         ),
       };

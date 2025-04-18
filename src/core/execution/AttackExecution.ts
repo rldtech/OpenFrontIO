@@ -237,7 +237,17 @@ export class AttackExecution implements Execution {
       const priorityTiles: { tile: TileRef; weight: number }[] = [];
       const fallbackTiles: { tile: TileRef; weight: number }[] = [];
 
-      for (const tile of this.toConquer) {
+      const validTiles = this.toConquer.filter((tile) => {
+        const onBorder = this.mg
+          .neighbors(tile)
+          .some((t) => this.mg.owner(t) === this._owner);
+        return this.mg.owner(tile) === this.target && onBorder;
+      });
+      if (validTiles.length === 0) {
+        this.retreat();
+        return;
+      }
+      for (const tile of validTiles) {
         const neighbors = this.mg.neighbors(tile);
         const ownedCount = neighbors.filter(
           (t) => this.mg.owner(t) === this._owner,

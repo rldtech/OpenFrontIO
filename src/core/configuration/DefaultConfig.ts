@@ -469,15 +469,15 @@ export class DefaultConfig implements Config {
         switch (posture) {
           case "retreat":
             sharedloss = 0.5;
-            postureloss = 0.8;
+            postureloss = 0.7;
             break;
           case "balanced":
             sharedloss = 1.0;
             postureloss = 1;
             break;
           case "hold":
-            sharedloss = 2;
-            postureloss = 1.2;
+            sharedloss = 3;
+            postureloss = 1.3;
             break;
         }
       }

@@ -483,8 +483,8 @@ export class DefaultConfig implements Config {
             defenderdensity ** 0.6 *
             within(defender.troops() / attackTroops, 0.3, 10) ** 0.5 *
             speed,
-          10,
-          600,
+          8,
+          480,
         ),
       };
     } else {
@@ -504,11 +504,9 @@ export class DefaultConfig implements Config {
     numAdjacentTilesWithEnemy: number,
   ): number {
     if (defender.isPlayer()) {
-      return (
-        10 * numAdjacentTilesWithEnemy //increase to increase attack speed across-the-board
-      );
+      return 8 * numAdjacentTilesWithEnemy;
     } else {
-      return 10 * numAdjacentTilesWithEnemy;
+      return 8 * numAdjacentTilesWithEnemy;
     }
   }
 

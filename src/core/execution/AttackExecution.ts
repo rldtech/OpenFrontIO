@@ -292,12 +292,13 @@ export class AttackExecution implements Execution {
           mag = 1;
           break;
         case TerrainType.Highland:
-          mag = 1.5;
+          mag = Math.random() < 0.4 ? 1 : 1.5;
           break;
         case TerrainType.Mountain:
-          mag = 2;
+          mag = Math.random() < 0.4 ? 1 : 2;
           break;
       }
+
       this.toConquer.enqueue(
         new TileContainer(
           neighbor,

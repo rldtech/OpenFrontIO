@@ -327,7 +327,7 @@ export class ControlPanel extends LitElement implements Layer {
                 @change=${this.onPostureChange}
                 class="form-radio text-blue-500"
               />
-              Retreat
+              Fallback
             </label>
             <label class="flex items-center gap-1 cursor-pointer">
               <input
@@ -349,7 +349,7 @@ export class ControlPanel extends LitElement implements Layer {
                 @change=${this.onPostureChange}
                 class="form-radio text-blue-500"
               />
-              Hold
+              No Step Back
             </label>
           </div>
         </div>

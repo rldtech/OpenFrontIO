@@ -413,15 +413,15 @@ export class DefaultConfig implements Config {
     switch (type) {
       case TerrainType.Plains:
         mag = 0.85;
-        speed = 16.5;
+        speed = 0.75;
         break;
       case TerrainType.Highland:
         mag = 1;
-        speed = 20;
+        speed = 1;
         break;
       case TerrainType.Mountain:
         mag = 1.2;
-        speed = 30;
+        speed = 1.5;
         break;
       default:
         throw new Error(`terrain type ${type} not supported`);
@@ -461,19 +461,16 @@ export class DefaultConfig implements Config {
       }
     }
 
-    let largeLossModifier = 1;
-    if (attacker.numTilesOwned() > 100_000) {
-      largeLossModifier = Math.sqrt(100_000 / attacker.numTilesOwned());
-    }
-    let largeSpeedMalus = 1;
-    if (attacker.numTilesOwned() > 75_000) {
-      // sqrt is only exponent 1/2 which doesn't slow enough huge players
-      largeSpeedMalus = (75_000 / attacker.numTilesOwned()) ** 0.6;
-    }
-
     if (defender.isPlayer()) {
       const defenderdensity = defender.troops() / defender.numTilesOwned();
-
+      if (attacker.type() == PlayerType.Human) {
+        console.log(
+          "speed:",
+          defenderdensity *
+            Math.max(defender.troops() / attackTroops, 0.3) ** 0.5 *
+            speed,
+        );
+      }
       return {
         attackerTroopLoss:
           mag * 10 +
@@ -481,20 +478,21 @@ export class DefaultConfig implements Config {
             mag *
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: defenderdensity,
-        tilesPerTickUsed:
-          within(
-            (defender.troops() / defender.numTilesOwned()) *
-              Math.max(defender.troops() / attackTroops, 0.3) ** 0.5,
-            10,
-            125,
-          ) * speed,
+        tilesPerTickUsed: within(
+          4 *
+            defenderdensity ** 0.6 *
+            within(defender.troops() / attackTroops, 0.3, 10) ** 0.5 *
+            speed,
+          10,
+          600,
+        ),
       };
     } else {
       return {
         attackerTroopLoss:
           attacker.type() == PlayerType.Bot ? mag * 10 : mag * 10,
         defenderTroopLoss: 0,
-        tilesPerTickUsed: speed,
+        tilesPerTickUsed: 40 * speed,
       };
     }
   }
@@ -507,10 +505,10 @@ export class DefaultConfig implements Config {
   ): number {
     if (defender.isPlayer()) {
       return (
-        120 * numAdjacentTilesWithEnemy //increase to increase attack speed across-the-board
+        10 * numAdjacentTilesWithEnemy //increase to increase attack speed across-the-board
       );
     } else {
-      return 5 * numAdjacentTilesWithEnemy;
+      return 10 * numAdjacentTilesWithEnemy;
     }
   }
 

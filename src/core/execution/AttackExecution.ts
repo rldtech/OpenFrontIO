@@ -1,4 +1,3 @@
-import { PriorityQueue } from "@datastructures-js/priority-queue";
 import { renderNumber, renderTroops } from "../../client/Utils";
 import {
   Attack,
@@ -19,17 +18,8 @@ const malusForRetreat = 25;
 export class AttackExecution implements Execution {
   private breakAlliance = false;
   private active: boolean = true;
-  private toConquer: PriorityQueue<TileContainer> =
-    new PriorityQueue<TileContainer>((a: TileContainer, b: TileContainer) => {
-      if (a.priority == b.priority) {
-        if (a.tick == b.tick) {
-          return 0;
-          // return this.random.nextInt(-1, 1)
-        }
-        return a.tick - b.tick;
-      }
-      return a.priority - b.priority;
-    });
+  private toConquer: TileRef[] = [];
+
   private random = new PseudoRandom(123);
 
   private _owner: Player;
@@ -167,7 +157,7 @@ export class AttackExecution implements Execution {
   }
 
   private refreshToConquer() {
-    this.toConquer.clear();
+    this.toConquer = [];
     this.border.clear();
     for (const tile of this._owner.borderTiles()) {
       this.addNeighbors(tile);
@@ -237,13 +227,73 @@ export class AttackExecution implements Execution {
         return;
       }
 
-      if (this.toConquer.size() == 0) {
+      if (this.toConquer.length == 0) {
         this.refreshToConquer();
         this.retreat();
         return;
       }
 
-      const tileToConquer = this.toConquer.dequeue().tile;
+      // Step 1: Separate tiles by number of adjacent owned tiles
+      const priorityTiles: { tile: TileRef; weight: number }[] = [];
+      const fallbackTiles: { tile: TileRef; weight: number }[] = [];
+
+      for (const tile of this.toConquer) {
+        const neighbors = this.mg.neighbors(tile);
+        const ownedCount = neighbors.filter(
+          (t) => this.mg.owner(t) === this._owner,
+        ).length;
+
+        let weight = 1.0;
+        switch (this.mg.terrainType(tile)) {
+          case TerrainType.Plains:
+            weight = 3.0;
+            break;
+          case TerrainType.Highland:
+            weight = 0.5;
+            break;
+          case TerrainType.Mountain:
+            weight = 0.25;
+            break;
+        }
+
+        if (ownedCount >= 3) {
+          priorityTiles.push({ tile, weight });
+        } else {
+          if (ownedCount === 2) {
+            weight *= 8; // 👈 bonus for 2 owned neighbors
+          }
+          fallbackTiles.push({ tile, weight });
+        }
+      }
+
+      // Step 2: Pick from priority group if available, else fallback
+      const candidates =
+        priorityTiles.length > 0 ? priorityTiles : fallbackTiles;
+
+      const totalWeight = candidates.reduce((sum, t) => sum + t.weight, 0);
+      if (totalWeight === 0) {
+        this.retreat();
+        return;
+      }
+
+      let r = (this.random.nextInt(0, 10000) / 10000) * totalWeight;
+      let tileToConquer = null;
+      for (const { tile, weight } of candidates) {
+        r -= weight;
+        if (r <= 0) {
+          tileToConquer = tile;
+          break;
+        }
+      }
+
+      if (!tileToConquer) {
+        this.retreat();
+        return;
+      }
+
+      // Remove selected tile from the conquer list
+      this.toConquer = this.toConquer.filter((t) => t !== tileToConquer);
+
       this.border.delete(tileToConquer);
 
       const onBorder =
@@ -279,33 +329,9 @@ export class AttackExecution implements Execution {
         continue;
       }
       this.border.add(neighbor);
-      let numOwnedByMe = this.mg
-        .neighbors(neighbor)
-        .filter((t) => this.mg.owner(t) == this._owner).length;
-      const dist = 0;
-      if (numOwnedByMe > 2) {
-        numOwnedByMe = 10;
+      if (!this.toConquer.includes(neighbor)) {
+        this.toConquer.push(neighbor);
       }
-      let mag = 0;
-      switch (this.mg.terrainType(tile)) {
-        case TerrainType.Plains:
-          mag = 1;
-          break;
-        case TerrainType.Highland:
-          mag = Math.random() < 0.4 ? 1 : 1.5;
-          break;
-        case TerrainType.Mountain:
-          mag = Math.random() < 0.4 ? 1 : 2;
-          break;
-      }
-
-      this.toConquer.enqueue(
-        new TileContainer(
-          neighbor,
-          dist / 100 + this.random.nextInt(0, 2) - numOwnedByMe + mag,
-          this.mg.ticks(),
-        ),
-      );
     }
   }
 
@@ -350,12 +376,4 @@ export class AttackExecution implements Execution {
   isActive(): boolean {
     return this.active;
   }
-}
-
-class TileContainer {
-  constructor(
-    public readonly tile: TileRef,
-    public readonly priority: number,
-    public readonly tick: number,
-  ) {}
 }

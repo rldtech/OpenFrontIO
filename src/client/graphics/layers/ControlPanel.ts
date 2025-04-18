@@ -4,7 +4,10 @@ import { EventBus } from "../../../core/EventBus";
 import { GameView } from "../../../core/game/GameView";
 import { ClientID } from "../../../core/Schemas";
 import { AttackRatioEvent } from "../../InputHandler";
-import { SendSetTargetTroopRatioEvent } from "../../Transport";
+import {
+  SendSetDefensivePostureEvent,
+  SendSetTargetTroopRatioEvent,
+} from "../../Transport";
 import { renderNumber, renderTroops } from "../../Utils";
 import { UIState } from "../UIState";
 import { Layer } from "./Layer";
@@ -21,6 +24,9 @@ export class ControlPanel extends LitElement implements Layer {
 
   @state()
   private targetTroopRatio = 0.95;
+
+  @state()
+  private defensivePosture: "retreat" | "balanced" | "hold" = "balanced";
 
   @state()
   private currentTroopRatio = 0.95;
@@ -65,6 +71,8 @@ export class ControlPanel extends LitElement implements Layer {
     this.targetTroopRatio = Number(
       localStorage.getItem("settings.troopRatio") ?? "0.95",
     );
+    this.defensivePosture =
+      (localStorage.getItem("settings.defensivePosture") as any) ?? "balanced";
     this.init_ = true;
     this.uiState.attackRatio = this.attackRatio;
     this.currentTroopRatio = this.targetTroopRatio;
@@ -135,6 +143,16 @@ export class ControlPanel extends LitElement implements Layer {
     this.uiState.attackRatio = newRatio;
   }
 
+  private onPostureChange(e: Event) {
+    const raw = (e.target as HTMLInputElement).value;
+
+    if (raw === "retreat" || raw === "balanced" || raw === "hold") {
+      const value = raw as "retreat" | "balanced" | "hold";
+      this.eventBus.emit(new SendSetDefensivePostureEvent(value));
+    } else {
+      console.warn(`Unexpected posture value: ${raw}`);
+    }
+  }
   renderLayer(context: CanvasRenderingContext2D) {
     // Render any necessary canvas elements
   }
@@ -295,6 +313,44 @@ export class ControlPanel extends LitElement implements Layer {
               }}
               class="absolute left-0 right-0 top-2 m-0 h-4 cursor-pointer attackRatio"
             />
+          </div>
+        </div>
+        <div class="text-white mt-4">
+          <label class="block font-bold mb-1">Defensive Posture</label>
+          <div class="flex gap-2">
+            <label class="flex items-center gap-1 cursor-pointer">
+              <input
+                type="radio"
+                name="posture"
+                value="retreat"
+                .checked=${this.defensivePosture === "retreat"}
+                @change=${this.onPostureChange}
+                class="form-radio text-blue-500"
+              />
+              Retreat
+            </label>
+            <label class="flex items-center gap-1 cursor-pointer">
+              <input
+                type="radio"
+                name="posture"
+                value="balanced"
+                .checked=${this.defensivePosture === "balanced"}
+                @change=${this.onPostureChange}
+                class="form-radio text-blue-500"
+              />
+              Balanced
+            </label>
+            <label class="flex items-center gap-1 cursor-pointer">
+              <input
+                type="radio"
+                name="posture"
+                value="hold"
+                .checked=${this.defensivePosture === "hold"}
+                @change=${this.onPostureChange}
+                class="form-radio text-blue-500"
+              />
+              Hold
+            </label>
           </div>
         </div>
       </div>

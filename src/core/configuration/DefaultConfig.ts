@@ -462,15 +462,35 @@ export class DefaultConfig implements Config {
     }
 
     if (defender.isPlayer()) {
-      const defenderdensity = defender.troops() / defender.numTilesOwned();
-      if (attacker.type() == PlayerType.Human) {
-        console.log(
-          "speed:",
-          defenderdensity *
-            Math.max(defender.troops() / attackTroops, 0.3) ** 0.5 *
-            speed,
-        );
+      let postureExponent = 1;
+      if (defender.isPlayer()) {
+        const posture = defender.defensivePosture?.() ?? "balanced";
+        switch (posture) {
+          case "retreat":
+            postureExponent = 1.4;
+            break;
+          case "balanced":
+            postureExponent = 1.0;
+            break;
+          case "hold":
+            postureExponent = 0.6;
+            break;
+        }
+        if (defender.isPlayer() && defender.type() === PlayerType.Human) {
+          console.log("Defensive posture:", posture);
+          console.log("Exponent used for defender density:", postureExponent);
+        }
       }
+      const defenderdensity =
+        defender.troops() / Math.pow(defender.numTilesOwned(), postureExponent);
+      // if (attacker.type() == PlayerType.Human) {
+      //   console.log(
+      //     "speed:",
+      //     defenderdensity *
+      //       Math.max(defender.troops() / attackTroops, 0.3) ** 0.5 *
+      //       speed,
+      //   );
+      // }
       return {
         attackerTroopLoss:
           mag * 10 +

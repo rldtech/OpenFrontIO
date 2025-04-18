@@ -254,6 +254,12 @@ export class AttackExecution implements Execution {
         continue;
       }
       this.addNeighbors(tileToConquer);
+      const posture: "retreat" | "balanced" | "hold" = "balanced";
+      // if (this.target.isPlayer()) {
+      //   posture = (this.target as Player).defensivePosture?.() ?? "balanced";
+      //   console.log("Defender posture:", posture);
+      // }
+
       const { attackerTroopLoss, defenderTroopLoss, tilesPerTickUsed } = this.mg
         .config()
         .attackLogic(

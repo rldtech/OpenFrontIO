@@ -333,6 +333,8 @@ export interface Player {
   workers(): number;
   troops(): number;
   targetTroopRatio(): number;
+  defensivePosture(): "retreat" | "balanced" | "hold";
+  setDefensivePosture(p: "retreat" | "balanced" | "hold"): void;
   addGold(toAdd: Gold): void;
   removeGold(toRemove: Gold): void;
   addWorkers(toAdd: number): void;

@@ -463,17 +463,21 @@ export class DefaultConfig implements Config {
 
     if (defender.isPlayer()) {
       let postureExponent = 1;
+      let postureloss = 1;
       if (defender.isPlayer()) {
         const posture = defender.defensivePosture?.() ?? "balanced";
         switch (posture) {
           case "retreat":
-            postureExponent = 1.4;
+            postureExponent = 1.3;
+            postureloss = 0.8;
             break;
           case "balanced":
             postureExponent = 1.0;
+            postureloss = 1;
             break;
           case "hold":
-            postureExponent = 0.6;
+            postureExponent = 0.7;
+            postureloss = 1.2;
             break;
         }
         if (defender.isPlayer() && defender.type() === PlayerType.Human) {
@@ -497,7 +501,7 @@ export class DefaultConfig implements Config {
           defenderdensity *
             mag *
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
-        defenderTroopLoss: defenderdensity,
+        defenderTroopLoss: postureloss * defenderdensity,
         tilesPerTickUsed: within(
           4 *
             defenderdensity ** 0.6 *

@@ -23,6 +23,8 @@ export class AttackExecution implements Execution {
   private random = new PseudoRandom(123);
 
   private _owner: Player;
+  private tileWeights: Map<TileRef, { weight: number; ownedCount: number }> =
+    new Map();
   private target: Player | TerraNullius;
 
   private mg: Game;
@@ -248,30 +250,12 @@ export class AttackExecution implements Execution {
         return;
       }
       for (const tile of validTiles) {
-        const neighbors = this.mg.neighbors(tile);
-        const ownedCount = neighbors.filter(
-          (t) => this.mg.owner(t) === this._owner,
-        ).length;
-
-        let weight = 1.0;
-        switch (this.mg.terrainType(tile)) {
-          case TerrainType.Plains:
-            weight = 3.0;
-            break;
-          case TerrainType.Highland:
-            weight = 0.5;
-            break;
-          case TerrainType.Mountain:
-            weight = 0.25;
-            break;
-        }
-
+        const cached = this.tileWeights.get(tile);
+        if (!cached) continue;
+        const { weight, ownedCount } = cached;
         if (ownedCount >= 3) {
           priorityTiles.push({ tile, weight });
         } else {
-          if (ownedCount === 2) {
-            weight *= 8; // 👈 bonus for 2 owned neighbors
-          }
           fallbackTiles.push({ tile, weight });
         }
       }
@@ -335,6 +319,12 @@ export class AttackExecution implements Execution {
         this.target.removeTroops(defenderTroopLoss);
       }
       this._owner.conquer(tileToConquer);
+      for (const neighbor of this.mg.neighbors(tileToConquer)) {
+        if (this.toConquer.includes(neighbor)) {
+          this.updateTileWeight(neighbor); // 👈 only those that could be affected
+        }
+      }
+
       this.handleDeadDefender();
     }
   }
@@ -347,6 +337,7 @@ export class AttackExecution implements Execution {
       this.border.add(neighbor);
       if (!this.toConquer.includes(neighbor)) {
         this.toConquer.push(neighbor);
+        this.updateTileWeight(neighbor); // 👈 only update for new
       }
     }
   }
@@ -383,6 +374,32 @@ export class AttackExecution implements Execution {
         }
       }
     }
+  }
+
+  private updateTileWeight(tile: TileRef) {
+    const neighbors = this.mg.neighbors(tile);
+    const ownedCount = neighbors.filter(
+      (t) => this.mg.owner(t) === this._owner,
+    ).length;
+
+    let weight = 1.0;
+    switch (this.mg.terrainType(tile)) {
+      case TerrainType.Plains:
+        weight = 3.0;
+        break;
+      case TerrainType.Highland:
+        weight = 0.5;
+        break;
+      case TerrainType.Mountain:
+        weight = 0.25;
+        break;
+    }
+
+    if (ownedCount === 2) {
+      weight *= 8;
+    }
+
+    this.tileWeights.set(tile, { weight, ownedCount });
   }
 
   owner(): Player {

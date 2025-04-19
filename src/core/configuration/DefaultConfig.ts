@@ -415,26 +415,25 @@ export class DefaultConfig implements Config {
     defenderTroopLoss: number;
     tilesPerTickUsed: number;
   } {
-    let mag = 0;
-    let speed = 0;
+    const terrainModifiers = {
+      [TerrainType.Plains]: { mag: 0.85, speed: 0.75 },
+      [TerrainType.Highland]: { mag: 1, speed: 1 },
+      [TerrainType.Mountain]: { mag: 1.2, speed: 1.5 },
+    } as const;
+
     const type = gm.terrainType(tileToConquer);
-    switch (type) {
-      case TerrainType.Plains:
-        mag = 0.85;
-        speed = 0.75;
-        break;
-      case TerrainType.Highland:
-        mag = 1;
-        speed = 1;
-        break;
-      case TerrainType.Mountain:
-        mag = 1.2;
-        speed = 1.5;
-        break;
-      default:
-        throw new Error(`terrain type ${type} not supported`);
+    const mod = terrainModifiers[type];
+    if (!mod) {
+      throw new Error(`terrain type ${type} not supported`);
     }
-    if (defender.isPlayer()) {
+    let mag = mod.mag;
+    let speed = mod.speed;
+
+    const attackerType = attacker.type();
+    const defenderIsPlayer = defender.isPlayer();
+    const defenderType = defenderIsPlayer ? defender.type() : null;
+
+    if (defenderIsPlayer) {
       for (const dp of gm.nearbyUnits(
         tileToConquer,
         gm.config().defensePostRange(),
@@ -454,25 +453,22 @@ export class DefaultConfig implements Config {
       //speed *= this.falloutDefenseModifier(falloutRatio);
     }
 
-    if (attacker.isPlayer() && defender.isPlayer()) {
-      if (
-        attacker.type() == PlayerType.Human &&
-        defender.type() == PlayerType.Bot
-      ) {
+    if (attacker.isPlayer() && defenderIsPlayer) {
+      if (attackerType == PlayerType.Human && defenderType == PlayerType.Bot) {
         mag *= 0.8;
       }
       if (
-        attacker.type() == PlayerType.FakeHuman &&
-        defender.type() == PlayerType.Bot
+        attackerType == PlayerType.FakeHuman &&
+        defenderType == PlayerType.Bot
       ) {
         mag *= 0.8;
       }
     }
 
-    if (defender.isPlayer()) {
+    if (defenderIsPlayer) {
       let sharedloss = 1;
       let postureloss = 1;
-      if (defender.isPlayer()) {
+      if (defenderIsPlayer) {
         const posture = defender.defensivePosture?.() ?? "balanced";
         switch (posture) {
           case "retreat":
@@ -489,8 +485,11 @@ export class DefaultConfig implements Config {
             break;
         }
       }
-      const defenderdensity =
-        (defender.troops() / defender.numTilesOwned()) * sharedloss;
+      const defenderTroops = defender.troops();
+      const defenderTiles = defender.numTilesOwned();
+      const defenderdensity = (defenderTroops / defenderTiles) * sharedloss;
+      const adjustedRatio = within(defenderTroops / attackTroops, 0.3, 10);
+
       // if (attacker.type() == PlayerType.Human) {
       //   console.log(
       //     "speed:",
@@ -507,18 +506,14 @@ export class DefaultConfig implements Config {
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: postureloss * defenderdensity,
         tilesPerTickUsed: within(
-          4 *
-            defenderdensity ** 0.6 *
-            within(defender.troops() / attackTroops, 0.3, 10) ** 0.5 *
-            speed,
+          4 * defenderdensity ** 0.6 * adjustedRatio ** 0.5 * speed,
           10,
           480,
         ),
       };
     } else {
       return {
-        attackerTroopLoss:
-          attacker.type() == PlayerType.Bot ? mag * 10 : mag * 10,
+        attackerTroopLoss: attackerType == PlayerType.Bot ? mag * 10 : mag * 10,
         defenderTroopLoss: 0,
         tilesPerTickUsed: 40 * speed,
       };
@@ -585,7 +580,7 @@ export class DefaultConfig implements Config {
     const maxPop =
       player.type() == PlayerType.Human && this.infiniteTroops()
         ? 1_000_000_000
-        : 1 * (Math.pow(player.numTilesOwned(), 1) * 30 + 100000) +
+        : 1 * (player.numTilesOwned() * 30 + 100000) +
           player.units(UnitType.City).length * this.cityPopulationIncrease();
 
     if (player.type() == PlayerType.Bot) {

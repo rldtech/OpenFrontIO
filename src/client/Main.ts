@@ -9,7 +9,8 @@ import { joinLobby } from "./ClientGameRunner";
 import "./DarkModeButton";
 import { DarkModeButton } from "./DarkModeButton";
 import "./FlagInput";
-import { FlagInput } from "./FlagInput";
+import { FlagInput, analyzePlayerFlag, checkPermission } from "./FlagInput";
+import { FlagInputModal } from "./FlagInputModal";
 import { GameStartingModal } from "./GameStartingModal";
 import "./GoogleAdElement";
 import GoogleAdElement from "./GoogleAdElement";
@@ -119,6 +120,14 @@ class Client {
       hlpModal.open();
     });
 
+    const flagInputModal = document.querySelector(
+      "flag-input-modal",
+    ) as FlagInputModal;
+    flagInputModal instanceof FlagInputModal;
+    document.getElementById("flag-input_").addEventListener("click", () => {
+      flagInputModal.open();
+    });
+
     const settingsModal = document.querySelector(
       "user-setting",
     ) as UserSettingModal;
@@ -194,14 +203,32 @@ class Client {
     }
     const config = await getServerConfigFromClient();
 
+    let rawFlag = this.flagInput.getCurrentFlag();
+    if (rawFlag.startsWith("ctmfg")) {
+      const result = checkPermission();
+      const lockedLayers = Array.isArray(result[0]) ? result[0] : [result[0]];
+      const lockedColors = Array.isArray(result[1]) ? result[1] : [result[1]];
+      const MAX_LAYER = result[3];
+      const flagInfo = analyzePlayerFlag(rawFlag);
+      const hasLockedLayer = flagInfo.layers.some((layer) =>
+        lockedLayers.includes(layer),
+      );
+      const hasLockedColor = flagInfo.colors.some((color) =>
+        lockedColors.includes(color),
+      );
+      const isLayerCountExceeded = flagInfo.count > MAX_LAYER;
+      if (hasLockedLayer || hasLockedColor || isLayerCountExceeded) {
+        rawFlag = "xx";
+        console.warn("Blocked custom flag code.");
+      }
+    }
+    const flag = rawFlag === "xx" ? "" : rawFlag;
+
     this.gameStop = joinLobby(
       {
         gameID: lobby.gameID,
         serverConfig: config,
-        flag:
-          this.flagInput.getCurrentFlag() == "xx"
-            ? ""
-            : this.flagInput.getCurrentFlag(),
+        flag: flag,
         playerName: this.usernameInput.getCurrentUsername(),
         persistentID: getPersistentIDFromCookie(),
         clientID: lobby.clientID,

@@ -1,10 +1,7 @@
 import { LitElement, css, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import Countries from "./data/countries.json";
+import { translateText } from "../client/Utils";
 const flagKey: string = "flag";
-
-import disabled from "../../resources/images/DisabledIcon.svg";
-import locked from "../../resources/images/Locked.svg";
 
 import frame from "../../resources/flags/custom/frame.svg";
 
@@ -32,6 +29,7 @@ import mini_tr_tr from "../../resources/flags/custom/mini_tr_tr.svg";
 import nato_emblem from "../../resources/flags/custom/nato_emblem.svg";
 import octagram from "../../resources/flags/custom/octagram.svg";
 import octagram_2 from "../../resources/flags/custom/octagram_2.svg";
+import ofm_2025 from "../../resources/flags/custom/ofm_2025.svg";
 import triangle_b from "../../resources/flags/custom/triangle_b.svg";
 import triangle_bl from "../../resources/flags/custom/triangle_bl.svg";
 import triangle_br from "../../resources/flags/custom/triangle_br.svg";
@@ -56,7 +54,7 @@ import og_plus from "../../resources/flags/custom/og_plus.svg";
 import translator from "../../resources/flags/custom/translator.svg";
 
 import beta_tester from "../../resources/flags/custom/beta_tester.svg";
-import beta_tester_hole from "../../resources/flags/custom/beta_tester_hole.svg";
+import beta_tester_circle from "../../resources/flags/custom/beta_tester_circle.svg";
 
 import admin_contributors from "../../resources/flags/custom/admin_contributors.svg";
 import admin_shield from "../../resources/flags/custom/admin_shield.svg";
@@ -103,8 +101,9 @@ export const FlagMap: Record<string, string> = {
   laurel_wreath,
   octagram,
   octagram_2,
+  ofm_2025,
   beta_tester,
-  beta_tester_hole,
+  beta_tester_circle,
   rocket,
   rocket_mini,
   admin_contributors,
@@ -155,12 +154,13 @@ export const LayerShortNames: Record<string, string> = {
   nato_emblem: "ne",
   eu_star: "es",
   laurel_wreath: "lw",
+  ofm_2025: "ofm25",
   octagram: "oc",
   octagram_2: "oc2",
   og: "og",
   og_plus: "ogp",
   beta_tester: "bt",
-  beta_tester_hole: "bth",
+  beta_tester_circle: "btc",
   rocket: "rc",
   rocket_mini: "rcm",
   translator: "tlr",
@@ -213,39 +213,41 @@ export const ColorShortNames: Record<string, string> = {
   water: "wt", // soft blue breathing animation
 };
 
-let isDebug_: boolean = false;
-const isEvan: boolean = false;
-const isAdmin: boolean = false;
-const isOg: boolean = false;
-const isOg100: boolean = false;
-const isSupporters: boolean = false;
-const isBetaTester: boolean = false;
-const isContributors: boolean = false;
-const isTranslator: boolean = false;
-const isWellKnownPlayer: boolean = false;
-const isKnownPlayer: boolean = false;
-const isSeenplayer: boolean = false;
-const isLoginPlayer: boolean = false;
+export const isDebug_: boolean = true;
+export const isEvan: boolean = false;
+export const isAdmin: boolean = false;
+export const isOg: boolean = false;
+export const isOg100: boolean = false;
+export const isSupporters: boolean = false;
+export const isBetaTester: boolean = false;
+export const isContributors: boolean = false;
+export const isTranslator: boolean = false;
+export const isWellKnownPlayer: boolean = false;
+export const isKnownPlayer: boolean = false;
+export const isSeenplayer: boolean = false;
+export const isLoginPlayer: boolean = false;
 
-let MAX_LAYER = 50;
+export let MAX_LAYER = 50;
 
 type LockReasonMap = Record<string, string>;
 
-function checkPermission(): [string[], string[], LockReasonMap] {
+export function checkPermission(): [string[], string[], LockReasonMap, number] {
   const lockedLayers_: string[] = [];
   const lockedColors_: string[] = [];
   const lockedReasons_: LockReasonMap = {};
 
   MAX_LAYER = 50;
 
-  const lock = (list: string[], reason: string) => {
+  const lock = (list: string[], reasonKey: string) => {
+    const reason = translateText(reasonKey);
     for (const item of list) {
       lockedLayers_.push(item);
       lockedReasons_[item] = reason;
     }
   };
 
-  const lockColor = (list: string[], reason: string) => {
+  const lockColor = (list: string[], reasonKey: string) => {
+    const reason = translateText(reasonKey);
     for (const color of list) {
       lockedColors_.push(color);
       lockedReasons_[color] = reason;
@@ -254,13 +256,13 @@ function checkPermission(): [string[], string[], LockReasonMap] {
 
   if (isEvan || isDebug_) {
     MAX_LAYER = 50;
-    return [lockedLayers_, lockedColors_, lockedReasons_];
+    return [lockedLayers_, lockedColors_, lockedReasons_, MAX_LAYER];
   }
 
-  lock(["admin_evan"], "Only Evan can use this layer");
+  lock(["admin_evan"], "flag_input.reason.admin_evan");
 
   if (!isAdmin) {
-    lock(["admin_shield", "admin_shield_r"], "Admin only");
+    lock(["admin_shield", "admin_shield_r"], "flag_input.reason.admin");
   }
 
   if (isAdmin) {
@@ -282,15 +284,15 @@ function checkPermission(): [string[], string[], LockReasonMap] {
   }
 
   if (!isContributors) {
-    lock(["admin_contributors"], "Contributors only");
+    lock(["admin_contributors"], "flag_input.reason.contributors");
   }
 
   if (!isBetaTester) {
-    lock(["beta_tester", "beta_tester_hole"], "Beta testers only");
+    lock(["beta_tester", "beta_tester_circle"], "flag_input.reason.beta");
   }
 
   if (!isSupporters) {
-    lock(["rocket_mini", "rocket"], "Supporters only");
+    lock(["rocket_mini", "rocket"], "flag_input.reason.supporters");
     lockColor(
       [
         "rainbow",
@@ -302,22 +304,22 @@ function checkPermission(): [string[], string[], LockReasonMap] {
         "glitch",
         "water",
       ],
-      "Supporters only",
+      "flag_input.reason.supporters",
     );
   } else {
-    return [lockedLayers_, lockedColors_, lockedReasons_];
+    return [lockedLayers_, lockedColors_, lockedReasons_, MAX_LAYER];
   }
 
   if (!isOg) {
-    lock(["og_plus"], "OG players only");
+    lock(["og_plus"], "flag_input.reason.og");
   }
 
   if (!isOg100) {
-    lock(["og"], "OG100 players only");
+    lock(["og"], "flag_input.reason.og100");
   }
 
   if (!isTranslator) {
-    lock(["beta_tester", "beta_tester_hole"], "Beta testers only");
+    lock(["translator"], "flag_input.reason.translator");
   }
 
   if (!isWellKnownPlayer) {
@@ -335,7 +337,7 @@ function checkPermission(): [string[], string[], LockReasonMap] {
         "octagram",
         "octagram_2",
       ],
-      "Well-known players only",
+      "flag_input.reason.well_known",
     );
     lockColor(
       [
@@ -354,7 +356,7 @@ function checkPermission(): [string[], string[], LockReasonMap] {
         "#36454f",
         "#fffff0",
       ],
-      "Well-known players only",
+      "flag_input.reason.well_known",
     );
 
     if (!isKnownPlayer) {
@@ -375,7 +377,7 @@ function checkPermission(): [string[], string[], LockReasonMap] {
           "mini_tr_br",
           "mini_tr_bl",
         ],
-        "Known players only",
+        "flag_input.reason.known",
       );
       lockColor(
         [
@@ -390,91 +392,33 @@ function checkPermission(): [string[], string[], LockReasonMap] {
           "#8b0000",
           "#191970",
         ],
-        "Known players only",
+        "flag_input.reason.known",
       );
 
       if (!isSeenplayer) {
-        lock(["half_l", "half_r", "half_b", "half_t"], "Seen players only");
-        lockColor(["#ffa500", "#00ffff"], "Seen players only");
+        lock(
+          ["half_l", "half_r", "half_b", "half_t"],
+          "flag_input.reason.seen",
+        );
+        lockColor(["#ffa500", "#00ffff"], "flag_input.reason.seen");
 
         if (!isLoginPlayer) {
           lock(
             ["triangle_br", "triangle_bl", "triangle_tr", "triangle_tl"],
-            "Login required",
+            "flag_input.reason.login",
           );
-          lockColor(["#ffff00", "#008000"], "Login required");
+          lockColor(["#ffff00", "#008000"], "flag_input.reason.login");
         }
       }
     }
   }
-  return [lockedLayers_, lockedColors_, lockedReasons_];
+
+  return [lockedLayers_, lockedColors_, lockedReasons_, MAX_LAYER];
 }
 
 @customElement("flag-input")
 export class FlagInput extends LitElement {
-  @state() private flag: string = "";
-  @state() private search: string = "";
-  @state() private showModal: boolean = false;
-  @state() private activeTab: "real" | "custom" = "real";
-  @state() private selectedColor: string = "#ff0000";
-  @state() private openColorIndex: number | null = null;
-
-  private readonly colorOptions: string[] = Object.keys(ColorShortNames);
-
-  @state() private customLayers: { name: string; color: string }[] = [];
-
-  @state() private hoveredColor: string | null = null;
-  @state() private hoverPosition = { x: 0, y: 0 };
-  @state() private hoverReason: string | null = null;
-
-  private addLayer(name: string) {
-    const totalLayers = this.customLayers.length;
-
-    if (totalLayers >= MAX_LAYER) {
-      alert(`You can only add up to ${MAX_LAYER} layers.`);
-      return;
-    }
-
-    const newLayer = { name, color: this.selectedColor };
-    this.customLayers = [
-      this.customLayers[0],
-      newLayer,
-      ...this.customLayers.slice(1),
-    ];
-  }
-  private removeLayer(index: number) {
-    this.customLayers = this.customLayers.filter((_, i) => i !== index);
-  }
-
-  private moveLayerUp(index: number) {
-    if (index === 0) return;
-    const newLayers = [...this.customLayers];
-    [newLayers[index - 1], newLayers[index]] = [
-      newLayers[index],
-      newLayers[index - 1],
-    ];
-    this.customLayers = newLayers;
-  }
-
-  private moveLayerDown(index: number) {
-    if (index === this.customLayers.length - 1) return;
-    const newLayers = [...this.customLayers];
-    [newLayers[index], newLayers[index + 1]] = [
-      newLayers[index + 1],
-      newLayers[index],
-    ];
-    this.customLayers = newLayers;
-  }
-
-  private updateLayerColor(index: number, color: string) {
-    const newLayers = [...this.customLayers];
-    newLayers[index].color = color;
-    this.customLayers = newLayers;
-  }
-
-  private toggleColorPicker(index: number) {
-    this.openColorIndex = this.openColorIndex === index ? null : index;
-  }
+  @state() public flag: string = "";
 
   static styles = css`
     @media (max-width: 768px) {
@@ -488,19 +432,6 @@ export class FlagInput extends LitElement {
     }
   `;
 
-  private handleSearch(e: Event) {
-    this.search = String((e.target as HTMLInputElement).value);
-  }
-
-  private setFlag(flag: string) {
-    if (flag == "xx") {
-      flag = "";
-    }
-    this.flag = flag;
-    this.showModal = false;
-    this.storeFlag(flag);
-  }
-
   public getCurrentFlag(): string {
     return this.flag;
   }
@@ -511,14 +442,6 @@ export class FlagInput extends LitElement {
       return storedFlag;
     }
     return "";
-  }
-
-  private storeFlag(flag: string) {
-    if (flag) {
-      localStorage.setItem(flagKey, flag);
-    } else if (flag === "") {
-      localStorage.removeItem(flagKey);
-    }
   }
 
   private dispatchFlagEvent() {
@@ -535,541 +458,24 @@ export class FlagInput extends LitElement {
     super.connectedCallback();
     this.flag = this.getStoredFlag();
     this.dispatchFlagEvent();
-
-    if (this.isCustomFlag(this.flag)) {
-      this.customLayers = this.decodeCustomFlag(this.flag);
-    } else {
-      if (this.customLayers.length === 0) {
-        this.customLayers = [
-          { name: "full", color: "#ffffff" },
-          { name: "frame", color: "#000000" },
-        ];
-      }
-    }
   }
 
   createRenderRoot() {
     return this;
   }
 
-  private lockedLayers: string[] = [];
-
-  private lockedColors: string[] = [];
-
-  private lockedReasons: Record<string, string> = {};
-
   render() {
-    isDebug_ = true;
-    const result = checkPermission();
-    this.lockedLayers = Array.isArray(result[0]) ? result[0] : [result[0]];
-    this.lockedColors = Array.isArray(result[1]) ? result[1] : [result[1]];
-    this.lockedReasons = result[2] || {};
     return html`
       <div class="flex relative">
         <button
-          @click=${() => (this.showModal = true)}
+          id="flag-input_"
           class="border p-[4px] rounded-lg flex cursor-pointer border-black/30 dark:border-gray-300/60 bg-white/70 dark:bg-[rgba(55,65,81,0.7)]"
           title="Pick a flag!"
         >
           ${this.renderFlagPreview(this.flag)}
         </button>
-
-        ${this.showModal
-          ? html`
-              <div
-                class="text-white flex flex-col gap-[0.5rem] absolute top-[60px] left-[0px] w-[880%] h-[500px] max-h-[50vh] max-w-[87vw] bg-gray-900/80 backdrop-blur-md p-[10px] rounded-[8px] z-[3]"
-              >
-                <!-- tab  -->
-                <div class="flex gap-2 mb-2">
-                  <button
-                    class="px-4 py-1 rounded-lg font-bold ${this.activeTab ===
-                    "real"
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-300 text-black"}"
-                    @click=${() => (this.activeTab = "real")}
-                  >
-                    Real Flags
-                  </button>
-                  <button
-                    class="px-4 py-1 rounded-lg font-bold ${this.activeTab ===
-                    "custom"
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-300 text-black"}"
-                    @click=${() => (this.activeTab = "custom")}
-                  >
-                    Custom Flags
-                  </button>
-                </div>
-
-                ${this.activeTab === "real"
-                  ? html`
-                      <input
-                        class="h-[2rem] border-none text-center border border-gray-300 rounded-xl shadow-sm text-2xl text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black dark:border-gray-300/60 dark:bg-gray-700 dark:text-white"
-                        type="text"
-                        placeholder="Search..."
-                        @change=${this.handleSearch}
-                        @keyup=${this.handleSearch}
-                      />
-                      <div
-                        class="flex flex-wrap justify-evenly gap-[1rem] overflow-y-auto overflow-x-hidden"
-                      >
-                        ${Countries.filter(
-                          (country) =>
-                            country.name
-                              .toLowerCase()
-                              .includes(this.search.toLowerCase()) ||
-                            country.code
-                              .toLowerCase()
-                              .includes(this.search.toLowerCase()),
-                        ).map(
-                          (country) => html`
-                            <button
-                              @click=${() => this.setFlag(country.code)}
-                              class="text-center cursor-pointer border-none bg-none opacity-70 sm:w-[calc(33.3333%-15px)] w-[calc(100%/3-15px)] md:w-[calc(100%/4-15px)]"
-                            >
-                              <img
-                                class="country-flag w-full h-auto"
-                                src="/flags/${country.code}.svg"
-                              />
-                              <span class="country-name">${country.name}</span>
-                            </button>
-                          `,
-                        )}
-                      </div>
-                    `
-                  : html`
-                      <div class="grid grid-cols-[1fr_2fr] gap-4 p-2 h-full">
-                        <!-- left -->
-                        <div
-                          class="flex flex-col items-center gap-2 overflow-y-auto max-h-[calc(50vh-4rem)]"
-                        >
-                          <div class="flex flex-wrap gap-1 mb-2 justify-center">
-                            ${this.colorOptions.map((color) => {
-                              const isLocked =
-                                this.lockedColors.includes(color);
-                              const isSpecial = !color.startsWith("#");
-                              const colorClass = isSpecial
-                                ? `flag-color-${color}`
-                                : "";
-                              const inlineStyle = isSpecial
-                                ? ""
-                                : `background-color: ${color};`;
-                              const isSelected = this.selectedColor === color;
-                              return html`
-                                <button
-                                  class="w-4 h-4 rounded-full border-2 relative
-        ${isSelected ? "border-white" : "border-gray-400"}
-        ${isLocked ? "opacity-40 cursor-not-allowed" : ""}
-        ${colorClass}"
-                                  style=${inlineStyle}
-                                  @click=${() =>
-                                    !isLocked && (this.selectedColor = color)}
-                                  @mouseenter=${(e: MouseEvent) => {
-                                    if (isLocked) {
-                                      this.hoveredColor = color;
-                                    }
-                                  }}
-                                  @mousemove=${(e: MouseEvent) => {
-                                    if (isLocked) {
-                                      this.hoverPosition = {
-                                        x: e.clientX,
-                                        y: e.clientY,
-                                      };
-                                    }
-                                  }}
-                                  @mouseleave=${() => {
-                                    this.hoveredColor = null;
-                                  }}
-                                  title=${color}
-                                >
-                                  ${isLocked
-                                    ? html`<img
-                                        src=${locked}
-                                        alt="Locked"
-                                        class="absolute top-1/2 left-1/2 w-5 h-5 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                                      />`
-                                    : ""}
-                                </button>
-                              `;
-                            })}
-                          </div>
-
-                          <p class="text-lg font-bold text-white self-start">
-                            Select a Layer
-                          </p>
-
-                          ${this.customLayers.length >= MAX_LAYER
-                            ? html`
-                                <p
-                                  class="text-sm text-red-400 self-start -mt-1 mb-2"
-                                >
-                                  You've reached the maximum number of
-                                  layers.<br />
-                                  Please remove some to add new ones.
-                                </p>
-                              `
-                            : null}
-
-                          <div
-                            class="grid grid-cols-2 gap-2 w-full max-h-[300px] overflow-y-auto pr-1 mb-2"
-                          >
-                            ${Object.entries(FlagMap)
-                              .filter(
-                                ([name]) => name !== "frame" && name !== "full",
-                              )
-                              .map(([name, src]) => {
-                                const isLocked =
-                                  this.lockedLayers.includes(name);
-                                const isDisabled =
-                                  !isLocked &&
-                                  this.customLayers.length >= MAX_LAYER;
-
-                                const isSpecial =
-                                  !this.selectedColor.startsWith("#");
-                                const colorClass = isSpecial
-                                  ? `flag-color-${this.selectedColor}`
-                                  : "";
-                                const colorStyle = isSpecial
-                                  ? ""
-                                  : `background-color: ${this.selectedColor};`;
-
-                                const reason = isLocked
-                                  ? this.lockedReasons[name] || "Locked"
-                                  : isDisabled
-                                    ? `You can only add up to ${MAX_LAYER} layers.`
-                                    : "";
-
-                                return html`
-                                  <button
-                                    @click=${() => {
-                                      if (!isLocked && !isDisabled)
-                                        this.addLayer(name);
-                                    }}
-                                    class="p-1 border border-gray-600 rounded-md transition relative 
-                                      ${isLocked || isDisabled
-                                      ? "opacity-40 cursor-not-allowed"
-                                      : "hover:border-white"}"
-                                    ?disabled=${isLocked || isDisabled}
-                                    @mouseenter=${(e: MouseEvent) => {
-                                      if (reason) {
-                                        this.hoveredColor = name;
-                                        this.hoverReason = reason;
-                                        this.hoverPosition = {
-                                          x: e.clientX,
-                                          y: e.clientY,
-                                        };
-                                      }
-                                    }}
-                                    @mousemove=${(e: MouseEvent) => {
-                                      if (reason) {
-                                        this.hoverPosition = {
-                                          x: e.clientX,
-                                          y: e.clientY,
-                                        };
-                                      }
-                                    }}
-                                    @mouseleave=${() => {
-                                      this.hoveredColor = null;
-                                    }}
-                                  >
-                                    <div
-                                      class="w-full h-14 rounded relative"
-                                      title=${name}
-                                    >
-                                      <!-- black frame background -->
-                                      <div
-                                        class="absolute inset-0 rounded"
-                                        style="
-                                          background-color: black;
-                                          -webkit-mask: url(${FlagMap.frame}) center / contain no-repeat;
-                                          mask: url(${FlagMap.frame}) center / contain no-repeat;
-                                        "
-                                      ></div>
-
-                                      <!-- selected color mask -->
-                                      <div
-                                        class="absolute inset-0 rounded ${colorClass}"
-                                        style="
-                                          ${colorStyle}
-                                          -webkit-mask: url(${src}) center / contain no-repeat;
-                                          mask: url(${src}) center / contain no-repeat;
-                                        "
-                                      ></div>
-                                    </div>
-
-                                    ${isLocked
-                                      ? html`<img
-                                          src=${locked}
-                                          alt="Locked"
-                                          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 opacity-60 drop-shadow-md pointer-events-none"
-                                        />`
-                                      : isDisabled
-                                        ? html`<img
-                                            src=${disabled}
-                                            alt="Disabled"
-                                            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 opacity-60 drop-shadow-md pointer-events-none"
-                                          />`
-                                        : null}
-                                  </button>
-                                `;
-                              })}
-                          </div>
-                        </div>
-
-                        <!-- right -->
-                        <div
-                          class="flex flex-col items-center h-full overflow-hidden max-h-[calc(50vh-4rem)]"
-                        >
-                          <p class="text-lg font-bold text-white mb-2">
-                            Preview
-                          </p>
-                          <div
-                            class="relative w-[160px] h-[100px] min-w-[160px] min-h-[100px] max-w-[160px] max-h-[100px] flex-shrink-0 border border-gray-400 rounded bg-white"
-                          >
-                            ${this.customLayers.map(({ name, color }) => {
-                              const src = FlagMap[name];
-                              if (!src) return null;
-                              console.log("color", color);
-                              const isSpecial = !color.startsWith("#");
-                              const colorClass = isSpecial
-                                ? `flag-color-${color}`
-                                : "";
-                              const bgStyle = isSpecial
-                                ? ""
-                                : `background-color: ${color};`;
-
-                              return html`
-                                <div
-                                  class="absolute top-0 left-0 w-full h-full ${colorClass}"
-                                  style="
-        ${bgStyle}
-        -webkit-mask: url(${src}) center / contain no-repeat;
-        mask: url(${src}) center / contain no-repeat;
-      "
-                                ></div>
-                              `;
-                            })}
-                          </div>
-
-                          <button
-                            @click=${() => {
-                              const code = this.encodeCustomFlag();
-                              navigator.clipboard.writeText(code);
-                              console.log("Copied: " + code);
-                              this.setFlag(code);
-                            }}
-                            class="mt-2 px-4 py-1 bg-green-600 text-white rounded hover:bg-green-500"
-                          >
-                            Copy Flag Code
-                          </button>
-
-                          <div
-                            class="mt-4 w-full max-h-[300px] overflow-y-auto mb-2"
-                          >
-                            <p class="text-lg font-bold text-white mb-2">
-                              Layers (${this.customLayers.length})
-                            </p>
-                            <ul class="text-white space-y-1">
-                              ${this.customLayers.map((_, i, arr) => {
-                                const index = arr.length - 1 - i;
-                                const { name, color } = arr[index];
-                                const isFixed =
-                                  name === "full" || name === "frame";
-
-                                const isSpecial = !color.startsWith("#");
-                                const colorClass = isSpecial
-                                  ? `flag-color-${color}`
-                                  : "";
-                                const inlineStyle = isSpecial
-                                  ? ""
-                                  : `background-color: ${color};`;
-
-                                return html`
-                                  <li
-                                    class="flex flex-col gap-1 py-1 px-2 bg-gray-800 rounded"
-                                  >
-                                    <div
-                                      class="flex justify-between items-center"
-                                    >
-                                      <span class="flex items-center gap-2">
-                                        <span
-                                          class="inline-block w-4 h-4 rounded-full ${colorClass}"
-                                          style=${inlineStyle}
-                                        ></span>
-                                        ${name}
-                                        ${isFixed
-                                          ? html`<span
-                                              class="text-xs text-gray-400"
-                                              >(fixed)</span
-                                            >`
-                                          : ""}
-                                      </span>
-                                      <div class="flex gap-1">
-                                        ${!isFixed
-                                          ? html`
-                                              ${index > 1 &&
-                                              this.customLayers[index - 1]
-                                                .name !== "full"
-                                                ? html`
-                                                    <button
-                                                      @click=${() =>
-                                                        this.moveLayerUp(index)}
-                                                      title="Move Up"
-                                                      class="text-sm px-2 py-1 bg-gray-600 rounded hover:bg-gray-500"
-                                                    >
-                                                      ↓
-                                                    </button>
-                                                  `
-                                                : ""}
-                                              ${index <
-                                                this.customLayers.length - 2 &&
-                                              this.customLayers[index + 1]
-                                                .name !== "frame"
-                                                ? html`
-                                                    <button
-                                                      @click=${() =>
-                                                        this.moveLayerDown(
-                                                          index,
-                                                        )}
-                                                      title="Move Down"
-                                                      class="text-sm px-2 py-1 bg-gray-600 rounded hover:bg-gray-500"
-                                                    >
-                                                      ↑
-                                                    </button>
-                                                  `
-                                                : ""}
-                                              <button
-                                                @click=${() =>
-                                                  this.removeLayer(index)}
-                                                class="text-red-400 hover:text-red-600"
-                                              >
-                                                Remove
-                                              </button>
-                                            `
-                                          : null}
-                                        <button
-                                          @click=${() =>
-                                            this.toggleColorPicker(index)}
-                                          title="Change Color"
-                                          class="text-sm px-2 py-1 bg-blue-600 rounded hover:bg-blue-500 text-white"
-                                        >
-                                          Color
-                                        </button>
-                                      </div>
-                                    </div>
-
-                                    ${this.openColorIndex === index
-                                      ? html`
-                                          <div
-                                            class="flex flex-wrap gap-1 justify-start mt-1"
-                                          >
-                                            ${this.colorOptions.map((color) => {
-                                              const isLocked =
-                                                this.lockedColors.includes(
-                                                  color,
-                                                );
-                                              const isSpecial =
-                                                !color.startsWith("#");
-                                              const colorClass = isSpecial
-                                                ? `flag-color-${color}`
-                                                : "";
-                                              const inlineStyle = isSpecial
-                                                ? ""
-                                                : `background-color: ${color};`;
-
-                                              return html`
-                                                <button
-                                                  class="w-3 h-3 rounded-full border-2 relative
-                      ${this.selectedColor === color
-                                                    ? "border-white"
-                                                    : "border-gray-400"}
-                      ${isLocked ? "opacity-40 cursor-not-allowed" : ""}
-                      ${colorClass}"
-                                                  style=${inlineStyle}
-                                                  @click=${() => {
-                                                    if (
-                                                      !isLocked &&
-                                                      this.openColorIndex !==
-                                                        null
-                                                    ) {
-                                                      this.updateLayerColor(
-                                                        this.openColorIndex,
-                                                        color,
-                                                      );
-                                                    }
-                                                  }}
-                                                  @mouseenter=${(
-                                                    e: MouseEvent,
-                                                  ) => {
-                                                    if (isLocked) {
-                                                      this.hoveredColor = color;
-                                                    }
-                                                  }}
-                                                  @mousemove=${(
-                                                    e: MouseEvent,
-                                                  ) => {
-                                                    if (isLocked) {
-                                                      this.hoverPosition = {
-                                                        x: e.clientX,
-                                                        y: e.clientY,
-                                                      };
-                                                    }
-                                                  }}
-                                                  @mouseleave=${() => {
-                                                    this.hoveredColor = null;
-                                                  }}
-                                                  title=${color}
-                                                >
-                                                  ${isLocked
-                                                    ? html`<img
-                                                        src=${locked}
-                                                        alt="Locked"
-                                                        class="absolute top-1/2 left-1/2 w-5 h-5 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                                                      />`
-                                                    : ""}
-                                                </button>
-                                              `;
-                                            })}
-                                          </div>
-                                        `
-                                      : ""}
-                                  </li>
-                                `;
-                              })}
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    `}
-              </div>
-            `
-          : ""}
       </div>
-      ${this.hoveredColor && this.lockedReasons[this.hoveredColor]
-        ? html`
-            <div
-              class="fixed z-50 px-3 py-2 rounded bg-black text-white text-sm pointer-events-none shadow-md"
-              style="top: ${this.hoverPosition.y + 12}px; left: ${this
-                .hoverPosition.x + 12}px;"
-            >
-              ${this.lockedReasons[this.hoveredColor]}
-            </div>
-          `
-        : null}
     `;
-  }
-
-  private encodeCustomFlag(): string {
-    return (
-      "ctmfg" +
-      this.customLayers
-        .map(({ name, color }) => {
-          const shortName = LayerShortNames[name] || name;
-          const shortColor = ColorShortNames[color] || color.replace("#", "");
-          return `${shortName}-${shortColor}`;
-        })
-        .join("_")
-    );
   }
 
   private isCustomFlag(flag: string): boolean {
@@ -1129,6 +535,17 @@ export class FlagInput extends LitElement {
   }
 }
 
+const animationDurations: Record<string, number> = {
+  rainbow: 4000,
+  "bright-rainbow": 4000,
+  "copper-glow": 3000,
+  "silver-glow": 3000,
+  "gold-glow": 3000,
+  neon: 3000,
+  glitch: 600,
+  water: 6200,
+};
+
 export function renderPlayerFlag(flagCode: string, target: HTMLElement) {
   const reverseNameMap = Object.fromEntries(
     Object.entries(LayerShortNames).map(([k, v]) => [v, k]),
@@ -1167,7 +584,12 @@ export function renderPlayerFlag(flagCode: string, target: HTMLElement) {
     const isSpecial = !color.startsWith("#");
 
     if (isSpecial) {
+      const duration = animationDurations[color] ?? 5000;
+      const now = performance.now();
+      const offset = now % duration;
+      if (!duration) console.warn(`No animation duration for: ${color}`);
       layer.classList.add(`flag-color-${color}`);
+      layer.style.animationDelay = `-${offset}ms`;
     } else {
       layer.style.backgroundColor = color;
     }
@@ -1184,4 +606,42 @@ export function renderPlayerFlag(flagCode: string, target: HTMLElement) {
 
     target.appendChild(layer);
   }
+}
+
+export function analyzePlayerFlag(flagCode: string): {
+  colors: string[];
+  layers: string[];
+  count: number;
+} {
+  if (!flagCode.startsWith("ctmfg"))
+    return { colors: [], layers: [], count: 0 };
+
+  const reverseNameMap = Object.fromEntries(
+    Object.entries(LayerShortNames).map(([k, v]) => [v, k]),
+  );
+
+  const reverseColorMap = Object.fromEntries(
+    Object.entries(ColorShortNames).map(([k, v]) => [v, k]),
+  );
+
+  const code = flagCode.replace("ctmfg", "");
+  const segments = code.split("_");
+
+  const layers: string[] = [];
+  const colors: string[] = [];
+
+  for (const segment of segments) {
+    const [shortName, shortColor] = segment.split("-");
+    const name = reverseNameMap[shortName] || shortName;
+    const color = reverseColorMap[shortColor] || shortColor;
+
+    layers.push(name);
+    colors.push(color);
+  }
+
+  return {
+    colors,
+    layers,
+    count: layers.length,
+  };
 }

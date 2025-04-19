@@ -240,9 +240,10 @@ export class AttackExecution implements Execution {
       const fallbackTiles: { tile: TileRef; weight: number }[] = [];
 
       const validTiles = this.toConquer.filter((tile) => {
-        const onBorder = this.mg
-          .neighbors(tile)
-          .some((t) => this.mg.owner(t) === this._owner);
+        const neighbors = this.mg.neighbors(tile);
+        const onBorder = neighbors.some(
+          (t) => this.mg.owner(t) === this._owner,
+        );
         return this.mg.owner(tile) === this.target && onBorder;
       });
       if (validTiles.length === 0) {

@@ -18,9 +18,11 @@ const malusForRetreat = 25;
 export class AttackExecution implements Execution {
   private breakAlliance = false;
   private active: boolean = true;
-  private toConquer: TileRef[] = [];
+  private toConquerList: TileRef[] = [];
+  private toConquerSet = new Set<TileRef>();
 
   private random = new PseudoRandom(123);
+  private validToConquer = new Set<TileRef>();
 
   private _owner: Player;
   private tileWeights: Map<TileRef, { weight: number; ownedCount: number }> =
@@ -159,7 +161,9 @@ export class AttackExecution implements Execution {
   }
 
   private refreshToConquer() {
-    this.toConquer = [];
+    this.toConquerList = [];
+    this.toConquerSet.clear();
+    this.validToConquer.clear();
     this.border.clear();
     for (const tile of this._owner.borderTiles()) {
       this.addNeighbors(tile);
@@ -229,7 +233,7 @@ export class AttackExecution implements Execution {
         return;
       }
 
-      if (this.toConquer.length == 0) {
+      if (this.toConquerList.length === 0) {
         this.refreshToConquer();
         this.retreat();
         return;
@@ -239,13 +243,10 @@ export class AttackExecution implements Execution {
       const priorityTiles: { tile: TileRef; weight: number }[] = [];
       const fallbackTiles: { tile: TileRef; weight: number }[] = [];
 
-      const validTiles = this.toConquer.filter((tile) => {
-        const neighbors = this.mg.neighbors(tile);
-        const onBorder = neighbors.some(
-          (t) => this.mg.owner(t) === this._owner,
-        );
-        return this.mg.owner(tile) === this.target && onBorder;
-      });
+      const validTiles = this.toConquerList.filter((tile) =>
+        this.validToConquer.has(tile),
+      );
+
       if (validTiles.length === 0) {
         this.retreat();
         return;
@@ -265,29 +266,46 @@ export class AttackExecution implements Execution {
       const candidates =
         priorityTiles.length > 0 ? priorityTiles : fallbackTiles;
 
-      const totalWeight = candidates.reduce((sum, t) => sum + t.weight, 0);
-      if (totalWeight === 0) {
+      if (candidates.length === 0) {
         this.retreat();
         return;
       }
 
-      let r = (this.random.nextInt(0, 10000) / 10000) * totalWeight;
-      let tileToConquer = null;
-      for (const { tile, weight } of candidates) {
-        r -= weight;
-        if (r <= 0) {
-          tileToConquer = tile;
-          break;
+      // Step 1: Build cumulative weight array
+      const cumulativeWeights: number[] = [];
+      let runningTotal = 0;
+      for (const { weight } of candidates) {
+        runningTotal += weight;
+        cumulativeWeights.push(runningTotal);
+      }
+
+      if (runningTotal === 0) {
+        this.retreat();
+        return;
+      }
+
+      // Step 2: Binary search for tile
+      const r = (this.random.nextInt(0, 10000) / 10000) * runningTotal;
+
+      let low = 0;
+      let high = cumulativeWeights.length - 1;
+      while (low < high) {
+        const mid = Math.floor((low + high) / 2);
+        if (r < cumulativeWeights[mid]) {
+          high = mid;
+        } else {
+          low = mid + 1;
         }
       }
-
-      if (!tileToConquer) {
-        this.retreat();
-        return;
-      }
+      const tileToConquer = candidates[low].tile;
 
       // Remove selected tile from the conquer list
-      this.toConquer = this.toConquer.filter((t) => t !== tileToConquer);
+      const index = this.toConquerList.indexOf(tileToConquer);
+      if (index !== -1) {
+        this.toConquerList.splice(index, 1);
+        this.toConquerSet.delete(tileToConquer);
+      }
+      this.validToConquer.delete(tileToConquer);
 
       this.border.delete(tileToConquer);
 
@@ -300,10 +318,6 @@ export class AttackExecution implements Execution {
       }
       this.addNeighbors(tileToConquer);
       const posture: "retreat" | "balanced" | "hold" = "balanced";
-      // if (this.target.isPlayer()) {
-      //   posture = (this.target as Player).defensivePosture?.() ?? "balanced";
-      //   console.log("Defender posture:", posture);
-      // }
 
       const { attackerTroopLoss, defenderTroopLoss, tilesPerTickUsed } = this.mg
         .config()
@@ -320,9 +334,20 @@ export class AttackExecution implements Execution {
         this.target.removeTroops(defenderTroopLoss);
       }
       this._owner.conquer(tileToConquer);
+
       for (const neighbor of this.mg.neighbors(tileToConquer)) {
-        if (this.toConquer.includes(neighbor)) {
-          this.updateTileWeight(neighbor); // 👈 only those that could be affected
+        if (this.toConquerSet.has(neighbor)) {
+          const onBorder = this.mg
+            .neighbors(neighbor)
+            .some((t) => this.mg.owner(t) === this._owner);
+
+          if (onBorder) {
+            this.validToConquer.add(neighbor);
+          } else {
+            this.validToConquer.delete(neighbor);
+          }
+
+          this.updateTileWeight(neighbor);
         }
       }
 
@@ -336,9 +361,20 @@ export class AttackExecution implements Execution {
         continue;
       }
       this.border.add(neighbor);
-      if (!this.toConquer.includes(neighbor)) {
-        this.toConquer.push(neighbor);
-        this.updateTileWeight(neighbor); // 👈 only update for new
+      if (!this.toConquerSet.has(neighbor)) {
+        this.toConquerSet.add(neighbor);
+        this.toConquerList.push(neighbor);
+        this.updateTileWeight(neighbor);
+      }
+
+      const onBorder = this.mg
+        .neighbors(neighbor)
+        .some((t) => this.mg.owner(t) === this._owner);
+
+      if (onBorder) {
+        this.validToConquer.add(neighbor);
+      } else {
+        this.validToConquer.delete(neighbor);
       }
     }
   }

@@ -506,7 +506,7 @@ export class DefaultConfig implements Config {
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: postureloss * defenderdensity,
         tilesPerTickUsed: within(
-          4 * defenderdensity ** 0.6 * adjustedRatio ** 0.5 * speed,
+          4 * defenderdensity ** 0.6 * adjustedRatio ** 0.6 * speed,
           10,
           480,
         ),
@@ -527,9 +527,9 @@ export class DefaultConfig implements Config {
     numAdjacentTilesWithEnemy: number,
   ): number {
     if (defender.isPlayer()) {
-      return 8 * numAdjacentTilesWithEnemy;
+      return 9 * numAdjacentTilesWithEnemy;
     } else {
-      return 8 * numAdjacentTilesWithEnemy;
+      return 9 * numAdjacentTilesWithEnemy;
     }
   }
 

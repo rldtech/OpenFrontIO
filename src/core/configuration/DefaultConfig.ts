@@ -490,14 +490,16 @@ export class DefaultConfig implements Config {
       const defenderdensity = (defenderTroops / defenderTiles) * sharedloss;
       const adjustedRatio = within(defenderTroops / attackTroops, 0.3, 10);
 
-      // if (attacker.type() == PlayerType.Human) {
-      //   console.log(
-      //     "speed:",
-      //     defenderdensity *
-      //       Math.max(defender.troops() / attackTroops, 0.3) ** 0.5 *
-      //       speed,
-      //   );
-      // }
+      if (attacker.type() == PlayerType.Human) {
+        console.log(
+          "speed:",
+          4 *
+            within(defenderdensity, 3, 90) ** 0.6 *
+            adjustedRatio ** 0.7 *
+            speed,
+        );
+        console.log("density", defenderdensity);
+      }
       return {
         attackerTroopLoss:
           mag * 10 +
@@ -506,7 +508,7 @@ export class DefaultConfig implements Config {
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: postureloss * defenderdensity,
         tilesPerTickUsed: within(
-          4 * defenderdensity ** 0.6 * adjustedRatio ** 0.6 * speed,
+          4 * (defenderdensity * adjustedRatio) ** 0.5 * speed,
           10,
           480,
         ),

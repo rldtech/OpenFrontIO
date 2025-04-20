@@ -468,26 +468,25 @@ export class DefaultConfig implements Config {
     if (defenderIsPlayer) {
       let sharedloss = 1;
       let postureloss = 1;
-      if (defenderIsPlayer) {
-        const posture = defender.defensivePosture?.() ?? "balanced";
-        switch (posture) {
-          case "retreat":
-            sharedloss = 0.5;
-            postureloss = 0.7;
-            break;
-          case "balanced":
-            sharedloss = 1.0;
-            postureloss = 1;
-            break;
-          case "hold":
-            sharedloss = 3;
-            postureloss = 1.3;
-            break;
-        }
+      const posture = defender.defensivePosture?.() ?? "balanced";
+      switch (posture) {
+        case "retreat":
+          sharedloss = 0.5;
+          postureloss = 0.7;
+          break;
+        case "balanced":
+          sharedloss = 1.0;
+          postureloss = 1;
+          break;
+        case "hold":
+          sharedloss = 3;
+          postureloss = 1.3;
+          break;
       }
+
       const defenderTroops = defender.troops();
       const defenderTiles = defender.numTilesOwned();
-      const defenderdensity = (defenderTroops / defenderTiles) * sharedloss;
+      const defenderdensity = (sharedloss * defenderTroops) / defenderTiles;
       const adjustedRatio = within(defenderTroops / attackTroops, 0.3, 10);
 
       if (attacker.type() == PlayerType.Human) {
@@ -638,7 +637,28 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): number {
-    return (player.workers() ** 0.6 * player.numTilesOwned() ** 0.4) / 400;
+    const numCities = player.units(UnitType.City).length;
+    const baseCityPopulation = numCities * this.cityPopulationIncrease();
+
+    const totalWorkers = player.workers();
+    const totalPopulation = player.population();
+    const maxPopulation = this.maxPopulation(player);
+    const numTiles = player.numTilesOwned();
+
+    const populationRatio =
+      maxPopulation > 0 ? totalPopulation / maxPopulation : 0;
+    const adjustedCityPopulation = baseCityPopulation * populationRatio;
+
+    const cityWorkers =
+      (adjustedCityPopulation * totalWorkers) / totalPopulation;
+    const ruralWorkers = totalWorkers - cityWorkers;
+
+    const cityGold = cityWorkers / 1950;
+    const tileGold = (ruralWorkers ** 0.6 * numTiles ** 0.4) / 500;
+
+    const totalGold = cityGold + tileGold;
+
+    return totalGold;
   }
 
   troopAdjustmentRate(player: Player): number {

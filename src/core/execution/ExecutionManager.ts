@@ -16,7 +16,6 @@ import { FakeHumanExecution } from "./FakeHumanExecution";
 import { MoveWarshipExecution } from "./MoveWarshipExecution";
 import { NoOpExecution } from "./NoOpExecution";
 import { RetreatExecution } from "./RetreatExecution";
-import { SetDefensivePostureExecution } from "./SetDefensivePostureExecution";
 import { SetTargetTroopRatioExecution } from "./SetTargetTroopRatioExecution";
 import { SpawnExecution } from "./SpawnExecution";
 import { TargetPlayerExecution } from "./TargetPlayerExecution";
@@ -104,9 +103,6 @@ export class Executor {
           this.mg.ref(intent.x, intent.y),
           intent.unit,
         );
-      case "setDefensivePosture":
-        return new SetDefensivePostureExecution(playerID, intent.posture);
-
       default:
         throw new Error(`intent type ${intent} not found`);
     }

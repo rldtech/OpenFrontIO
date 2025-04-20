@@ -69,8 +69,6 @@ export class PlayerImpl implements Player {
   // 0 to 100
   private _targetTroopRatio: bigint;
 
-  private _defensivePosture: "retreat" | "balanced" | "hold" = "balanced";
-
   markedTraitorTick = -1;
 
   private embargoes: Set<PlayerID> = new Set();
@@ -662,12 +660,6 @@ export class PlayerImpl implements Player {
       );
     }
     this._targetTroopRatio = toInt(target * 100);
-  }
-  public defensivePosture(): "retreat" | "balanced" | "hold" {
-    return this._defensivePosture;
-  }
-  public setDefensivePosture(p: "retreat" | "balanced" | "hold") {
-    this._defensivePosture = p;
   }
 
   troops(): number {

@@ -466,28 +466,9 @@ export class DefaultConfig implements Config {
     }
 
     if (defenderIsPlayer) {
-      let sharedloss = 1;
-      let postureloss = 1;
-      if (defenderIsPlayer) {
-        const posture = defender.defensivePosture?.() ?? "balanced";
-        switch (posture) {
-          case "retreat":
-            sharedloss = 0.5;
-            postureloss = 0.7;
-            break;
-          case "balanced":
-            sharedloss = 1.0;
-            postureloss = 1;
-            break;
-          case "hold":
-            sharedloss = 3;
-            postureloss = 1.3;
-            break;
-        }
-      }
       const defenderTroops = defender.troops();
       const defenderTiles = defender.numTilesOwned();
-      const defenderdensity = (defenderTroops / defenderTiles) * sharedloss;
+      const defenderdensity = defenderTroops / defenderTiles;
       const adjustedRatio = within(defenderTroops / attackTroops, 0.3, 10);
 
       if (attacker.type() == PlayerType.Human) {
@@ -506,7 +487,7 @@ export class DefaultConfig implements Config {
           defenderdensity *
             mag *
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
-        defenderTroopLoss: postureloss * defenderdensity,
+        defenderTroopLoss: defenderdensity,
         tilesPerTickUsed: within(
           4 * (defenderdensity * adjustedRatio) ** 0.5 * speed,
           10,

@@ -4,10 +4,7 @@ import { EventBus } from "../../../core/EventBus";
 import { GameView } from "../../../core/game/GameView";
 import { ClientID } from "../../../core/Schemas";
 import { AttackRatioEvent } from "../../InputHandler";
-import {
-  SendSetDefensivePostureEvent,
-  SendSetTargetTroopRatioEvent,
-} from "../../Transport";
+import { SendSetTargetTroopRatioEvent } from "../../Transport";
 import { renderNumber, renderTroops } from "../../Utils";
 import { UIState } from "../UIState";
 import { Layer } from "./Layer";
@@ -24,9 +21,6 @@ export class ControlPanel extends LitElement implements Layer {
 
   @state()
   private targetTroopRatio = 0.95;
-
-  @state()
-  private defensivePosture: "retreat" | "balanced" | "hold" = "balanced";
 
   @state()
   private currentTroopRatio = 0.95;
@@ -71,8 +65,6 @@ export class ControlPanel extends LitElement implements Layer {
     this.targetTroopRatio = Number(
       localStorage.getItem("settings.troopRatio") ?? "0.95",
     );
-    this.defensivePosture =
-      (localStorage.getItem("settings.defensivePosture") as any) ?? "balanced";
     this.init_ = true;
     this.uiState.attackRatio = this.attackRatio;
     this.currentTroopRatio = this.targetTroopRatio;
@@ -143,16 +135,6 @@ export class ControlPanel extends LitElement implements Layer {
     this.uiState.attackRatio = newRatio;
   }
 
-  private onPostureChange(e: Event) {
-    const raw = (e.target as HTMLInputElement).value;
-
-    if (raw === "retreat" || raw === "balanced" || raw === "hold") {
-      const value = raw as "retreat" | "balanced" | "hold";
-      this.eventBus.emit(new SendSetDefensivePostureEvent(value));
-    } else {
-      console.warn(`Unexpected posture value: ${raw}`);
-    }
-  }
   renderLayer(context: CanvasRenderingContext2D) {
     // Render any necessary canvas elements
   }

@@ -28,8 +28,7 @@ export type Intent =
   | TargetTroopRatioIntent
   | BuildUnitIntent
   | EmbargoIntent
-  | MoveWarshipIntent
-  | SetDefensivePostureIntent;
+  | MoveWarshipIntent;
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>;
 export type CancelAttackIntent = z.infer<typeof CancelAttackIntentSchema>;
@@ -53,9 +52,6 @@ export type MoveWarshipIntent = z.infer<typeof MoveWarshipIntentSchema>;
 
 export type Turn = z.infer<typeof TurnSchema>;
 export type GameConfig = z.infer<typeof GameConfigSchema>;
-export type SetDefensivePostureIntent = z.infer<
-  typeof SetDefensivePostureIntentSchema
->;
 
 export type ClientMessage =
   | ClientSendWinnerMessage
@@ -272,11 +268,6 @@ export const MoveWarshipIntentSchema = BaseIntentSchema.extend({
   tile: z.number(),
 });
 
-export const SetDefensivePostureIntentSchema = BaseIntentSchema.extend({
-  type: z.literal("setDefensivePosture"),
-  posture: z.enum(["retreat", "balanced", "hold"]),
-});
-
 const IntentSchema = z.union([
   AttackIntentSchema,
   CancelAttackIntentSchema,
@@ -293,7 +284,6 @@ const IntentSchema = z.union([
   BuildUnitIntentSchema,
   EmbargoIntentSchema,
   MoveWarshipIntentSchema,
-  SetDefensivePostureIntentSchema,
 ]);
 
 export const TurnSchema = z.object({

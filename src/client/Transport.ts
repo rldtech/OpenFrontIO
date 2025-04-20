@@ -98,9 +98,6 @@ export class SendDonateGoldIntentEvent implements GameEvent {
     public readonly gold: number | null,
   ) {}
 }
-export class SendSetDefensivePostureEvent {
-  constructor(public readonly posture: "retreat" | "balanced" | "hold") {}
-}
 
 export class SendDonateTroopsIntentEvent implements GameEvent {
   constructor(
@@ -216,9 +213,6 @@ export class Transport {
     this.eventBus.on(MoveWarshipIntentEvent, (e) => {
       this.onMoveWarshipEvent(e);
     });
-    this.eventBus.on(SendSetDefensivePostureEvent, (e) =>
-      this.onSendSetDefensivePostureEvent(e),
-    );
   }
 
   private startPing() {
@@ -555,14 +549,6 @@ export class Transport {
       clientID: this.lobbyConfig.clientID,
       unitId: event.unitId,
       tile: event.tile,
-    });
-  }
-
-  private onSendSetDefensivePostureEvent(event: SendSetDefensivePostureEvent) {
-    this.sendIntent({
-      type: "setDefensivePosture",
-      clientID: this.lobbyConfig.clientID,
-      posture: event.posture,
     });
   }
 

@@ -315,44 +315,6 @@ export class ControlPanel extends LitElement implements Layer {
             />
           </div>
         </div>
-        <div class="text-white mt-4">
-          <label class="block font-bold mb-1">Defensive Posture</label>
-          <div class="flex gap-2">
-            <label class="flex items-center gap-1 cursor-pointer">
-              <input
-                type="radio"
-                name="posture"
-                value="retreat"
-                .checked=${this.defensivePosture === "retreat"}
-                @change=${this.onPostureChange}
-                class="form-radio text-blue-500"
-              />
-              Fallback
-            </label>
-            <label class="flex items-center gap-1 cursor-pointer">
-              <input
-                type="radio"
-                name="posture"
-                value="balanced"
-                .checked=${this.defensivePosture === "balanced"}
-                @change=${this.onPostureChange}
-                class="form-radio text-blue-500"
-              />
-              Balanced
-            </label>
-            <label class="flex items-center gap-1 cursor-pointer">
-              <input
-                type="radio"
-                name="posture"
-                value="hold"
-                .checked=${this.defensivePosture === "hold"}
-                @change=${this.onPostureChange}
-                class="form-radio text-blue-500"
-              />
-              No Step Back
-            </label>
-          </div>
-        </div>
       </div>
     `;
   }

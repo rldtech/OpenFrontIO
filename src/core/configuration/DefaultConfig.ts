@@ -638,7 +638,28 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): number {
-    return (player.workers() ** 0.6 * player.numTilesOwned() ** 0.4) / 400;
+    const numCities = player.units(UnitType.City).length;
+    const baseCityPopulation = numCities * this.cityPopulationIncrease();
+
+    const totalWorkers = player.workers();
+    const totalPopulation = player.population();
+    const maxPopulation = this.maxPopulation(player);
+    const numTiles = player.numTilesOwned();
+
+    const populationRatio =
+      maxPopulation > 0 ? totalPopulation / maxPopulation : 0;
+    const adjustedCityPopulation = baseCityPopulation * populationRatio;
+
+    const cityWorkers =
+      (adjustedCityPopulation * totalWorkers) / totalPopulation;
+    const ruralWorkers = totalWorkers - cityWorkers;
+
+    const cityGold = cityWorkers / 1950;
+    const tileGold = (ruralWorkers ** 0.6 * numTiles ** 0.4) / 500;
+
+    const totalGold = cityGold + tileGold;
+
+    return totalGold;
   }
 
   troopAdjustmentRate(player: Player): number {

@@ -208,7 +208,11 @@ export class AttackExecution implements Execution {
       return;
     }
 
-    if (this.attack.retreating() || !this.attack.isActive()) {
+    if (this.attack.retreating()) {
+      return; // Keep waiting for retreat flag to become "retreated"
+    }
+
+    if (!this.attack.isActive()) {
       this.active = false;
       return;
     }

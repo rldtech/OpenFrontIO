@@ -485,7 +485,7 @@ export class DefaultConfig implements Config {
       }
       return {
         attackerTroopLoss:
-          mag * 20 +
+          mag * 15 +
           defenderdensity *
             mag *
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
@@ -498,7 +498,7 @@ export class DefaultConfig implements Config {
       };
     } else {
       return {
-        attackerTroopLoss: attackerType == PlayerType.Bot ? mag * 20 : mag * 20,
+        attackerTroopLoss: attackerType == PlayerType.Bot ? mag * 15 : mag * 15,
         defenderTroopLoss: 0,
         tilesPerTickUsed: 30 * speed,
       };

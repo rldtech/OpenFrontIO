@@ -1,3 +1,4 @@
+import { DefaultConfig } from "../configuration/DefaultConfig";
 import { consolex } from "../Consolex";
 import {
   Cell,
@@ -194,18 +195,37 @@ export class FakeHumanExecution implements Execution {
     }
   }
 
+  private chanceScaled(n: number): boolean {
+    const gameConfig = this.mg.config() as DefaultConfig;
+    const maxPop = gameConfig.maxPopulation(this.player);
+    const threshold = (this.player.targetTroopRatio() * maxPop) / 2;
+    const troops = this.player.troops();
+
+    let scaledN = n;
+
+    if (troops < 0.25 * threshold) {
+      return false; // no chance
+    } else if (troops < 0.5 * threshold) {
+      // scale smoothly from 0 to 1 as ratio goes from 0.25 to 0.5
+      const ratio = (troops - 0.25 * threshold) / (0.25 * threshold); // in [0, 1]
+      scaledN = Math.max(1, Math.round(n / ratio));
+    }
+
+    return this.random.chance(scaledN);
+  }
+
   private shouldAttack(other: Player): boolean {
     if (this.player.isOnSameTeam(other)) {
       return false;
     }
     if (this.player.isFriendly(other)) {
       if (this.shouldDiscourageAttack(other)) {
-        return this.random.chance(200);
+        return this.chanceScaled(200);
       }
-      return this.random.chance(50);
+      return this.chanceScaled(50);
     } else {
       if (this.shouldDiscourageAttack(other)) {
-        return this.random.chance(4);
+        return this.chanceScaled(4);
       }
       return true;
     }

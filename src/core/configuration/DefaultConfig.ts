@@ -223,7 +223,7 @@ export class DefaultConfig implements Config {
     return 10000 + 150 * Math.pow(dist, 1.1);
   }
   tradeShipSpawnRate(numberOfPorts: number): number {
-    return Math.round(10 * Math.pow(numberOfPorts, 0.6));
+    return Math.round(10 * Math.pow(numberOfPorts, 0.5));
   }
 
   unitInfo(type: UnitType): UnitInfo {
@@ -465,13 +465,13 @@ export class DefaultConfig implements Config {
       }
     }
     if (attackerType == PlayerType.Bot) {
-      speed *= 4; // slow bot attacks
+      speed *= 3; // slow bot attacks
     }
     if (defenderIsPlayer) {
       const defenderTroops = defender.troops();
       const defenderTiles = defender.numTilesOwned();
       const defenderdensity = defenderTroops / defenderTiles;
-      const adjustedRatio = within(defenderTroops / attackTroops, 0.3, 10);
+      const adjustedRatio = within(defenderTroops / attackTroops, 0.3, 20);
 
       if (attacker.type() == PlayerType.Human) {
         console.log(
@@ -591,7 +591,7 @@ export class DefaultConfig implements Config {
   populationIncreaseRate(player: Player): number {
     const max = this.maxPopulation(player);
 
-    let toAdd = 10 + Math.pow(player.population(), 0.73) / 4;
+    let toAdd = (800 / max + 1 / 160) * player.population();
 
     const ratio = 1 - player.population() / max;
     toAdd *= ratio;
@@ -680,7 +680,7 @@ export class DefaultConfig implements Config {
 
   // Humans can be population, soldiers attacking, soldiers in boat etc.
   nukeDeathFactor(humans: number, tilesOwned: number): number {
-    return (5 * humans) / Math.max(1, tilesOwned);
+    return humans / Math.max(1, tilesOwned);
   }
 
   structureMinDist(): number {

@@ -485,7 +485,7 @@ export class DefaultConfig implements Config {
       }
       return {
         attackerTroopLoss:
-          mag * 15 +
+          mag * 10 +
           defenderdensity *
             mag *
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
@@ -498,7 +498,7 @@ export class DefaultConfig implements Config {
       };
     } else {
       return {
-        attackerTroopLoss: attackerType == PlayerType.Bot ? mag * 15 : mag * 15,
+        attackerTroopLoss: attackerType == PlayerType.Bot ? mag * 10 : mag * 10,
         defenderTroopLoss: 0,
         tilesPerTickUsed: 30 * speed,
       };
@@ -544,7 +544,7 @@ export class DefaultConfig implements Config {
 
   startManpower(playerInfo: PlayerInfo): number {
     if (playerInfo.playerType == PlayerType.Bot) {
-      return 15_000;
+      return 10_000;
     }
     if (playerInfo.playerType == PlayerType.FakeHuman) {
       switch (this._gameConfig.difficulty) {

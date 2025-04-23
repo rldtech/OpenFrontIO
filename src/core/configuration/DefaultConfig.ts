@@ -569,7 +569,7 @@ export class DefaultConfig implements Config {
           player.units(UnitType.City).length * this.cityPopulationIncrease();
 
     if (player.type() == PlayerType.Bot) {
-      return maxPop / 2;
+      return maxPop / 3;
     }
 
     if (player.type() == PlayerType.Human) {
@@ -651,7 +651,7 @@ export class DefaultConfig implements Config {
   }
 
   troopAdjustmentRate(player: Player): number {
-    const maxDiff = this.maxPopulation(player) / 1000;
+    const maxDiff = this.maxPopulation(player) / 500;
     const target = player.population() * player.targetTroopRatio();
     const diff = target - player.troops();
     if (Math.abs(diff) < maxDiff) {
@@ -682,7 +682,7 @@ export class DefaultConfig implements Config {
 
   // Humans can be population, soldiers attacking, soldiers in boat etc.
   nukeDeathFactor(humans: number, tilesOwned: number): number {
-    return humans / Math.max(1, tilesOwned);
+    return humans / Math.max(2, tilesOwned);
   }
 
   structureMinDist(): number {

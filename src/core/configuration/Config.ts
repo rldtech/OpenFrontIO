@@ -98,7 +98,7 @@ export interface Config {
   maxPopulation(player: Player | PlayerView): number;
   cityPopulationIncrease(): number;
   boatAttackAmount(attacker: Player, defender: Player | TerraNullius): number;
-  warshipShellLifetime(): number;
+  shellLifetime(): number;
   boatMaxNumber(): number;
   allianceDuration(): Tick;
   allianceRequestCooldown(): Tick;
@@ -111,18 +111,25 @@ export interface Config {
   unitInfo(type: UnitType): UnitInfo;
   tradeShipGold(dist: number): Gold;
   tradeShipSpawnRate(numberOfPorts: number): number;
+  safeFromPiratesCooldownMax(): number;
   defensePostRange(): number;
   SAMCooldown(): number;
   SiloCooldown(): number;
   defensePostDefenseBonus(): number;
   falloutDefenseModifier(percentOfFallout: number): number;
   difficultyModifier(difficulty: Difficulty): number;
+  warshipPatrolRange(): number;
+  warshipShellAttackRate(): number;
+  warshipTargettingRange(): number;
+  defensePostShellAttackRate(): number;
+  defensePostTargettingRange(): number;
   // 0-1
   traitorDefenseDebuff(): number;
   traitorDuration(): number;
   nukeMagnitudes(unitType: UnitType): NukeMagnitude;
   defaultNukeSpeed(): number;
   nukeDeathFactor(humans: number, tilesOwned: number): number;
+  structureMinDist(): number;
 }
 
 export interface Theme {

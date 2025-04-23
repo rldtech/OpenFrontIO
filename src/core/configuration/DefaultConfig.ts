@@ -591,7 +591,9 @@ export class DefaultConfig implements Config {
   populationIncreaseRate(player: Player): number {
     const max = this.maxPopulation(player);
 
-    let toAdd = 10 + (800 / max + 1 / 160) * player.population();
+    let toAdd =
+      10 +
+      (800 / max + 1 / 160) * (0.7 * player.troops() + 1.3 * player.workers());
 
     const ratio = 1 - player.population() / max;
     toAdd *= ratio;

@@ -118,7 +118,7 @@ export class DefensePostExecution implements Execution {
       this.target = null;
       return;
     } else {
-      //this.shoot();
+      this.shoot();
       return;
     }
   }

@@ -473,16 +473,16 @@ export class DefaultConfig implements Config {
       const defenderdensity = defenderTroops / defenderTiles;
       const adjustedRatio = within(defenderTroops / attackTroops, 0.3, 20);
 
-      if (attacker.type() == PlayerType.Human) {
-        console.log(
-          "speed:",
-          4 *
-            within(defenderdensity, 3, 90) ** 0.6 *
-            adjustedRatio ** 0.7 *
-            speed,
-        );
-        console.log("density", defenderdensity);
-      }
+      // if (attacker.type() == PlayerType.Human) {
+      //   console.log(
+      //     "speed:",
+      //     4 *
+      //       within(defenderdensity, 3, 90) ** 0.6 *
+      //       adjustedRatio ** 0.7 *
+      //       speed,
+      //   );
+      //   console.log("density", defenderdensity);
+      // }
       return {
         attackerTroopLoss:
           mag * 10 +
@@ -551,7 +551,7 @@ export class DefaultConfig implements Config {
         case Difficulty.Easy:
           return 2_500 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Medium:
-          return 5_000 * (playerInfo?.nation?.strength ?? 1);
+          return 12_000 + 2000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Hard:
           return 20_000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Impossible:

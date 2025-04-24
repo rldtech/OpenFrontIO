@@ -44,6 +44,12 @@ export class FakeHumanExecution implements Execution {
   private lastNukeSent: [Tick, TileRef][] = [];
   private embargoMalusApplied = new Set<PlayerID>();
 
+  private portTargetRatio: number = 0.0003; // desired ports per tile
+  private cityTargetRatio: number = 0.0006; // desired cities per tile
+  private defensePostSpacing: number = 40; // minimum distance between defense posts
+  private defensePostTargetRatio: number = 0.001; // desired defense posts per tile
+  private lastDefensePostTick: number = -9999;
+
   constructor(
     gameID: GameID,
     private playerInfo: PlayerInfo,
@@ -54,7 +60,7 @@ export class FakeHumanExecution implements Execution {
     this.attackRate = this.random.nextInt(40, 80);
     this.attackTick = this.random.nextInt(0, this.attackRate);
     this.triggerRatio = this.random.nextInt(60, 90) / 100;
-    this.reserveRatio = this.random.nextInt(30, 60) / 100;
+    this.reserveRatio = this.random.nextInt(40, 60) / 100;
   }
 
   init(mg: Game) {
@@ -142,7 +148,7 @@ export class FakeHumanExecution implements Execution {
 
     if (this.firstMove) {
       this.firstMove = false;
-      this.behavior.sendAttack(this.mg.terraNullius());
+      this.behavior.sendAttack(this.mg.terraNullius(), true);
       return;
     }
 
@@ -400,23 +406,154 @@ export class FakeHumanExecution implements Execution {
   }
 
   private handleUnits() {
-    const ports = this.player.units(UnitType.Port);
-    if (ports.length == 0 && this.player.gold() > this.cost(UnitType.Port)) {
-      const oceanTiles = Array.from(this.player.borderTiles()).filter((t) =>
-        this.mg.isOceanShore(t),
-      );
-      if (oceanTiles.length > 0) {
-        const buildTile = this.random.randElement(oceanTiles);
-        this.mg.addExecution(
-          new ConstructionExecution(this.player.id(), buildTile, UnitType.Port),
-        );
+    const currentTick = this.mg.ticks();
+    const portsCount = this.player.units(UnitType.Port).length;
+    const citiesCount = this.player.units(UnitType.City).length;
+    const tilesCount = this.player.numTilesOwned();
+
+    const portRatio = portsCount / tilesCount;
+    const cityRatio = citiesCount / tilesCount;
+
+    const portDeficit = Math.max(
+      (this.portTargetRatio - portRatio) / this.portTargetRatio,
+      portsCount < 1 ? 1 : 0,
+    );
+
+    const cityDeficit = Math.max(
+      (this.cityTargetRatio - cityRatio) / this.cityTargetRatio,
+      citiesCount < 3 ? 1 : 0,
+    );
+
+    const canAffordPort = this.player.gold() >= this.cost(UnitType.Port);
+    const canAffordCity = this.player.gold() >= this.cost(UnitType.City);
+
+    const oceanTiles = Array.from(this.player.borderTiles()).filter((t) =>
+      this.mg.isOceanShore(t),
+    );
+    const canBuildPort = canAffordPort && oceanTiles.length > 0;
+    const canBuildCity =
+      canAffordCity && this.randTerritoryTile(this.player) !== null;
+
+    if (portDeficit > 0 || cityDeficit > 0) {
+      if (cityDeficit >= portDeficit && canBuildCity) {
+        const tile = this.randTerritoryTile(this.player);
+        if (tile) {
+          this.mg.addExecution(
+            new ConstructionExecution(this.player.id(), tile, UnitType.City),
+          );
+          return;
+        }
       }
-      return;
+
+      if (portDeficit > cityDeficit && canBuildPort) {
+        const tile = this.random.randElement(oceanTiles);
+        this.mg.addExecution(
+          new ConstructionExecution(this.player.id(), tile, UnitType.Port),
+        );
+        return;
+      }
+
+      // fallback: if port was preferred but unbuildable, try city
+      if (portDeficit > cityDeficit && !canBuildPort && canBuildCity) {
+        const tile = this.randTerritoryTile(this.player);
+        if (tile) {
+          this.mg.addExecution(
+            new ConstructionExecution(this.player.id(), tile, UnitType.City),
+          );
+          return;
+        }
+      }
     }
-    this.maybeSpawnStructure(UnitType.City, 2);
+    if (currentTick - this.lastDefensePostTick >= 10) {
+      this.lastDefensePostTick = currentTick;
+      const defensePostsCount = this.player.units(UnitType.DefensePost).length;
+      const defensePostRatio = defensePostsCount / tilesCount;
+      const defensePostDeficit = this.defensePostTargetRatio - defensePostRatio;
+      const canAffordDefensePost =
+        this.player.gold() >= this.cost(UnitType.DefensePost);
+      // consolex.log(`[${this.playerInfo.name}] can afford: ${canAffordDefensePost}, deficit: ${defensePostDeficit}`);
+
+      if (defensePostDeficit > 0 && canAffordDefensePost) {
+        consolex.log("creating defense post");
+        const borderTiles = new Set(this.player.borderTiles());
+        const existingPosts = this.player
+          .units(UnitType.DefensePost)
+          .map((u) => u.tile());
+        const candidateTiles: TileRef[] = [];
+
+        const radius = 10;
+
+        const borderTileArray = Array.from(borderTiles);
+        this.random.shuffleArray(borderTileArray);
+        const sampledBorderTiles = borderTileArray.slice(0, 5); // <-- scan 3 border tiles only
+
+        for (const borderTile of sampledBorderTiles) {
+          const x0 = this.mg.x(borderTile);
+          const y0 = this.mg.y(borderTile);
+
+          tileScan: for (let dx = -radius; dx <= radius; dx++) {
+            for (let dy = -radius; dy <= radius; dy++) {
+              const x = x0 + dx;
+              const y = y0 + dy;
+
+              if (!this.mg.isValidCoord(x, y)) continue;
+
+              const tile = this.mg.ref(x, y);
+              if (this.mg.owner(tile) !== this.player) continue;
+              if (borderTiles.has(tile)) continue;
+
+              let tooCloseToBorder = false;
+              for (const borderTile of borderTiles) {
+                const distSq = this.mg.euclideanDistSquared(tile, borderTile);
+                if (distSq < 25) {
+                  // must be at least 5 tiles away
+                  tooCloseToBorder = true;
+                  break;
+                }
+              }
+              if (tooCloseToBorder) continue;
+
+              let nearOtherPost = false;
+              for (const postTile of existingPosts) {
+                const distSq = this.mg.euclideanDistSquared(tile, postTile);
+                if (
+                  distSq <
+                  this.defensePostSpacing * this.defensePostSpacing
+                ) {
+                  nearOtherPost = true;
+                  break;
+                }
+              }
+              if (nearOtherPost) continue;
+
+              if (this.player.canBuild(UnitType.DefensePost, tile)) {
+                candidateTiles.push(tile);
+                if (candidateTiles.length >= 5) break tileScan;
+              }
+            }
+          }
+          if (candidateTiles.length > 0) {
+            const tile = this.random.randElement(candidateTiles);
+            this.mg.addExecution(
+              new ConstructionExecution(
+                this.player.id(),
+                tile,
+                UnitType.DefensePost,
+              ),
+            );
+            return;
+          } else {
+            consolex.log(
+              `[${this.playerInfo.name}] no valid tile found for Defense Post`,
+            );
+          }
+        }
+      }
+    }
     if (this.maybeSpawnWarship()) {
       return;
     }
+
     if (!this.mg.config().disableNukes()) {
       this.maybeSpawnStructure(UnitType.MissileSilo, 1);
     }

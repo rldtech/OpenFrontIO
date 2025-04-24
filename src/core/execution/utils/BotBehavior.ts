@@ -8,6 +8,7 @@ import {
   Tick,
 } from "../../game/Game";
 import { PseudoRandom } from "../../PseudoRandom";
+import { within } from "../../Util";
 import { AttackExecution } from "../AttackExecution";
 import { EmojiExecution } from "../EmojiExecution";
 
@@ -163,13 +164,27 @@ export class BotBehavior {
     return this.enemy;
   }
 
-  sendAttack(target: Player | TerraNullius) {
+  sendAttack(target: Player | TerraNullius, force: boolean = false) {
     if (target.isPlayer() && this.player.isOnSameTeam(target)) return;
+
     const maxPop = this.game.config().maxPopulation(this.player);
     const maxTroops = maxPop * this.player.targetTroopRatio();
     const targetTroops = maxTroops * this.reserveRatio;
-    const troops = this.player.troops() - targetTroops;
-    if (troops < 1) return;
+
+    let troops: number;
+    if (force) {
+      // send exactly 40% of current troops
+      troops = this.player.troops() * 0.4;
+      if (troops < 1) return;
+    } else {
+      troops = within(
+        this.player.troops() - targetTroops,
+        0.05 * this.player.troops(),
+        0.4 * this.player.troops(),
+      );
+      if (troops < 1) return;
+    }
+
     this.game.addExecution(
       new AttackExecution(
         troops,

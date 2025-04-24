@@ -491,7 +491,7 @@ export class DefaultConfig implements Config {
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: defenderdensity,
         tilesPerTickUsed: within(
-          3.2 * defenderdensity ** 0.5 * adjustedRatio ** 0.7 * speed,
+          2.8 * defenderdensity ** 0.5 * adjustedRatio ** 0.8 * speed,
           8,
           1000,
         ),
@@ -682,7 +682,7 @@ export class DefaultConfig implements Config {
 
   // Humans can be population, soldiers attacking, soldiers in boat etc.
   nukeDeathFactor(humans: number, tilesOwned: number): number {
-    return humans / Math.max(2, tilesOwned);
+    return (2 * humans) / Math.max(1, tilesOwned);
   }
 
   structureMinDist(): number {

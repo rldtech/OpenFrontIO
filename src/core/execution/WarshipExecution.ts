@@ -145,6 +145,7 @@ export class WarshipExecution implements Execution {
           (unit.type() !== UnitType.TradeShip ||
             (hasPort &&
               unit.dstPort()?.owner() !== this.warship.owner() &&
+              !unit.dstPort()?.owner().isFriendly(this.warship.owner()) &&
               unit.isSafeFromPirates() !== true)),
       );
 

@@ -639,12 +639,12 @@ export class PlayerImpl implements Player {
   }
 
   population(): number {
-    return (
-      Number(this._troops + this._workers) +
-      this.attackingTroops() +
-      this.boatTroops()
-    );
+    return Number(this._troops + this._workers);
   }
+  adjustedPopulation(): number {
+    return this.population() + this.boatTroops() + this.attackingTroops();
+  }
+
   private attackingTroops(): number {
     return this._outgoingAttacks
       .filter((a) => a.isActive())

@@ -218,10 +218,10 @@ export class WinModal extends LitElement implements Layer {
           new SendWinnerEvent(winner.clientID(), wu.allPlayersStats, "player"),
         );
         if (winner == this.game.myPlayer()) {
-          this._title = "Chicken Jockey!";
+          this._title = "You Won!";
           this.won = true;
         } else {
-          this._title = `Chicken Jockey!`;
+          this._title = `${wu.winner} has won!`;
           this.won = false;
         }
         this.show();

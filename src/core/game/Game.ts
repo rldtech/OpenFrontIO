@@ -359,6 +359,7 @@ export interface Player {
   // Resources & Population
   gold(): Gold;
   population(): number;
+  adjustedPopulation(): number;
   workers(): number;
   troops(): number;
   targetTroopRatio(): number;

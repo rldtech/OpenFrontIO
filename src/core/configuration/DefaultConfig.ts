@@ -595,7 +595,7 @@ export class DefaultConfig implements Config {
       10 +
       (800 / max + 1 / 160) * (0.7 * player.troops() + 1.3 * player.workers());
 
-    const ratio = 1 - player.population() / max;
+    const ratio = 1 - player.adjustedPopulation() / max;
     toAdd *= ratio;
 
     if (player.type() == PlayerType.Bot) {

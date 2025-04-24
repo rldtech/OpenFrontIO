@@ -44,10 +44,10 @@ export class FakeHumanExecution implements Execution {
   private lastNukeSent: [Tick, TileRef][] = [];
   private embargoMalusApplied = new Set<PlayerID>();
 
-  private portTargetRatio: number = 0.0003; // desired ports per tile
-  private cityTargetRatio: number = 0.0006; // desired cities per tile
-  private defensePostSpacing: number = 50; // minimum distance between defense posts
-  private defensePostTargetRatio: number = 0.0002; // desired defense posts per tile
+  private portTargetRatio: number = 0.0001; // desired ports per tile
+  private cityTargetRatio: number = 0.0002; // desired cities per tile
+  private defensePostSpacing: number = 60; // minimum distance between defense posts
+  private defensePostTargetRatio: number = 0.005; // desired defense posts per border length
   private lastDefensePostTick: number = -9999;
 
   constructor(
@@ -416,12 +416,12 @@ export class FakeHumanExecution implements Execution {
 
     const portDeficit = Math.max(
       (this.portTargetRatio - portRatio) / this.portTargetRatio,
-      portsCount < 1 ? 1 : 0,
+      portsCount < 1 ? 1 : -1,
     );
 
     const cityDeficit = Math.max(
       (this.cityTargetRatio - cityRatio) / this.cityTargetRatio,
-      citiesCount < 3 ? 1 : 0,
+      citiesCount < 2 ? 1 : -1,
     );
 
     const canAffordPort = this.player.gold() >= this.cost(UnitType.Port);
@@ -441,6 +441,7 @@ export class FakeHumanExecution implements Execution {
           this.mg.addExecution(
             new ConstructionExecution(this.player.id(), tile, UnitType.City),
           );
+
           return;
         }
       }
@@ -450,48 +451,55 @@ export class FakeHumanExecution implements Execution {
         this.mg.addExecution(
           new ConstructionExecution(this.player.id(), tile, UnitType.Port),
         );
+
         return;
       }
 
       // fallback: if port was preferred but unbuildable, try city
-      if (portDeficit > cityDeficit && !canBuildPort && canBuildCity) {
+      if (
+        portDeficit > cityDeficit &&
+        !canBuildPort &&
+        canBuildCity &&
+        cityDeficit > 0
+      ) {
         const tile = this.randTerritoryTile(this.player);
         if (tile) {
           this.mg.addExecution(
             new ConstructionExecution(this.player.id(), tile, UnitType.City),
           );
+
           return;
         }
       }
     }
-    if (currentTick - this.lastDefensePostTick >= 10) {
+    if (currentTick - this.lastDefensePostTick >= 100) {
       this.lastDefensePostTick = currentTick;
       const defensePostsCount = this.player.units(UnitType.DefensePost).length;
-      const defensePostRatio = defensePostsCount / tilesCount;
+      const borderTiles = new Set(this.player.borderTiles());
+      const defensePostRatio = defensePostsCount / borderTiles.size;
       const defensePostDeficit = this.defensePostTargetRatio - defensePostRatio;
+
       const canAffordDefensePost =
         this.player.gold() >= this.cost(UnitType.DefensePost);
-      // consolex.log(`[${this.playerInfo.name}] can afford: ${canAffordDefensePost}, deficit: ${defensePostDeficit}`);
 
       if (defensePostDeficit > 0 && canAffordDefensePost) {
-        consolex.log("creating defense post");
         const borderTiles = new Set(this.player.borderTiles());
         const existingPosts = this.player
           .units(UnitType.DefensePost)
           .map((u) => u.tile());
-        const candidateTiles: TileRef[] = [];
 
         const radius = 10;
 
         const borderTileArray = Array.from(borderTiles);
         this.random.shuffleArray(borderTileArray);
-        const sampledBorderTiles = borderTileArray.slice(0, 5); // <-- scan 3 border tiles only
+        const sampledBorderTiles = borderTileArray.slice(0, 5); // <-- scan 5 border tiles only
+        let builtDefensePost = false;
 
         for (const borderTile of sampledBorderTiles) {
           const x0 = this.mg.x(borderTile);
           const y0 = this.mg.y(borderTile);
 
-          tileScan: for (let dx = -radius; dx <= radius; dx++) {
+          for (let dx = -radius; dx <= radius; dx++) {
             for (let dy = -radius; dy <= radius; dy++) {
               const x = x0 + dx;
               const y = y0 + dy;
@@ -505,14 +513,12 @@ export class FakeHumanExecution implements Execution {
               let tooCloseToBorder = false;
               for (const borderTile of borderTiles) {
                 const distSq = this.mg.euclideanDistSquared(tile, borderTile);
-                if (distSq < 25) {
-                  // must be at least 5 tiles away
+                if (distSq < 36) {
                   tooCloseToBorder = true;
                   break;
                 }
               }
               if (tooCloseToBorder) continue;
-
               let nearOtherPost = false;
               for (const postTile of existingPosts) {
                 const distSq = this.mg.euclideanDistSquared(tile, postTile);
@@ -527,26 +533,26 @@ export class FakeHumanExecution implements Execution {
               if (nearOtherPost) continue;
 
               if (this.player.canBuild(UnitType.DefensePost, tile)) {
-                candidateTiles.push(tile);
-                if (candidateTiles.length >= 5) break tileScan;
+                this.mg.addExecution(
+                  new ConstructionExecution(
+                    this.player.id(),
+                    tile,
+                    UnitType.DefensePost,
+                  ),
+                );
+                builtDefensePost = true;
+                break;
               }
             }
+            if (builtDefensePost) break;
           }
-          if (candidateTiles.length > 0) {
-            const tile = this.random.randElement(candidateTiles);
-            this.mg.addExecution(
-              new ConstructionExecution(
-                this.player.id(),
-                tile,
-                UnitType.DefensePost,
-              ),
-            );
-            return;
-          } else {
-            consolex.log(
-              `[${this.playerInfo.name}] no valid tile found for Defense Post`,
-            );
-          }
+          if (builtDefensePost) break;
+        }
+
+        if (!builtDefensePost) {
+          consolex.log(
+            `[${this.playerInfo.name}] no valid tile found for Defense Post`,
+          );
         }
       }
     }

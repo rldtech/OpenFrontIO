@@ -26,7 +26,7 @@ export class TransportShipExecution implements Execution {
   private mg: Game;
   private attacker: Player;
   private target: Player | TerraNullius;
-  private embarkDelay = 10;
+  private embarkDelay = 0;
 
   // TODO make private
   public path: TileRef[];

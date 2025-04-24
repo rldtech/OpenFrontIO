@@ -472,17 +472,6 @@ export class DefaultConfig implements Config {
       const defenderTiles = defender.numTilesOwned();
       const defenderdensity = defenderTroops / defenderTiles;
       const adjustedRatio = within(defenderTroops / attackTroops, 0.3, 20);
-
-      // if (attacker.type() == PlayerType.Human) {
-      //   console.log(
-      //     "speed:",
-      //     4 *
-      //       within(defenderdensity, 3, 90) ** 0.6 *
-      //       adjustedRatio ** 0.7 *
-      //       speed,
-      //   );
-      //   console.log("density", defenderdensity);
-      // }
       return {
         attackerTroopLoss:
           mag * 10 +

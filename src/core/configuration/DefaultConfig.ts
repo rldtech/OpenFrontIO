@@ -343,7 +343,7 @@ export class DefaultConfig implements Config {
             p.type() == PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
-                  2_000_000,
+                  1_000_000,
                   Math.pow(
                     2,
                     p.unitsIncludingConstruction(UnitType.City).length,
@@ -631,8 +631,8 @@ export class DefaultConfig implements Config {
       (adjustedCityPopulation * totalWorkers) / totalPopulation;
     const ruralWorkers = totalWorkers - cityWorkers;
 
-    const cityGold = cityWorkers / 1300;
-    const tileGold = (Math.sqrt(ruralWorkers) * Math.sqrt(numTiles)) / 390;
+    const cityGold = cityWorkers / 2000;
+    const tileGold = (Math.sqrt(ruralWorkers) * Math.sqrt(numTiles)) / 600;
 
     const totalGold = cityGold + tileGold;
 

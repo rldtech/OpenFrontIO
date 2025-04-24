@@ -250,7 +250,7 @@ export class DefaultConfig implements Config {
         return {
           cost: () => 0,
           territoryBound: false,
-          damage: 250,
+          damage: 200,
         };
       case UnitType.SAMMissile:
         return {
@@ -706,7 +706,7 @@ export class DefaultConfig implements Config {
   }
 
   defensePostShellAttackRate(): number {
-    return 100;
+    return 120;
   }
 
   safeFromPiratesCooldownMax(): number {

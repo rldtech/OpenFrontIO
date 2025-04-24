@@ -47,7 +47,7 @@ export class FakeHumanExecution implements Execution {
   private portTargetRatio: number = 0.0003; // desired ports per tile
   private cityTargetRatio: number = 0.0006; // desired cities per tile
   private defensePostSpacing: number = 50; // minimum distance between defense posts
-  private defensePostTargetRatio: number = 0.0004; // desired defense posts per tile
+  private defensePostTargetRatio: number = 0.0002; // desired defense posts per tile
   private lastDefensePostTick: number = -9999;
 
   constructor(

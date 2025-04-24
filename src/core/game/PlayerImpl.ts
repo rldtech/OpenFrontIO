@@ -639,7 +639,21 @@ export class PlayerImpl implements Player {
   }
 
   population(): number {
-    return Number(this._troops + this._workers);
+    return (
+      Number(this._troops + this._workers) +
+      this.attackingTroops() +
+      this.boatTroops()
+    );
+  }
+  private attackingTroops(): number {
+    return this._outgoingAttacks
+      .filter((a) => a.isActive())
+      .reduce((sum, a) => sum + a.troops(), 0);
+  }
+  private boatTroops(): number {
+    return this.units(UnitType.TransportShip)
+      .map((u) => u.troops())
+      .reduce((sum, n) => sum + n, 0);
   }
   workers(): number {
     return Math.max(1, Number(this._workers));

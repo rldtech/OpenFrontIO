@@ -534,7 +534,7 @@ export class DefaultConfig implements Config {
 
   startManpower(playerInfo: PlayerInfo): number {
     if (playerInfo.playerType == PlayerType.Bot) {
-      return 8_000;
+      return 6_000;
     }
     if (playerInfo.playerType == PlayerType.FakeHuman) {
       switch (this._gameConfig.difficulty) {

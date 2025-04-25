@@ -214,6 +214,8 @@ export class NameLayer implements Layer {
     troopsDiv.style.marginTop = "-5%";
     element.appendChild(troopsDiv);
 
+    // TODO: enable this for new meta.
+
     const shieldDiv = document.createElement("div");
     shieldDiv.classList.add("player-shield");
     shieldDiv.style.zIndex = "3";
@@ -307,13 +309,8 @@ export class NameLayer implements Layer {
       shieldNumber.style.fontSize = `${render.fontSize * 0.6}px`;
       shieldNumber.style.marginTop = `${-render.fontSize * 0.1}px`;
       shieldNumber.textContent = density;
-      if (parseFloat(density) > 90) {
-        shieldNumber.style.textDecoration = "underline";
-        shieldNumber.style.fontWeight = "bold";
-      } else {
-        shieldNumber.style.textDecoration = "none";
-        shieldNumber.style.fontWeight = "normal";
-      }
+      shieldNumber.style.textDecoration = "none";
+      shieldNumber.style.fontWeight = "normal";
     }
 
     // Handle icons

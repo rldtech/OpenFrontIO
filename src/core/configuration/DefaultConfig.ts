@@ -90,6 +90,7 @@ export abstract class DefaultServerConfig implements ServerConfig {
         GameMapType.Oceania,
         GameMapType.Japan, // Japan at this level because its 2/3 water
         GameMapType.FaroeIslands,
+        GameMapType.EuropeClassic,
       ].includes(map)
     ) {
       return Math.random() < 0.3 ? 50 : 25;
@@ -148,7 +149,7 @@ export class DefaultConfig implements Config {
     return 0.5;
   }
   traitorDuration(): number {
-    return 15 * 10; // 15 seconds
+    return 30 * 10; // 30 seconds
   }
   spawnImmunityDuration(): Tick {
     return 5 * 10;
@@ -392,7 +393,7 @@ export class DefaultConfig implements Config {
     return 80;
   }
   boatMaxNumber(): number {
-    return 9;
+    return 3;
   }
   numSpawnPhaseTurns(): number {
     return this._gameConfig.gameType == GameType.Singleplayer ? 100 : 300;

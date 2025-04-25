@@ -474,6 +474,7 @@ export class FakeHumanExecution implements Execution {
     }
     if (currentTick - this.lastDefensePostTick >= 100) {
       this.lastDefensePostTick = currentTick;
+      const hasCity = this.player.units(UnitType.City).length >= 1;
       const defensePostsCount = this.player.units(UnitType.DefensePost).length;
       const borderTiles = new Set(this.player.borderTiles());
       const defensePostRatio = defensePostsCount / borderTiles.size;
@@ -482,7 +483,7 @@ export class FakeHumanExecution implements Execution {
       const canAffordDefensePost =
         this.player.gold() >= this.cost(UnitType.DefensePost);
 
-      if (defensePostDeficit > 0 && canAffordDefensePost) {
+      if (defensePostDeficit > 0 && canAffordDefensePost && hasCity) {
         const borderTiles = new Set(this.player.borderTiles());
         const existingPosts = this.player
           .units(UnitType.DefensePost)

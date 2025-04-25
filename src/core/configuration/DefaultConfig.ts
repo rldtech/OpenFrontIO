@@ -449,8 +449,8 @@ export class DefaultConfig implements Config {
 
     if (gm.hasFallout(tileToConquer)) {
       const falloutRatio = gm.numTilesWithFallout() / gm.numLandTiles();
-      //mag *= this.falloutDefenseModifier(falloutRatio);
-      //speed *= this.falloutDefenseModifier(falloutRatio);
+      mag *= this.falloutDefenseModifier(falloutRatio);
+      speed *= this.falloutDefenseModifier(falloutRatio);
     }
 
     if (attacker.isPlayer() && defenderIsPlayer) {
@@ -480,7 +480,7 @@ export class DefaultConfig implements Config {
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: defenderdensity,
         tilesPerTickUsed: within(
-          2.1 * defenderdensity ** 0.6 * adjustedRatio ** 0.8 * speed,
+          5 * defenderdensity ** 0.5 * adjustedRatio ** 0.8 * speed,
           8,
           1000,
         ),
@@ -538,13 +538,13 @@ export class DefaultConfig implements Config {
     if (playerInfo.playerType == PlayerType.FakeHuman) {
       switch (this._gameConfig.difficulty) {
         case Difficulty.Easy:
-          return 2_500 * (playerInfo?.nation?.strength ?? 1);
+          return 2_500 + 1000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Medium:
           return 12_000 + 2000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Hard:
-          return 20_000 * (playerInfo?.nation?.strength ?? 1);
+          return 20_000 + 4000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Impossible:
-          return 50_000 * (playerInfo?.nation?.strength ?? 1);
+          return 50_000 + 8000 * (playerInfo?.nation?.strength ?? 1);
       }
     }
     return this.infiniteTroops() ? 1_000_000 : 25_000;
@@ -554,7 +554,7 @@ export class DefaultConfig implements Config {
     const maxPop =
       player.type() == PlayerType.Human && this.infiniteTroops()
         ? 1_000_000_000
-        : 1 * (player.numTilesOwned() * 30 + 100000) +
+        : 1 * (player.numTilesOwned() * 30 + 50000) +
           player.units(UnitType.City).length * this.cityPopulationIncrease();
 
     if (player.type() == PlayerType.Bot) {

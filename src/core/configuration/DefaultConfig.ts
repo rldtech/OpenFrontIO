@@ -464,6 +464,13 @@ export class DefaultConfig implements Config {
       ) {
         mag *= 0.8;
       }
+      if (
+        attackerType == PlayerType.Human &&
+        defenderType == PlayerType.FakeHuman
+      ) {
+        //mag *= 0.9;
+        //speed *= 0.9;
+      }
     }
     if (attackerType == PlayerType.Bot) {
       speed *= 3; // slow bot attacks
@@ -476,10 +483,11 @@ export class DefaultConfig implements Config {
       return {
         attackerTroopLoss:
           mag * 10 +
-          defenderdensity *
+          1.1 *
+            defenderdensity *
             mag *
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
-        defenderTroopLoss: defenderdensity,
+        defenderTroopLoss: 1.1 * defenderdensity,
         tilesPerTickUsed: within(
           9.4 * defenderdensity ** 0.2 * adjustedRatio ** 0.7 * speed,
           8,
@@ -541,7 +549,7 @@ export class DefaultConfig implements Config {
         case Difficulty.Easy:
           return 2_500 + 1000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Medium:
-          return 10_000 + 2000 * (playerInfo?.nation?.strength ?? 1);
+          return 8_000 + 2000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Hard:
           return 20_000 + 4000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Impossible:
@@ -570,7 +578,7 @@ export class DefaultConfig implements Config {
       case Difficulty.Easy:
         return maxPop * 0.5;
       case Difficulty.Medium:
-        return maxPop * 1;
+        return maxPop * 0.8;
       case Difficulty.Hard:
         return maxPop * 1.5;
       case Difficulty.Impossible:

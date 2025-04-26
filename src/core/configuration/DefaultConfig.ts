@@ -637,7 +637,7 @@ export class DefaultConfig implements Config {
     const ruralWorkers = totalWorkers - cityWorkers;
 
     const cityGold = cityWorkers / 2000;
-    const tileGold = (ruralWorkers ** 0.45 * numTiles ** 0.45) / 150;
+    const tileGold = (ruralWorkers ** 0.4 * numTiles ** 0.4) / 44;
 
     const totalGold = cityGold + tileGold;
 

@@ -360,7 +360,7 @@ export class FakeHumanExecution implements Execution {
           case UnitType.Port:
             return 10_000;
           case UnitType.SAMLauncher:
-            return 5_000;
+            return -1_000_000;
           default:
             return 0;
         }

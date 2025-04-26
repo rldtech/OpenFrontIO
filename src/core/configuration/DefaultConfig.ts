@@ -590,7 +590,7 @@ export class DefaultConfig implements Config {
 
     let toAdd =
       10 +
-      (1200 / max + 1 / 140) * (0.8 * player.troops() + 1.2 * player.workers());
+      (1200 / max + 1 / 120) * (0.8 * player.troops() + 1.2 * player.workers());
     const adjustedPop =
       typeof player.adjustedPopulation === "function"
         ? player.adjustedPopulation()

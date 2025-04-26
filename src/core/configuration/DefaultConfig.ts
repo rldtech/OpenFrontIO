@@ -490,7 +490,7 @@ export class DefaultConfig implements Config {
         tilesPerTickUsed: within(
           9.4 * defenderdensity ** 0.2 * adjustedRatio ** 0.7 * speed,
           8,
-          500,
+          250,
         ),
       };
     } else {

@@ -549,7 +549,7 @@ export class DefaultConfig implements Config {
         case Difficulty.Easy:
           return 2_500 + 1000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Medium:
-          return 8_000 + 2000 * (playerInfo?.nation?.strength ?? 1);
+          return 6_000 + 2000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Hard:
           return 20_000 + 4000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Impossible:
@@ -576,11 +576,11 @@ export class DefaultConfig implements Config {
 
     switch (this._gameConfig.difficulty) {
       case Difficulty.Easy:
-        return maxPop * 0.5;
+        return maxPop * 0.4;
       case Difficulty.Medium:
-        return maxPop * 0.8;
+        return maxPop * 0.7;
       case Difficulty.Hard:
-        return maxPop * 1.5;
+        return maxPop * 1.2;
       case Difficulty.Impossible:
         return maxPop * 2;
     }

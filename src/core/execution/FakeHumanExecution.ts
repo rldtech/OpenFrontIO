@@ -49,6 +49,7 @@ export class FakeHumanExecution implements Execution {
   private defensePostSpacing: number = 60; // minimum distance between defense posts
   private defensePostTargetRatio: number = 0.005; // desired defense posts per border length
   private lastDefensePostTick: number = -9999;
+  private builtSAMNearSilo = new Set<Unit>();
 
   constructor(
     gameID: GameID,
@@ -563,6 +564,40 @@ export class FakeHumanExecution implements Execution {
 
     if (!this.mg.config().disableNukes()) {
       this.maybeSpawnStructure(UnitType.MissileSilo, 1);
+      this.tryBuildSAMNearSilos();
+    }
+  }
+  private tryBuildSAMNearSilos() {
+    if (this.player.gold() < this.cost(UnitType.SAMLauncher)) {
+      return;
+    }
+
+    const silos = this.player.units(UnitType.MissileSilo);
+
+    for (const silo of silos) {
+      if (this.builtSAMNearSilo.has(silo)) {
+        continue;
+      }
+
+      const siloTile = silo.tile();
+
+      for (const t of this.mg.bfs(siloTile, manhattanDistFN(siloTile, 40))) {
+        if (
+          this.mg.ownerID(t) === this.player.smallID() &&
+          this.player.canBuild(UnitType.SAMLauncher, t)
+        ) {
+          // Build immediately on the first valid tile
+          this.mg.addExecution(
+            new ConstructionExecution(
+              this.player.id(),
+              t,
+              UnitType.SAMLauncher,
+            ),
+          );
+          this.builtSAMNearSilo.add(silo);
+          return; // Only build 1 SAM per handleUnits
+        }
+      }
     }
   }
 

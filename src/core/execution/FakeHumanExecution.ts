@@ -51,6 +51,9 @@ export class FakeHumanExecution implements Execution {
   private lastDefensePostTick: number = -9999;
   private builtSAMNearSilo = new Set<Unit>();
 
+  private dogpileTarget: Player | null = null;
+  private dogpileLastChecked: number = -1;
+
   constructor(
     gameID: GameID,
     private playerInfo: PlayerInfo,
@@ -113,6 +116,8 @@ export class FakeHumanExecution implements Execution {
 
   tick(ticks: number) {
     if (ticks % this.attackRate != this.attackTick) return;
+
+    this.updateDogpile();
 
     if (this.mg.inSpawnPhase()) {
       const rl = this.randomLand();
@@ -252,7 +257,18 @@ export class FakeHumanExecution implements Execution {
     this.behavior.forgetOldEnemies();
     this.behavior.checkIncomingAttacks();
     this.behavior.assistAllies();
-    const enemy = this.behavior.selectEnemy();
+    let enemy: Player | null = null;
+
+    if (
+      this.dogpileTarget != null &&
+      this.dogpileTarget.isAlive() &&
+      !this.player.isOnSameTeam(this.dogpileTarget)
+    ) {
+      enemy = this.dogpileTarget;
+    } else {
+      enemy = this.behavior.selectEnemy();
+    }
+
     if (!enemy) return;
     this.maybeSendEmoji(enemy);
     this.maybeSendNuke(enemy);
@@ -786,5 +802,33 @@ export class FakeHumanExecution implements Execution {
 
   activeDuringSpawnPhase(): boolean {
     return true;
+  }
+
+  private updateDogpile() {
+    const CHECK_INTERVAL = 50; // only check every 50 ticks
+    if (this.mg.ticks() - this.dogpileLastChecked < CHECK_INTERVAL) return;
+
+    this.dogpileLastChecked = this.mg.ticks();
+
+    const alivePlayers = this.mg
+      .players()
+      .filter((p) => p.isAlive() && p.isPlayer());
+    if (alivePlayers.length < 2) {
+      this.dogpileTarget = null;
+      return;
+    }
+
+    const sorted = alivePlayers.sort(
+      (a, b) => b.numTilesOwned() - a.numTilesOwned(),
+    );
+    const top = sorted[0];
+    const second = sorted[1];
+
+    if (top.numTilesOwned() > second.numTilesOwned() * 2) {
+      this.dogpileTarget = top;
+    } else if (this.dogpileTarget != null && this.dogpileTarget != top) {
+      // if top player changes, reset
+      this.dogpileTarget = null;
+    }
   }
 }

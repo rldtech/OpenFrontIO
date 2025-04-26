@@ -174,7 +174,12 @@ export class SAMLauncherExecution implements Execution {
             this.sam.owner().id(),
           );
           // Delete warheads
-          this.warheadTargets.forEach((u) => u.delete());
+          // Delete warheads safely
+          this.warheadTargets.forEach((u) => {
+            if (u.isActive()) {
+              u.delete();
+            }
+          });
         } else {
           this.target.setTargetedBySAM(true);
           this.mg.addExecution(

@@ -179,10 +179,6 @@ export class FakeHumanExecution implements Execution {
   }
 
   private maybeAttack() {
-    // ❗ During dogpile mode, turn off random attacks
-    if (this.dogpileTarget != null) {
-      return;
-    } // Skip maybeAttack entirely
     const enemyborder = Array.from(this.player.borderTiles())
       .flatMap((t) => this.mg.neighbors(t))
       .filter(
@@ -190,12 +186,12 @@ export class FakeHumanExecution implements Execution {
       );
 
     if (enemyborder.length == 0) {
-      if (this.random.chance(5)) {
+      if (this.random.chance(2)) {
         this.sendBoatRandomly();
       }
       return;
     }
-    if (this.random.chance(10)) {
+    if (this.random.chance(20)) {
       this.sendBoatRandomly();
       return;
     }
@@ -293,6 +289,20 @@ export class FakeHumanExecution implements Execution {
 
   private maybeSendEmoji(enemy: Player) {
     if (enemy.type() != PlayerType.Human) return;
+
+    // 🛑 Dogpile mode special case
+    if (this.dogpileTarget != null) {
+      // Only send one middle finger emoji once
+      if (!this.lastEmojiSent.has(enemy)) {
+        this.lastEmojiSent.set(enemy, this.mg.ticks());
+        this.mg.addExecution(
+          new EmojiExecution(this.player.id(), enemy.id(), "🖕"),
+        );
+      }
+      return;
+    }
+
+    // Normal mode (not dogpile) behavior
     const lastSent = this.lastEmojiSent.get(enemy) ?? -300;
     if (this.mg.ticks() - lastSent <= 300) return;
     this.lastEmojiSent.set(enemy, this.mg.ticks());
@@ -423,6 +433,22 @@ export class FakeHumanExecution implements Execution {
     );
     if (closest == null) {
       return;
+    }
+
+    // 🛑 New check 1: In dogpile mode, don't send if too far
+    if (this.dogpileTarget != null) {
+      const dist = Math.sqrt(
+        this.mg.euclideanDistSquared(closest.x, closest.y),
+      );
+      if (dist > 200) {
+        return;
+      }
+
+      // 🛑 New check 2: In dogpile mode, limit to 2 active transport ships
+      const activeBoats = this.player.units(UnitType.TransportShip).length;
+      if (activeBoats >= 2) {
+        return;
+      }
     }
 
     const maxPop = this.mg.config().maxPopulation(this.player);
@@ -849,7 +875,7 @@ export class FakeHumanExecution implements Execution {
   }
 
   private updateDogpile() {
-    if (this.mg.ticks() < 1200) {
+    if (this.mg.ticks() < 600) {
       this.dogpileTarget = null;
       return;
     }

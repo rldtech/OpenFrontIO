@@ -488,9 +488,9 @@ export class DefaultConfig implements Config {
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: defenderdensity,
         tilesPerTickUsed: within(
-          8.8 * defenderdensity ** 0.2 * adjustedRatio ** 0.5 * speed,
-          8,
-          500,
+          8.8 * defenderdensity ** 0.2 * adjustedRatio ** 0.4 * speed,
+          36,
+          36.2,
         ),
       };
     } else {
@@ -577,7 +577,7 @@ export class DefaultConfig implements Config {
       case Difficulty.Easy:
         return maxPop * 0.4;
       case Difficulty.Medium:
-        return maxPop * 0.6;
+        return maxPop * 0.7;
       case Difficulty.Hard:
         return maxPop * 1;
       case Difficulty.Impossible:
@@ -590,7 +590,7 @@ export class DefaultConfig implements Config {
 
     let toAdd =
       10 +
-      (1200 / max + 1 / 120) * (0.8 * player.troops() + 1.2 * player.workers());
+      (1400 / max + 1 / 125) * (0.8 * player.troops() + 1.2 * player.workers());
     const adjustedPop =
       typeof player.adjustedPopulation === "function"
         ? player.adjustedPopulation()

@@ -38,6 +38,7 @@ export async function createGameRunner(
     gameStart.players.map(
       (p) =>
         new PlayerInfo(
+          p.pattern,
           p.flag,
           p.clientID == clientID
             ? sanitize(p.username)

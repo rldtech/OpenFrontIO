@@ -339,6 +339,7 @@ export class Transport {
           persistentID: this.lobbyConfig.persistentID,
           username: this.lobbyConfig.playerName,
           flag: this.lobbyConfig.flag,
+          pattern: localStorage.getItem("territoryPattern"),
         }),
       ),
     );
@@ -393,6 +394,7 @@ export class Transport {
       type: "spawn",
       clientID: this.lobbyConfig.clientID,
       flag: this.lobbyConfig.flag,
+      pattern: this.lobbyConfig.pattern,
       name: this.lobbyConfig.playerName,
       playerType: PlayerType.Human,
       x: event.cell.x,

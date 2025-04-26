@@ -208,6 +208,7 @@ class Client {
       {
         gameID: lobby.gameID,
         serverConfig: config,
+        pattern: localStorage.getItem("territoryPattern"),
         flag:
           this.flagInput.getCurrentFlag() == "xx"
             ? ""

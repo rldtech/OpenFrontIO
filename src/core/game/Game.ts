@@ -242,6 +242,7 @@ export class PlayerInfo {
   public readonly clan: string | null;
 
   constructor(
+    public readonly pattern: string,
     public readonly flag: string,
     public readonly name: string,
     public readonly playerType: PlayerType,

@@ -124,6 +124,7 @@ export class Executor {
         new FakeHumanExecution(
           this.gameID,
           new PlayerInfo(
+            null,
             nation.flag || "",
             nation.name,
             PlayerType.FakeHuman,

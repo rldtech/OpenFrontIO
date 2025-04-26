@@ -88,6 +88,7 @@ export interface PlayerUpdate {
   type: GameUpdateType.Player;
   nameViewData?: NameViewData;
   clientID: ClientID;
+  pattern: string;
   flag: string;
   name: string;
   displayName: string;

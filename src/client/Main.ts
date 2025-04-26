@@ -202,8 +202,8 @@ class Client {
       consolex.log("joining lobby, stopping existing game");
       this.gameStop();
     }
+    console.log("territoryPattern", localStorage.getItem("territoryPattern"));
     const config = await getServerConfigFromClient();
-
     this.gameStop = joinLobby(
       {
         gameID: lobby.gameID,

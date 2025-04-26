@@ -17,5 +17,6 @@ export class Client {
     public readonly username: string,
     public readonly ws: WebSocket,
     public readonly flag: string | null,
+    public readonly pattern: string | null,
   ) {}
 }

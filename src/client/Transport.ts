@@ -339,7 +339,7 @@ export class Transport {
           persistentID: this.lobbyConfig.persistentID,
           username: this.lobbyConfig.playerName,
           flag: this.lobbyConfig.flag,
-          pattern: localStorage.getItem("territoryPattern"),
+          pattern: this.lobbyConfig.pattern,
         }),
       ),
     );

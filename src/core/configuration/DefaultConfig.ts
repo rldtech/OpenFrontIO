@@ -419,7 +419,7 @@ export class DefaultConfig implements Config {
     const terrainModifiers = {
       [TerrainType.Plains]: { mag: 0.85, speed: 0.75 },
       [TerrainType.Highland]: { mag: 1, speed: 1 },
-      [TerrainType.Mountain]: { mag: 1.2, speed: 1.5 },
+      [TerrainType.Mountain]: { mag: 1.2, speed: 1.4 },
     } as const;
 
     const type = gm.terrainType(tileToConquer);

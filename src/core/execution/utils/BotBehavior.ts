@@ -179,7 +179,7 @@ export class BotBehavior {
     } else {
       troops = within(
         this.player.troops() - targetTroops,
-        0.05 * this.player.troops(),
+        0.2 * this.player.troops(),
         0.4 * this.player.troops(),
       );
       if (troops < 1) return;

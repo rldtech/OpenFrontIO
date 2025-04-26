@@ -174,6 +174,10 @@ export class FakeHumanExecution implements Execution {
   }
 
   private maybeAttack() {
+    // ❗ During dogpile mode, turn off random attacks
+    if (this.dogpileTarget != null) {
+      return;
+    } // Skip maybeAttack entirely
     const enemyborder = Array.from(this.player.borderTiles())
       .flatMap((t) => this.mg.neighbors(t))
       .filter(

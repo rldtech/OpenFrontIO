@@ -164,25 +164,26 @@ export class BotBehavior {
     return this.enemy;
   }
 
-  sendAttack(target: Player | TerraNullius, force: boolean = false) {
-    if (target.isPlayer() && this.player.isOnSameTeam(target)) return;
+  sendAttack(target: Player | TerraNullius, force: boolean = false): boolean {
+    if (target.isPlayer() && this.player.isOnSameTeam(target)) return false;
 
     const maxPop = this.game.config().maxPopulation(this.player);
     const maxTroops = maxPop * this.player.targetTroopRatio();
     const targetTroops = maxTroops * this.reserveRatio;
 
+    if (!force && this.player.troops() < targetTroops) {
+      return false;
+    }
+
     let troops: number;
     if (force) {
-      // send exactly 40% of current troops
-      troops = this.player.troops() * 0.4;
-      if (troops < 1) return;
+      troops = this.player.troops() * 0.2;
     } else {
       troops = within(
         this.player.troops() - targetTroops,
         0.2 * this.player.troops(),
         0.4 * this.player.troops(),
       );
-      if (troops < 1) return;
     }
 
     this.game.addExecution(
@@ -192,6 +193,8 @@ export class BotBehavior {
         target.isPlayer() ? target.id() : null,
       ),
     );
+
+    return true; // ✅ Attack was actually sent
   }
 }
 

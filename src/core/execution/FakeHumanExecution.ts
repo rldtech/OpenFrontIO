@@ -17,7 +17,7 @@ import {
 import { euclDistFN, manhattanDistFN, TileRef } from "../game/GameMap";
 import { PseudoRandom } from "../PseudoRandom";
 import { GameID } from "../Schemas";
-import { calculateBoundingBox, simpleHash } from "../Util";
+import { calculateBoundingBox, simpleHash, within } from "../Util";
 import { ConstructionExecution } from "./ConstructionExecution";
 import { EmojiExecution } from "./EmojiExecution";
 import { NukeExecution } from "./NukeExecution";
@@ -53,6 +53,7 @@ export class FakeHumanExecution implements Execution {
 
   private dogpileTarget: Player | null = null;
   private dogpileLastChecked: number = -1;
+  private attackedThisTick: boolean = false;
 
   constructor(
     gameID: GameID,
@@ -116,6 +117,7 @@ export class FakeHumanExecution implements Execution {
 
   tick(ticks: number) {
     if (ticks % this.attackRate != this.attackTick) return;
+    this.attackedThisTick = false; // new tick, reset
 
     this.updateDogpile();
 
@@ -170,6 +172,9 @@ export class FakeHumanExecution implements Execution {
     this.handleEnemies();
     this.handleUnits();
     this.handleEmbargoesToHostileNations();
+    if (this.attackedThisTick) {
+      return; // ⛔ Stop if already attacked this tick
+    }
     this.maybeAttack();
   }
 
@@ -278,6 +283,9 @@ export class FakeHumanExecution implements Execution {
     this.maybeSendNuke(enemy);
     if (this.player.sharesBorderWith(enemy)) {
       this.behavior.sendAttack(enemy);
+      if (this.behavior.sendAttack(enemy)) {
+        this.attackedThisTick = true;
+      }
     } else {
       this.maybeSendBoatAttack(enemy);
     }
@@ -405,6 +413,7 @@ export class FakeHumanExecution implements Execution {
 
   private maybeSendBoatAttack(other: Player) {
     if (this.player.isOnSameTeam(other)) return;
+
     const closest = closestTwoTiles(
       this.mg,
       Array.from(this.player.borderTiles()).filter((t) =>
@@ -415,12 +424,29 @@ export class FakeHumanExecution implements Execution {
     if (closest == null) {
       return;
     }
+
+    const maxPop = this.mg.config().maxPopulation(this.player);
+    const maxTroops = maxPop * this.player.targetTroopRatio();
+    const targetTroops = maxTroops * this.reserveRatio;
+
+    const surplusTroops = this.player.troops() - targetTroops;
+
+    if (surplusTroops <= 0) return; // ❗ Not enough spare troops to send
+
+    const troopsToSend = within(
+      surplusTroops,
+      0.1 * this.player.troops(),
+      0.2 * this.player.troops(),
+    );
+
+    if (troopsToSend < 1) return; // ❗ Don't send if too little
+
     this.mg.addExecution(
       new TransportShipExecution(
         this.player.id(),
         other.id(),
         closest.y,
-        this.player.troops() / 5,
+        troopsToSend,
         null,
       ),
     );
@@ -735,16 +761,30 @@ export class FakeHumanExecution implements Execution {
       return;
     }
 
+    const maxPop = this.mg.config().maxPopulation(this.player);
+    const maxTroops = maxPop * this.player.targetTroopRatio();
+    const targetTroops = maxTroops * this.reserveRatio;
+
+    const surplusTroops = this.player.troops() - targetTroops;
+    if (surplusTroops <= 0) return; // ❗ Not enough troops to send a boat
+
+    const troopsToSend = within(
+      surplusTroops,
+      0.1 * this.player.troops(), // a little smaller range for random boats
+      0.2 * this.player.troops(),
+    );
+
+    if (troopsToSend < 1) return; // ❗ Avoid sending tiny attacks
+
     this.mg.addExecution(
       new TransportShipExecution(
         this.player.id(),
         this.mg.owner(dst).id(),
         dst,
-        this.player.troops() / 5,
+        troopsToSend,
         null,
       ),
     );
-    return;
   }
 
   randomLand(): TileRef | null {
@@ -809,6 +849,10 @@ export class FakeHumanExecution implements Execution {
   }
 
   private updateDogpile() {
+    if (this.mg.ticks() < 1200) {
+      this.dogpileTarget = null;
+      return;
+    }
     const CHECK_INTERVAL = 50; // only check every 50 ticks
     if (this.mg.ticks() - this.dogpileLastChecked < CHECK_INTERVAL) return;
 

@@ -577,9 +577,9 @@ export class DefaultConfig implements Config {
       case Difficulty.Easy:
         return maxPop * 0.4;
       case Difficulty.Medium:
-        return maxPop * 0.7;
+        return maxPop * 0.6;
       case Difficulty.Hard:
-        return maxPop * 1.2;
+        return maxPop * 1;
       case Difficulty.Impossible:
         return maxPop * 2;
     }

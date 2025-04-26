@@ -481,7 +481,7 @@ export class DefaultConfig implements Config {
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: defenderdensity,
         tilesPerTickUsed: within(
-          9.4 * defenderdensity ** 0.2 * adjustedRatio ** 0.8 * speed,
+          9.4 * defenderdensity ** 0.2 * adjustedRatio ** 0.7 * speed,
           8,
           500,
         ),

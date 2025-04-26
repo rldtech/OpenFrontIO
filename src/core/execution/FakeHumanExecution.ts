@@ -44,8 +44,8 @@ export class FakeHumanExecution implements Execution {
   private lastNukeSent: [Tick, TileRef][] = [];
   private embargoMalusApplied = new Set<PlayerID>();
 
-  private portTargetRatio: number = 0.0001; // desired ports per tile
-  private cityTargetRatio: number = 0.0002; // desired cities per tile
+  private portTargetRatio: number = 0.00005; // desired ports per tile
+  private cityTargetRatio: number = 0.0001; // desired cities per tile
   private defensePostSpacing: number = 60; // minimum distance between defense posts
   private defensePostTargetRatio: number = 0.005; // desired defense posts per border length
   private lastDefensePostTick: number = -9999;

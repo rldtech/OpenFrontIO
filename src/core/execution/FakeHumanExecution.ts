@@ -875,7 +875,7 @@ export class FakeHumanExecution implements Execution {
   }
 
   private updateDogpile() {
-    if (this.mg.ticks() < 600) {
+    if (this.mg.ticks() < 3000) {
       this.dogpileTarget = null;
       return;
     }

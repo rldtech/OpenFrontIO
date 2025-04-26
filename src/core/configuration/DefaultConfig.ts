@@ -187,7 +187,7 @@ export class DefaultConfig implements Config {
   falloutDefenseModifier(falloutRatio: number): number {
     // falloutRatio is between 0 and 1
     // So defense modifier is between [5, 2.5]
-    return 5 - falloutRatio * 2;
+    return 3 - falloutRatio * 2;
   }
   SAMCooldown(): number {
     return 75;
@@ -200,7 +200,7 @@ export class DefaultConfig implements Config {
     return 40;
   }
   defensePostDefenseBonus(): number {
-    return 5;
+    return 4;
   }
   spawnNPCs(): boolean {
     return !this._gameConfig.disableNPCs;
@@ -481,7 +481,7 @@ export class DefaultConfig implements Config {
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: defenderdensity,
         tilesPerTickUsed: within(
-          6.3 * defenderdensity ** 0.4 * adjustedRatio ** 0.8 * speed,
+          7.7 * defenderdensity ** 0.3 * adjustedRatio ** 0.8 * speed,
           8,
           1000,
         ),
@@ -639,7 +639,7 @@ export class DefaultConfig implements Config {
     const cityGold = cityWorkers / 2000;
     const tileGold = (ruralWorkers ** 0.5 * numTiles ** 0.5) / 600;
 
-    const totalGold = 10 * (cityGold + tileGold) ** 0.8;
+    const totalGold = 8 * (cityGold + tileGold) ** 0.8;
 
     return Number.isFinite(totalGold) ? totalGold : 0;
   }

@@ -200,7 +200,7 @@ export class DefaultConfig implements Config {
     return 40;
   }
   defensePostDefenseBonus(): number {
-    return 4;
+    return 5;
   }
   spawnNPCs(): boolean {
     return !this._gameConfig.disableNPCs;
@@ -489,9 +489,9 @@ export class DefaultConfig implements Config {
           defenderdensity *
             mag *
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
-        defenderTroopLoss: relativeDensity,
+        defenderTroopLoss: defenderdensity,
         tilesPerTickUsed: within(
-          16 * defenderdensity ** 0.3 * adjustedRatio ** 0.4 * speed,
+          34 * relativeDensity ** 0.6 * adjustedRatio ** 0.4 * speed,
           6,
           500,
         ),
@@ -565,11 +565,11 @@ export class DefaultConfig implements Config {
     const maxPop =
       player.type() == PlayerType.Human && this.infiniteTroops()
         ? 1_000_000_000
-        : 1 * (player.numTilesOwned() * 30 + 50000) +
+        : 1 * (player.numTilesOwned() * 30 + 60_000) +
           player.units(UnitType.City).length * this.cityPopulationIncrease();
 
     if (player.type() == PlayerType.Bot) {
-      return maxPop / 3;
+      return maxPop / 4;
     }
 
     if (player.type() == PlayerType.Human) {

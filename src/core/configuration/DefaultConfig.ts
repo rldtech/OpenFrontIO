@@ -473,13 +473,13 @@ export class DefaultConfig implements Config {
       }
     }
     if (attackerType == PlayerType.Bot) {
-      speed *= 3; // slow bot attacks
+      speed *= 4; // slow bot attacks
     }
     if (defenderIsPlayer) {
       const defenderTroops = defender.troops();
       const defenderTiles = defender.numTilesOwned();
       const defenderdensity = defenderTroops / defenderTiles;
-      const adjustedRatio = within(defenderTroops / attackTroops, 0.3, 20);
+      const attackratio = defenderTroops / attackTroops;
       return {
         attackerTroopLoss:
           mag * 10 +
@@ -487,17 +487,18 @@ export class DefaultConfig implements Config {
             mag *
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: defenderdensity,
-        tilesPerTickUsed: within(
-          6.6 * defenderdensity ** 0.2 * adjustedRatio ** 0.4 * speed,
-          6,
-          500,
-        ),
+        tilesPerTickUsed:
+          7 *
+          within(defenderdensity, 3, 100) ** 0.5 *
+          (10_000 / attackTroops) ** 0.1 *
+          speed *
+          within(attackratio, 0.3, 20) ** 0.3,
       };
     } else {
       return {
         attackerTroopLoss: attackerType == PlayerType.Bot ? mag * 10 : mag * 10,
         defenderTroopLoss: 0,
-        tilesPerTickUsed: 30 * speed,
+        tilesPerTickUsed: 30 * speed * (10_000 / attackTroops) ** 0.5,
       };
     }
   }

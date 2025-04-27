@@ -480,6 +480,7 @@ export interface Game extends GameMap {
   executeNextTick(): GameUpdates;
   setWinner(winner: Player | Team, allPlayersStats: AllPlayersStats): void;
   config(): Config;
+  averageDefenseDensity(): number;
 
   // Units
   units(...types: UnitType[]): Unit[];

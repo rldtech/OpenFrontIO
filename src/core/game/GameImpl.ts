@@ -714,6 +714,19 @@ export class GameImpl implements Game {
   stats(): Stats {
     return this._stats;
   }
+  averageDefenseDensity(): number {
+    let totalTroops = 0;
+    let totalTiles = 0;
+    for (const player of this.players()) {
+      if (!player.isAlive()) continue;
+      totalTroops += player.troops();
+      totalTiles += player.numTilesOwned();
+    }
+    if (totalTiles === 0) {
+      return 1; // safe fallback to prevent division by 0
+    }
+    return totalTroops / totalTiles;
+  }
 }
 
 // Or a more dynamic approach that will catch new enum values:

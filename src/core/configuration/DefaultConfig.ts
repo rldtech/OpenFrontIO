@@ -479,6 +479,9 @@ export class DefaultConfig implements Config {
       const defenderTroops = defender.troops();
       const defenderTiles = defender.numTilesOwned();
       const defenderdensity = defenderTroops / defenderTiles;
+      const avgDefenseDensity = gm.averageDefenseDensity();
+      const relativeDensity =
+        defenderdensity / Math.max(1e-6, avgDefenseDensity);
       const adjustedRatio = within(defenderTroops / attackTroops, 0.3, 20);
       return {
         attackerTroopLoss:
@@ -486,9 +489,9 @@ export class DefaultConfig implements Config {
           defenderdensity *
             mag *
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
-        defenderTroopLoss: defenderdensity,
+        defenderTroopLoss: relativeDensity,
         tilesPerTickUsed: within(
-          6.6 * defenderdensity ** 0.2 * adjustedRatio ** 0.4 * speed,
+          16 * defenderdensity ** 0.3 * adjustedRatio ** 0.4 * speed,
           6,
           500,
         ),

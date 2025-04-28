@@ -227,6 +227,9 @@ export const isKnownPlayer: boolean = false;
 export const isSeenplayer: boolean = false;
 export const isLoginPlayer: boolean = false;
 
+//event
+export const ofm_2025_event: boolean = false;
+
 export let MAX_LAYER = 50;
 
 type LockReasonMap = Record<string, string>;
@@ -289,6 +292,10 @@ export function checkPermission(): [string[], string[], LockReasonMap, number] {
 
   if (!isBetaTester) {
     lock(["beta_tester", "beta_tester_circle"], "flag_input.reason.beta");
+  }
+
+  if (!ofm_2025_event) {
+    lock(["ofm_2025"], "flag_input.reason.ofm_2025");
   }
 
   if (!isSupporters) {

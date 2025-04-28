@@ -1,0 +1,63 @@
+receivers:
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: "node_exporter"
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["localhost:9100"]
+          relabel_configs:
+            - target_label: "host"
+              replacement: "${HOST}"
+            - target_label: "env"
+              replacement: "${ENV}"
+            - target_label: "subdomain"
+              replacement: "${SUBDOMAIN}"
+            - target_label: "container_id"
+              replacement: "${HOSTNAME}"
+
+        - job_name: "app_metrics"
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["localhost:9090"]
+          relabel_configs:
+            - target_label: "host"
+              replacement: "${HOST}"
+            - target_label: "env"
+              replacement: "${ENV}"
+            - target_label: "subdomain"
+              replacement: "${SUBDOMAIN}"
+            - target_label: "container_id"
+              replacement: "${HOSTNAME}"
+            - target_label: "service"
+              replacement: "${SERVICE_NAME}"
+
+processors:
+  batch:
+    timeout: 10s
+  resource:
+    attributes:
+      - key: service.name
+        value: "${SERVICE_NAME}"
+      - key: container.id
+        value: "${HOSTNAME}"
+
+exporters:
+  prometheuspushgateway:
+    endpoint: "https://mon.openfront.io/pushgateway"
+    namespace: "${SERVICE_NAME}"
+    job: "${SERVICE_NAME}"
+    grouping_key:
+      host: "${HOST}"
+      env: "${ENV}"
+      subdomain: "${SUBDOMAIN}"
+      container_id: "${HOSTNAME}"
+    headers:
+      Authorization: "Basic ${BASIC_AUTH}"
+
+service:
+  pipelines:
+    metrics:
+      receivers: [prometheus]
+      processors: [batch, resource]
+      exporters: [prometheuspushgateway]

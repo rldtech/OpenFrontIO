@@ -271,7 +271,7 @@ export class EventsDisplay extends LitElement implements Layer {
       const malusPercent = Math.round(
         (1 - this.game.config().traitorDefenseDebuff()) * 100,
       );
-      const traitorDurationRaw = this.game.config().traitorDuration / 10;
+      const traitorDurationRaw = Number(this.game.config().traitorDuration) / 10;
       const traitorDurationSeconds = Math.floor(traitorDurationRaw);
   
       const durationText = traitorDurationSeconds === 1

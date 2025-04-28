@@ -24,6 +24,7 @@ import { PublicLobby } from "./PublicLobby";
 import "./RandomNameButton";
 import { RandomNameButton } from "./RandomNameButton";
 import { SinglePlayerModal } from "./SinglePlayerModal";
+import { territoryPatternsModal } from "./TerritoryPatternsModal";
 import { UserSettingModal } from "./UserSettingModal";
 import "./UsernameInput";
 import { UsernameInput } from "./UsernameInput";
@@ -128,6 +129,16 @@ class Client {
     document.getElementById("help-button").addEventListener("click", () => {
       hlpModal.open();
     });
+
+    const TerritoryModal = document.querySelector(
+      "territory-patterns-input",
+    ) as territoryPatternsModal;
+    TerritoryModal instanceof territoryPatternsModal;
+    document
+      .getElementById("territory-patterns-input_")
+      .addEventListener("click", () => {
+        TerritoryModal.open();
+      });
 
     const settingsModal = document.querySelector(
       "user-setting",

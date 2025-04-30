@@ -20,6 +20,7 @@ import {
   Attack,
   BuildableUnit,
   Cell,
+  ColoredTeams,
   EmojiMessage,
   Gold,
   MessageType,
@@ -606,7 +607,7 @@ export class PlayerImpl implements Player {
     if (this.team() == null || other.team() == null) {
       return false;
     }
-    if (this.team() == Team.Bot || other.team() == Team.Bot) {
+    if (this.team() == ColoredTeams.Bot || other.team() == ColoredTeams.Bot) {
       return false;
     }
     return this._team == other.team();

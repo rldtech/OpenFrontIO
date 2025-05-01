@@ -879,14 +879,15 @@ export class FakeHumanExecution implements Execution {
       this.dogpileTarget = null;
       return;
     }
-    const CHECK_INTERVAL = 50; // only check every 50 ticks
-    if (this.mg.ticks() - this.dogpileLastChecked < CHECK_INTERVAL) return;
 
+    const CHECK_INTERVAL = 50;
+    if (this.mg.ticks() - this.dogpileLastChecked < CHECK_INTERVAL) return;
     this.dogpileLastChecked = this.mg.ticks();
 
     const alivePlayers = this.mg
       .players()
       .filter((p) => p.isAlive() && p.isPlayer());
+
     if (alivePlayers.length < 2) {
       this.dogpileTarget = null;
       return;
@@ -898,10 +899,18 @@ export class FakeHumanExecution implements Execution {
     const top = sorted[0];
     const second = sorted[1];
 
+    // Dominant player condition
     if (top.numTilesOwned() > second.numTilesOwned() * 2) {
-      this.dogpileTarget = top;
-    } else if (this.dogpileTarget != null && this.dogpileTarget != top) {
-      // if top player changes, reset
+      // Enter dogpile with probability (e.g. 30%)
+      if (this.dogpileTarget !== top && this.random.chance(5)) {
+        this.dogpileTarget = top;
+      }
+    } else {
+      this.dogpileTarget = null;
+    }
+
+    // Reset if the dominant player changed
+    if (this.dogpileTarget && this.dogpileTarget !== top) {
       this.dogpileTarget = null;
     }
   }

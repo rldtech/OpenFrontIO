@@ -94,15 +94,13 @@ export class BotBehavior {
     }
 
     // Prefer neighboring bots
-    if (this.enemy === null) {
-      const bots = this.player
-        .neighbors()
-        .filter((n) => n.isPlayer() && n.type() === PlayerType.Bot) as Player[];
-      if (bots.length > 0) {
-        const density = (p: Player) => p.troops() / p.numTilesOwned();
-        this.enemy = bots.sort((a, b) => density(a) - density(b))[0];
-        this.enemyUpdated = this.game.ticks();
-      }
+    const bots = this.player
+      .neighbors()
+      .filter((n) => n.isPlayer() && n.type() === PlayerType.Bot) as Player[];
+    if (bots.length > 0) {
+      const density = (p: Player) => p.troops() / p.numTilesOwned();
+      this.enemy = bots.sort((a, b) => density(a) - density(b))[0];
+      this.enemyUpdated = this.game.ticks();
     }
 
     // Select the most hated player

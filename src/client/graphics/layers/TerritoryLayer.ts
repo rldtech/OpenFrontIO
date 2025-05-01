@@ -292,7 +292,7 @@ export class TerritoryLayer implements Layer {
         this.game.x(tile),
         this.game.y(tile),
         this.theme.territoryColor(owner),
-        150,
+        200,
       );
     }
   }

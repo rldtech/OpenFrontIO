@@ -447,12 +447,13 @@ export class GameServer {
     }
     this.activeClients = alive;
 
-    // For tournament only!
-    if (now > this._startTime + 30 * 60 * 1_000) {
+    if (this._startTime && now > this._startTime + 31 * 60 * 1_000) {
       this.log.warn("game past 30 min mark", {
         gameID: this.id,
       });
+      return GamePhase.Finished;
     }
+
     if (now > this.createdAt + this.maxGameDuration) {
       this.log.warn("game past max duration", {
         gameID: this.id,

@@ -7,6 +7,12 @@ echo "====================================================="
 echo "🚀 STARTING SERVER SETUP"
 echo "====================================================="
 
+# Verify required environment variables
+if [ -z "$OTEL_ENDPOINT" ] || [ -z "$OTEL_USERNAME" ] || [ -z "$OTEL_PASSWORD" ]; then
+    echo "❌ ERROR: Required environment variables are not set!"
+    exit 1
+fi
+
 echo "🔄 Updating system..."
 apt update && apt upgrade -y
 
@@ -75,10 +81,133 @@ fi
 chown -R openfront:openfront /home/openfront
 echo "Set proper ownership for openfront's home directory"
 
+# Create directory for Telegraf configuration
+echo "📊 Setting up Telegraf for metrics collection..."
+TELEGRAF_CONFIG_DIR="/home/openfront/telegraf"
+
+if [ ! -d "$TELEGRAF_CONFIG_DIR" ]; then
+    mkdir -p "$TELEGRAF_CONFIG_DIR"
+    echo "Created Telegraf configuration directory"
+fi
+
+# Generate Base64 auth string
+BASE64_AUTH=$(echo -n "${OTEL_USERNAME}:${OTEL_PASSWORD}" | base64)
+
+# Create Telegraf configuration file with actual values
+cat > "$TELEGRAF_CONFIG_DIR/telegraf.conf" << EOF
+# Global agent configuration
+[agent]
+  interval = "10s"
+  round_interval = true
+  metric_batch_size = 1000
+  metric_buffer_limit = 10000
+  collection_jitter = "0s"
+  flush_interval = "10s"
+  flush_jitter = "0s"
+  precision = ""
+  hostname = ""  # Leave this blank to use system hostname
+  omit_hostname = false
+
+# Input plugins - collect host metrics
+[[inputs.cpu]]
+  percpu = true
+  totalcpu = true
+  collect_cpu_time = false
+  report_active = false
+
+[[inputs.disk]]
+  ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+
+[[inputs.diskio]]
+
+[[inputs.mem]]
+
+[[inputs.net]]
+
+[[inputs.system]]
+
+[[inputs.processes]]
+
+[[inputs.kernel]]
+
+# Output plugin - Using HTTP instead of OpenTelemetry
+[[outputs.http]]
+  # The full URL with protocol and path
+  url = "${OTEL_ENDPOINT}/v1/metrics"
+  
+  # HTTP method - typically POST for sending metrics
+  method = "POST"
+  
+  # Timeout settings
+  timeout = "5s"
+  
+  # Output data format
+  data_format = "json"
+  
+  # SSL/TLS settings
+  insecure_skip_verify = false
+  
+  # HTTP Headers including authentication
+  [outputs.http.headers]
+    Authorization = "Basic ${BASE64_AUTH}"
+    Content-Type = "application/json"
+EOF
+
+# Set ownership of all files
+chown -R openfront:openfront "$TELEGRAF_CONFIG_DIR"
+
+# Starting Telegraf directly in the main script
+echo "🚀 Starting Telegraf container..."
+
+# Pull latest Telegraf image
+echo "Pulling latest Telegraf image..."
+docker pull telegraf:latest
+
+# Stop and remove any existing Telegraf container
+echo "Removing any existing Telegraf container..."
+docker rm -f telegraf 2>/dev/null || true
+
+# Start the Telegraf container
+echo "Starting Telegraf container..."
+docker run -d \
+  --name telegraf \
+  --restart unless-stopped \
+  --hostname $(hostname) \
+  --network host \
+  -v "$TELEGRAF_CONFIG_DIR/telegraf.conf:/etc/telegraf/telegraf.conf:ro" \
+  -v /:/hostfs:ro \
+  -v /proc:/hostfs/proc:ro \
+  -v /sys:/hostfs/sys:ro \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  -e HOST_PROC=/hostfs/proc \
+  -e HOST_SYS=/hostfs/sys \
+  -e HOST_MOUNT_PREFIX=/hostfs \
+  -e OTEL_ENDPOINT=${OTEL_ENDPOINT} \
+  -e OTEL_USERNAME=${OTEL_USERNAME} \
+  -e OTEL_PASSWORD=${OTEL_PASSWORD} \
+  telegraf:latest
+
+# Verify the container is running
+if docker ps | grep -q telegraf; then
+  echo "✅ Telegraf started successfully!"
+else
+  echo "❌ Failed to start Telegraf container. Check logs with: docker logs telegraf"
+  exit 1
+fi
+
 echo "====================================================="
 echo "🎉 SETUP COMPLETE!"
 echo "====================================================="
 echo "The openfront user has been set up and has Docker permissions."
 echo "UDP buffer sizes have been configured for optimal QUIC/WebSocket performance."
-echo "You can now deploy using the openfront user."
+echo "Telegraf has been installed and configured to collect host metrics."
+echo ""
+echo "📝 Telegraf Configuration:"
+echo "   - Config Directory: $TELEGRAF_CONFIG_DIR"
+echo "   - OpenTelemetry Endpoint: $OTEL_ENDPOINT"
+echo "   - Username: $OTEL_USERNAME"
+echo ""
+echo "🔄 To restart Telegraf: docker restart telegraf"
+echo "🔍 To view Telegraf logs: docker logs telegraf"
+echo "🛑 To stop Telegraf: docker stop telegraf"
 echo "====================================================="

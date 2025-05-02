@@ -54,18 +54,21 @@ if [ -f /root/.ssh/authorized_keys ] && [ ! -f /home/openfront/.ssh/authorized_k
     echo "SSH keys copied from root to openfront"
 fi
 
-# Check if node-exporter container already exists
-if docker ps -a | grep -q "node-exporter"; then
-    echo "Node Exporter is already installed"
+# Configure UDP buffer sizes for Cloudflare Tunnel
+# https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes
+echo "🔧 Configuring UDP buffer sizes..."
+# Check if settings already exist in sysctl.conf
+if grep -q "net.core.rmem_max" /etc/sysctl.conf && grep -q "net.core.wmem_max" /etc/sysctl.conf; then
+    echo "UDP buffer size settings already configured"
 else
-    echo "🔄 Installing Node Exporter..."
-    docker run -d --name node-exporter --restart=unless-stopped \
-      --net="host" \
-      --pid="host" \
-      -v "/:/host:ro,rslave" \
-      prom/node-exporter:latest \
-      --path.rootfs=/host
-    echo "Node Exporter installed successfully"
+    # Add UDP buffer size settings to sysctl.conf
+    echo "# UDP buffer size settings for improved QUIC performance" >> /etc/sysctl.conf
+    echo "net.core.rmem_max=7500000" >> /etc/sysctl.conf
+    echo "net.core.wmem_max=7500000" >> /etc/sysctl.conf
+    
+    # Apply the settings immediately
+    sysctl -p
+    echo "UDP buffer sizes configured and applied"
 fi
 
 # Set proper ownership for openfront's home directory

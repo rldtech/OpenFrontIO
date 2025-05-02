@@ -43,6 +43,10 @@ export interface ServerConfig {
   r2Endpoint(): string;
   r2AccessKey(): string;
   r2SecretKey(): string;
+  otelEndpoint(): string;
+  otelUsername(): string;
+  otelPassword(): string;
+  otelEnabled(): boolean;
 }
 
 export interface NukeMagnitude {

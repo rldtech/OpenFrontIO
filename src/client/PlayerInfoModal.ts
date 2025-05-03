@@ -63,24 +63,42 @@ export class PlayerInfoModal extends LitElement {
       description: "Build 10 structures",
       unlocked: false,
       difficulty: "easy",
+      secret: false,
     },
     {
       title: "First Win",
       description: "Win your first public game",
       unlocked: false,
       difficulty: "medium",
+      secret: false,
     },
     {
       title: "5 Win Streak",
       description: "Win 5 games in a row",
       unlocked: false,
       difficulty: "hard",
+      secret: false,
     },
     {
       title: "Chocolate!",
       description: "Get chocolate role!",
       unlocked: true,
       difficulty: "medium",
+      secret: false,
+    },
+    {
+      title: "Impossible Task",
+      description: "Achieve the unachievable",
+      unlocked: false,
+      difficulty: "impossible",
+      secret: true,
+    },
+    {
+      title: "Impossible Task",
+      description: "Achieve the unachievable",
+      unlocked: true,
+      difficulty: "impossible",
+      secret: true,
     },
   ];
 
@@ -291,6 +309,45 @@ export class PlayerInfoModal extends LitElement {
     }
   }
 
+  private getAchievementStats() {
+    const total = this.achievements.length;
+    const unlocked = this.achievements.filter((a) => a.unlocked).length;
+
+    const difficultyCounts = this.achievements.reduce(
+      (acc, achievement) => {
+        if (achievement.unlocked) {
+          acc[achievement.difficulty] = (acc[achievement.difficulty] || 0) + 1;
+        }
+        return acc;
+      },
+      { easy: 0, medium: 0, hard: 0, impossible: 0 } as Record<string, number>,
+    );
+
+    const difficultyTotals = this.achievements.reduce(
+      (acc, achievement) => {
+        acc[achievement.difficulty] = (acc[achievement.difficulty] || 0) + 1;
+        return acc;
+      },
+      { easy: 0, medium: 0, hard: 0, impossible: 0 } as Record<string, number>,
+    );
+
+    const secretTotal = this.achievements.filter((a) => a.secret).length;
+    const secretUnlocked = this.achievements.filter(
+      (a) => a.secret && a.unlocked,
+    ).length;
+
+    return {
+      total,
+      unlocked,
+      unlockedRatio: (unlocked / total) * 100,
+      difficultyCounts,
+      difficultyTotals,
+      secretTotal,
+      secretUnlocked,
+      secretUnlockedRatio: (secretUnlocked / secretTotal) * 100,
+    };
+  }
+
   render() {
     return html`
       <o-modal id="playerInfoModal" title="Player Info">
@@ -450,6 +507,139 @@ export class PlayerInfoModal extends LitElement {
             <div class="text-sm text-gray-400 font-semibold mb-1">
               🏅 Achievements
             </div>
+            <!-- text-green-400 text-purple-400 -->
+
+            ${(() => {
+              const stats = this.getAchievementStats();
+              return html`
+                <div class="text-sm text-gray-300 mb-2">
+                  Unlocked: ${stats.unlocked}/${stats.total}
+                  (${stats.unlockedRatio.toFixed(1)}%)
+                </div>
+
+                <div
+                  class="progress-bar-container w-full bg-white/10 h-3 rounded-full overflow-hidden mb-2 relative"
+                >
+                  <div
+                    class="progress-bar h-full bg-green-500"
+                    style="width: ${stats.unlockedRatio}%;"
+                  ></div>
+                </div>
+
+                <div class="text-sm text-gray-300 mb-2">
+                  Secret Achievements:
+                  ${stats.secretUnlocked}/${stats.secretTotal}
+                  (${stats.secretUnlockedRatio.toFixed(1)}%)
+                </div>
+                <div
+                  class="progress-bar-container w-full bg-white/10 h-3 rounded-full overflow-hidden mb-2 relative"
+                >
+                  <div
+                    class="progress-bar h-full bg-gray-500"
+                    style="width: ${stats.secretUnlockedRatio}%;"
+                  ></div>
+                </div>
+
+                <div class="text-sm text-gray-300 mb-2">
+                  Difficulty Breakdown:
+                  <ul class="list-disc list-inside">
+                    <li class="flex items-center gap-4">
+                      <span class="w-1/2 text-green-400">
+                        Easy: ${stats.difficultyCounts.easy} /
+                        ${stats.difficultyTotals.easy}
+                        (${(
+                          (stats.difficultyCounts.easy /
+                            stats.difficultyTotals.easy) *
+                          100
+                        ).toFixed(1)}%)
+                      </span>
+                      <div
+                        class="progress-bar-container w-1/2 bg-white/10 h-2 rounded-full overflow-hidden"
+                      >
+                        <div
+                          class="progress-bar h-full bg-green-500"
+                          style="width: ${(
+                            (stats.difficultyCounts.easy /
+                              stats.difficultyTotals.easy) *
+                            100
+                          ).toFixed(1)}%;"
+                        ></div>
+                      </div>
+                    </li>
+                    <li class="flex items-center gap-4">
+                      <span class="w-1/2 text-yellow-400">
+                        Medium: ${stats.difficultyCounts.medium} /
+                        ${stats.difficultyTotals.medium}
+                        (${(
+                          (stats.difficultyCounts.medium /
+                            stats.difficultyTotals.medium) *
+                          100
+                        ).toFixed(1)}%)
+                      </span>
+                      <div
+                        class="progress-bar-container w-1/2 bg-white/10 h-2 rounded-full overflow-hidden"
+                      >
+                        <div
+                          class="progress-bar h-full bg-yellow-500"
+                          style="width: ${(
+                            (stats.difficultyCounts.medium /
+                              stats.difficultyTotals.medium) *
+                            100
+                          ).toFixed(1)}%;"
+                        ></div>
+                      </div>
+                    </li>
+                    <li class="flex items-center gap-4">
+                      <span class="w-1/2 text-red-400">
+                        Hard: ${stats.difficultyCounts.hard} /
+                        ${stats.difficultyTotals.hard}
+                        (${(
+                          (stats.difficultyCounts.hard /
+                            stats.difficultyTotals.hard) *
+                          100
+                        ).toFixed(1)}%)
+                      </span>
+                      <div
+                        class="progress-bar-container w-1/2 bg-white/10 h-2 rounded-full overflow-hidden"
+                      >
+                        <div
+                          class="progress-bar h-full bg-red-500"
+                          style="width: ${(
+                            (stats.difficultyCounts.hard /
+                              stats.difficultyTotals.hard) *
+                            100
+                          ).toFixed(1)}%;"
+                        ></div>
+                      </div>
+                    </li>
+                    <li class="flex items-center gap-4">
+                      <span class="w-1/2 text-purple-400">
+                        Impossible: ${stats.difficultyCounts.impossible} /
+                        ${stats.difficultyTotals.impossible}
+                        (${(
+                          (stats.difficultyCounts.impossible /
+                            stats.difficultyTotals.impossible) *
+                          100
+                        ).toFixed(1)}%)
+                      </span>
+                      <div
+                        class="progress-bar-container w-1/2 bg-white/10 h-2 rounded-full overflow-hidden"
+                      >
+                        <div
+                          class="progress-bar h-full bg-purple-500"
+                          style="width: ${(
+                            (stats.difficultyCounts.impossible /
+                              stats.difficultyTotals.impossible) *
+                            100
+                          ).toFixed(1)}%;"
+                        ></div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              `;
+            })()}
+
             <div
               class="flex gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900"
             >
@@ -459,6 +649,8 @@ export class PlayerInfoModal extends LitElement {
                   medium:
                     "border-yellow-500 bg-yellow-500/10 shadow-yellow-500/30",
                   hard: "border-red-500 bg-red-500/10 shadow-red-500/30",
+                  impossible:
+                    "border-purple-500 bg-purple-500/10 shadow-purple-500/30 impossible-animation",
                 };
 
                 const lockedStyle = {
@@ -466,11 +658,15 @@ export class PlayerInfoModal extends LitElement {
                   medium:
                     "border-yellow-500 bg-yellow-500/5 shadow-yellow-500/10",
                   hard: "border-red-500 bg-red-500/5 shadow-red-500/10",
+                  impossible:
+                    "border-purple-500 bg-purple-500/5 shadow-purple-500/10 impossible-animation",
                 };
 
                 const difficultyStyle = achievement.unlocked
-                  ? difficultyStyles[achievement.difficulty]
-                  : lockedStyle[achievement.difficulty];
+                  ? difficultyStyles[achievement.difficulty] ||
+                    "border-gray-500 bg-gray-500/10 shadow-gray-500/30"
+                  : lockedStyle[achievement.difficulty] ||
+                    "border-gray-500 bg-gray-500/5 shadow-gray-500/10";
 
                 return html`
                   <div
@@ -483,6 +679,13 @@ export class PlayerInfoModal extends LitElement {
                       ((e.currentTarget as HTMLElement).style.transform =
                         "scale(0.9)")}
                   >
+                    ${achievement.secret
+                      ? html`<div
+                          class="absolute top-1 right-2 text-[10px] text-red-400 font-bold"
+                        >
+                          Hidden Achievement
+                        </div>`
+                      : null}
                     <span
                       class="text-2xl ${achievement.unlocked
                         ? "text-white"
@@ -495,14 +698,18 @@ export class PlayerInfoModal extends LitElement {
                         ? "text-white"
                         : "text-gray-400"} text-lg"
                     >
-                      ${achievement.title}
+                      ${achievement.secret && !achievement.unlocked
+                        ? "???"
+                        : achievement.title}
                     </div>
                     <div
                       class="text-xs ${achievement.unlocked
                         ? "text-gray-300"
                         : "text-gray-500"}"
                     >
-                      ${achievement.description}
+                      ${achievement.secret && !achievement.unlocked
+                        ? "Unlock to reveal"
+                        : achievement.description}
                     </div>
                     <div
                       class="text-xs mt-1 ${achievement.unlocked
@@ -512,7 +719,9 @@ export class PlayerInfoModal extends LitElement {
                               ? "green-400"
                               : achievement.difficulty === "medium"
                                 ? "yellow-400"
-                                : "red-400"
+                                : achievement.difficulty === "hard"
+                                  ? "red-400"
+                                  : "purple-400"
                           }`}"
                     >
                       Difficulty: ${achievement.difficulty}

@@ -27,8 +27,11 @@ export class PlayerInfoModal extends LitElement {
     "Seen Player",
     "Known Player",
     "Well-Known Player",
+    "Veteran Player",
     "Best-Known Player",
+    "Elite Player",
     "Legend",
+    "Mythic Player",
   ];
 
   private getNextRank(): string {
@@ -251,6 +254,41 @@ export class PlayerInfoModal extends LitElement {
     this.flag = this.getStoredFlag();
 
     this.requestUpdate();
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.getUserInfo();
+
+    window.addEventListener("keydown", this.handleKeyDown.bind(this));
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+
+    window.removeEventListener("keydown", this.handleKeyDown.bind(this));
+  }
+
+  private debugIndex = 0;
+  private readonly debugSequence = ["d", "e", "b", "u", "g"];
+
+  private handleKeyDown(event: KeyboardEvent): void {
+    const allowedRoles = ["sta", "mod", "ass", "adm", "cre"];
+    const key = event.key.toLowerCase();
+
+    if (key === this.debugSequence[this.debugIndex]) {
+      this.debugIndex++;
+
+      if (this.debugIndex === this.debugSequence.length) {
+        if (this.roles.some((role) => allowedRoles.includes(role))) {
+          this.isDebugMode = true;
+          this.requestUpdate();
+        }
+        this.debugIndex = 0;
+      }
+    } else {
+      this.debugIndex = 0;
+    }
   }
 
   render() {
@@ -554,10 +592,5 @@ export class PlayerInfoModal extends LitElement {
 
   public close() {
     this.modalEl?.close();
-  }
-
-  connectedCallback() {
-    super.connectedCallback();
-    this.getUserInfo();
   }
 }

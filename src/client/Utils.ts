@@ -346,6 +346,13 @@ export const rankStyles = {
     flagWrapper: "p-[3px] rounded-full bg-orange-500",
     nameText: "text-xl font-bold text-orange-300",
   },
+  "Veteran Player": {
+    bg: "bg-purple-500/20",
+    border: "border-purple-400/30",
+    text: "text-purple-300",
+    flagWrapper: "p-[3px] rounded-full bg-purple-500",
+    nameText: "text-xl font-bold text-purple-300",
+  },
   "Best-Known Player": {
     bg: "bg-red-500/20",
     border: "border-red-400/30",
@@ -355,6 +362,15 @@ export const rankStyles = {
       "p-[3px] rounded-full bg-gradient-to-r from-red-500 via-red-600 to-red-500 animate-shimmer",
     nameText: "text-2xl font-bold text-red-300 drop-shadow",
   },
+  "Elite Player": {
+    bg: "bg-cyan-500/20",
+    border: "border-cyan-400/30",
+    text: "text-cyan-300",
+    glow: true,
+    flagWrapper:
+      "p-[3px] rounded-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-cyan-500 animate-shimmer",
+    nameText: "text-2xl font-bold text-cyan-300 drop-shadow",
+  },
   Legend: {
     bg: "bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-400",
     border: "border-yellow-300",
@@ -363,5 +379,14 @@ export const rankStyles = {
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-400 animate-shimmer",
     nameText: "text-2xl font-bold text-yellow-200 drop-shadow",
+  },
+  "Mythic Player": {
+    bg: "bg-gradient-to-r from-indigo-500 via-pink-500 to-indigo-500",
+    border: "border-pink-300",
+    text: "text-pink-200",
+    glow: true,
+    flagWrapper:
+      "p-[3px] rounded-full bg-gradient-to-r from-indigo-500 via-pink-500 to-indigo-500 animate-shimmer",
+    nameText: "text-2xl font-bold text-pink-200 drop-shadow",
   },
 } as const satisfies Record<string, RankStyle>;

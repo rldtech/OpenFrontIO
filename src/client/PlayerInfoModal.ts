@@ -1,6 +1,6 @@
 import { LitElement, html } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
-import { getUserMe, isLoggedIn } from "./jwt";
+import { TokenPayload, UserMeResponse } from "./ApiSchemas";
 import { rankStyles, roleStyles } from "./Utils";
 
 @customElement("player-info-modal")
@@ -216,32 +216,28 @@ export class PlayerInfoModal extends LitElement {
     }
   }
 
+  onUserMe(userMeResponse: UserMeResponse) {
+    const { user } = userMeResponse;
+    const { username, id, avatar } = user;
+    this.discordUserName = username;
+    this.discordAvatarUrl = avatar
+      ? `https://cdn.discordapp.com/avatars/${id}/${avatar}.${avatar.startsWith("a_") ? "gif" : "png"}`
+      : `https://cdn.discordapp.com/embed/avatars/${Number(user.discriminator) % 5}.png`;
+    this.requestUpdate();
+  }
+
+  onLoggedOut() {
+    this.discordUserName = ".w.";
+    this.discordAvatarUrl = "https://cdn.discordapp.com/embed/avatars/1.png";
+    this.roles = [];
+  }
+
+  onLoggedIn(claims: TokenPayload) {
+    const { rol } = claims;
+    this.roles = rol;
+  }
+
   private async getUserInfo(): Promise<void> {
-    const claims = isLoggedIn();
-
-    if (claims === false) {
-      this.discordUserName = ".w.";
-      this.discordAvatarUrl = "https://cdn.discordapp.com/embed/avatars/1.png";
-      this.roles = [];
-    } else {
-      const { rol } = claims;
-      this.roles = rol;
-
-      const userMeResponse = await getUserMe();
-      if (userMeResponse && typeof userMeResponse === "object") {
-        const { user } = userMeResponse;
-        const { username, id, avatar } = user;
-        this.discordUserName = username;
-        this.discordAvatarUrl = avatar
-          ? `https://cdn.discordapp.com/avatars/${id}/${avatar}.${avatar.startsWith("a_") ? "gif" : "png"}`
-          : `https://cdn.discordapp.com/embed/avatars/${Number(user.discriminator) % 5}.png`;
-      } else {
-        this.discordUserName = ".w."; // test name
-        this.discordAvatarUrl =
-          "https://cdn.discordapp.com/avatars/1198183481545592893/3daf014eddd85cf4dc9c72b86c3d2c57"; // test avatar
-      }
-    }
-
     this.playerName = this.getStoredName();
     this.flag = this.getStoredFlag();
     this.highestRole = this.getHighestRole(this.roles);

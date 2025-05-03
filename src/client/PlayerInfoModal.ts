@@ -81,6 +81,8 @@ export class PlayerInfoModal extends LitElement {
     },
   ];
 
+  @state() private isLoggedIn: boolean = false;
+
   private formatPlayTime(seconds: number): string {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -231,6 +233,7 @@ export class PlayerInfoModal extends LitElement {
     this.discordUserName = ".w.";
     this.discordAvatarUrl = "https://cdn.discordapp.com/embed/avatars/1.png";
     this.roles = [];
+    this.isLoggedIn = false;
   }
 
   onLoggedIn(claims: TokenPayload) {
@@ -240,6 +243,7 @@ export class PlayerInfoModal extends LitElement {
     const { flagWrapper, nameText } = this.getRoleStyle(this.highestRole);
     this.flagWrapper = flagWrapper;
     this.nameText = nameText;
+    this.isLoggedIn = true;
   }
 
   private async getUserInfo(): Promise<void> {
@@ -253,6 +257,14 @@ export class PlayerInfoModal extends LitElement {
     return html`
       <o-modal id="playerInfoModal" title="Player Info">
         <div class="flex flex-col items-center mt-2 mb-4">
+          ${!this.isLoggedIn
+            ? html` <div
+                class="bg-yellow-300/20 border border-yellow-400 text-yellow-200 text-sm px-3 py-1 rounded"
+              >
+                ⚠️ You are not logged in. Some features will be unavailable.
+              </div>`
+            : null}
+          <br />
           <div class="flex justify-center items-center gap-3">
             <div class="${this.getRankStyle(this.currentRank).flagWrapper}">
               <img
@@ -264,15 +276,17 @@ export class PlayerInfoModal extends LitElement {
             <div class="${this.getRankStyle(this.currentRank).nameText}">
               ${this.playerName}
             </div>
-            <span>|</span>
-            <div class="${this.nameText}">${this.discordUserName}</div>
-            <div class="${this.flagWrapper}">
-              <img
-                class="size-[48px] rounded-full block"
-                src="${this.discordAvatarUrl}"
-                alt="Discord Avatar"
-              />
-            </div>
+            ${this.isLoggedIn
+              ? html` <span>|</span>
+                  <div class="${this.nameText}">${this.discordUserName}</div>
+                  <div class="${this.flagWrapper}">
+                    <img
+                      class="size-[48px] rounded-full block"
+                      src="${this.discordAvatarUrl}"
+                      alt="Discord Avatar"
+                    />
+                  </div>`
+              : null}
           </div>
 
           <hr class="w-2/3 border-gray-600 my-2" />
@@ -291,29 +305,32 @@ export class PlayerInfoModal extends LitElement {
             </span>
           </div>
 
-          <hr class="w-2/3 border-gray-600 my-2" />
+          ${this.isLoggedIn
+            ? html` <hr class="w-2/3 border-gray-600 my-2" />
 
-          <div class="flex flex-wrap justify-center gap-2 mb-2">
-            ${this.roles
-              .map((role) => ({
-                role,
-                priority: this.getRoleStyle(role).priority,
-              }))
-              .sort((a, b) => a.priority - b.priority)
-              .map(({ role }) => {
-                const { label, roleText, badgeBg } = this.getRoleStyle(role);
-                const isOwner = role === "cre";
-                return html`
-                  <span
-                    class="${roleText} ${badgeBg} ${isOwner
-                      ? "text-base border-2 shadow-md shadow-yellow-300/30 px-3 py-1.5"
-                      : "text-sm border px-2 py-1"} rounded-full flex items-center gap-1"
-                  >
-                    ${isOwner ? "👑" : ""} ${label}
-                  </span>
-                `;
-              })}
-          </div>
+                <div class="flex flex-wrap justify-center gap-2 mb-2">
+                  ${this.roles
+                    .map((role) => ({
+                      role,
+                      priority: this.getRoleStyle(role).priority,
+                    }))
+                    .sort((a, b) => a.priority - b.priority)
+                    .map(({ role }) => {
+                      const { label, roleText, badgeBg } =
+                        this.getRoleStyle(role);
+                      const isOwner = role === "cre";
+                      return html`
+                        <span
+                          class="${roleText} ${badgeBg} ${isOwner
+                            ? "text-base border-2 shadow-md shadow-yellow-300/30 px-3 py-1.5"
+                            : "text-sm border px-2 py-1"} rounded-full flex items-center gap-1"
+                        >
+                          ${isOwner ? "👑" : ""} ${label}
+                        </span>
+                      `;
+                    })}
+                </div>`
+            : null}
 
           <hr class="w-2/3 border-gray-600 my-2" />
 

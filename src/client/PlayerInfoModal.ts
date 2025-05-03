@@ -1,7 +1,7 @@
-import { LitElement, html } from "lit";
+import { html, LitElement } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
 import { TokenPayload, UserMeResponse } from "./ApiSchemas";
-import { rankStyles, roleStyles } from "./Utils";
+import { RankStyle, rankStyles, RoleStyle, roleStyles } from "./Utils";
 
 @customElement("player-info-modal")
 export class PlayerInfoModal extends LitElement {
@@ -157,11 +157,12 @@ export class PlayerInfoModal extends LitElement {
     const storedName = localStorage.getItem("username");
     return storedName || "";
   }
-  private getRoleStyle(role: string) {
-    return roleStyles[role] || roleStyles["member"];
+
+  private getRoleStyle(role: string): RoleStyle {
+    return roleStyles[role] ?? roleStyles.mem;
   }
 
-  private getRankStyle(rank: string) {
+  private getRankStyle(rank: string): RankStyle {
     return (
       rankStyles[rank] || {
         bg: "bg-gray-500/20",

@@ -95,6 +95,15 @@ export const translateText = (
   return langSelector.translateText(key, params);
 };
 
+export type RoleStyle = {
+  label: string;
+  flagWrapper: string;
+  nameText: string;
+  roleText: string;
+  badgeBg: string;
+  priority: number;
+};
+
 export const roleStyles = {
   cre: {
     label: "Creator",
@@ -290,17 +299,16 @@ export const roleStyles = {
     badgeBg: "bg-gray-400/20 border-gray-300/30",
     priority: 22,
   },
-} as const satisfies Record<
-  string,
-  {
-    label: string;
-    flagWrapper: string;
-    nameText: string;
-    roleText: string;
-    badgeBg: string;
-    priority: number;
-  }
->;
+} as const satisfies Record<string, RoleStyle>;
+
+export type RankStyle = {
+  bg: string;
+  border: string;
+  text: string;
+  flagWrapper: string;
+  nameText: string;
+  glow?: boolean;
+};
 
 export const rankStyles = {
   "New Player": {
@@ -356,14 +364,4 @@ export const rankStyles = {
       "p-[3px] rounded-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-400 animate-shimmer",
     nameText: "text-2xl font-bold text-yellow-200 drop-shadow",
   },
-} as const satisfies Record<
-  string,
-  {
-    bg: string;
-    border: string;
-    text: string;
-    flagWrapper: string;
-    nameText: string;
-    glow?: boolean;
-  }
->;
+} as const satisfies Record<string, RankStyle>;

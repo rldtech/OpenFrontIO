@@ -235,15 +235,15 @@ export class PlayerInfoModal extends LitElement {
   onLoggedIn(claims: TokenPayload) {
     const { rol } = claims;
     this.roles = rol;
+    this.highestRole = this.getHighestRole(this.roles);
+    const { flagWrapper, nameText } = this.getRoleStyle(this.highestRole);
+    this.flagWrapper = flagWrapper;
+    this.nameText = nameText;
   }
 
   private async getUserInfo(): Promise<void> {
     this.playerName = this.getStoredName();
     this.flag = this.getStoredFlag();
-    this.highestRole = this.getHighestRole(this.roles);
-    const { flagWrapper, nameText } = this.getRoleStyle(this.highestRole);
-    this.flagWrapper = flagWrapper;
-    this.nameText = nameText;
 
     this.requestUpdate();
   }

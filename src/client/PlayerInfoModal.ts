@@ -39,7 +39,7 @@ export class PlayerInfoModal extends LitElement {
     return this.rankList[currentIndex + 1] || "Max Rank Achieved";
   }
 
-  @state() private isDebugMode: boolean = true;
+  @state() private isDebugMode: boolean = false;
 
   @state() private wins: number = 12;
   @state() private playTimeSeconds: number = 5 * 3600 + 33 * 60;

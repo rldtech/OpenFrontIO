@@ -68,6 +68,9 @@ export class WinCheckExecution implements Execution {
     if (sorted.length == 0) {
       return;
     }
+    console.log(
+      `TEAM LEADERBOARD:\n${sorted.map((t) => `${t[0]}: ${t[1]}`).join("\n")}`,
+    );
     const max = sorted[0];
     const numTilesWithoutFallout =
       this.mg.numLandTiles() - this.mg.numTilesWithFallout();

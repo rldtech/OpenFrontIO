@@ -3,15 +3,45 @@ import { customElement, query, state } from "lit/decorators.js";
 import { TokenPayload, UserMeResponse } from "./ApiSchemas";
 import { RankStyle, rankStyles, RoleStyle, roleStyles } from "./Utils";
 
+type Achievement = {
+  title: string;
+  description: string;
+  unlocked: boolean;
+  difficulty: "easy" | "medium" | "hard" | "impossible";
+  secret: boolean;
+};
+
+type BuildingStat = {
+  built: number | "x";
+  destroyed: number | "x";
+  finalCount: number;
+};
+
+type BuildingStats = Record<string, BuildingStat>;
+
+type PlayerStats = {
+  playerName: string;
+  discordUserName: string;
+  discordAvatarUrl: string;
+  flag: string;
+  roles: string[];
+  currentRank: string;
+  wins: number;
+  playTimeSeconds: number;
+  achievements: Achievement[];
+  buildingStats: BuildingStats;
+};
+
 @customElement("player-info-modal")
 export class PlayerInfoModal extends LitElement {
   @query("o-modal") private modalEl!: HTMLElement & {
     open: () => void;
     close: () => void;
   };
-
+  @state() private isLoggedIn: boolean = false;
   @state() private discordUserName: string = "";
   @state() private discordAvatarUrl: string = "";
+
   @state() private playerName: string = "";
   @state() private flag: string = "";
   @state() private highestRole: string = "";
@@ -34,18 +64,13 @@ export class PlayerInfoModal extends LitElement {
     "Mythic Player",
   ];
 
-  private getNextRank(): string {
-    const currentIndex = this.rankList.indexOf(this.currentRank);
-    return this.rankList[currentIndex + 1] || "Max Rank Achieved";
-  }
-
   @state() private isDebugMode: boolean = false;
 
   @state() private wins: number = 12;
   @state() private playTimeSeconds: number = 5 * 3600 + 33 * 60;
   @state() private progressPercent: number = 62;
 
-  @state() private buildingStats = {
+  @state() private buildingStats: BuildingStats = {
     city: { built: 0, destroyed: 0, finalCount: 0 },
     defense: { built: 0, destroyed: 0, finalCount: 0 },
     port: { built: 0, destroyed: 0, finalCount: 0 },
@@ -56,8 +81,7 @@ export class PlayerInfoModal extends LitElement {
     hydrogen: { built: "x", destroyed: "x", finalCount: 0 },
     mirv: { built: "x", destroyed: "x", finalCount: 0 },
   };
-
-  @state() private achievements = [
+  @state() private achievements: Achievement[] = [
     {
       title: "Builder",
       description: "Build 10 structures",
@@ -102,7 +126,10 @@ export class PlayerInfoModal extends LitElement {
     },
   ];
 
-  @state() private isLoggedIn: boolean = false;
+  private getNextRank(): string {
+    const currentIndex = this.rankList.indexOf(this.currentRank);
+    return this.rankList[currentIndex + 1] || "Max Rank Achieved";
+  }
 
   private formatPlayTime(seconds: number): string {
     const h = Math.floor(seconds / 3600);

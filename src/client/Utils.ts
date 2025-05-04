@@ -390,3 +390,42 @@ export const rankStyles = {
     nameText: "text-2xl font-bold text-pink-200 drop-shadow",
   },
 } as const satisfies Record<string, RankStyle>;
+
+export const achievementsData = [
+  {
+    id: "builder",
+    title: "Builder",
+    description: "Build 10 structures",
+    difficulty: "easy",
+    secret: false,
+  },
+  {
+    id: "first_win",
+    title: "First Win",
+    description: "Win your first public game",
+    difficulty: "medium",
+    secret: false,
+  },
+  {
+    id: "five_win_streak",
+    title: "5 Win Streak",
+    description: "Win 5 games in a row",
+    difficulty: "hard",
+    secret: false,
+  },
+  {
+    id: "chocolate",
+    title: "Chocolate!",
+    description: "Get chocolate role!",
+    difficulty: "impossible",
+    secret: true,
+  },
+  {
+    id: "perfect_offense",
+    title: "Perfect Offense",
+    description:
+      "Win a game with 100% attack ratio throughout the entire match.",
+    difficulty: "impossible",
+    secret: false,
+  },
+];

@@ -1,36 +1,13 @@
 import { html, LitElement } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
 import { TokenPayload, UserMeResponse } from "./ApiSchemas";
-import { RankStyle, rankStyles, RoleStyle, roleStyles } from "./Utils";
-
-type Achievement = {
-  title: string;
-  description: string;
-  unlocked: boolean;
-  difficulty: "easy" | "medium" | "hard" | "impossible";
-  secret: boolean;
-};
-
-type BuildingStat = {
-  built: number | "x";
-  destroyed: number | "x";
-  finalCount: number;
-};
-
-type BuildingStats = Record<string, BuildingStat>;
-
-type PlayerStats = {
-  playerName: string;
-  discordUserName: string;
-  discordAvatarUrl: string;
-  flag: string;
-  roles: string[];
-  currentRank: string;
-  wins: number;
-  playTimeSeconds: number;
-  achievements: Achievement[];
-  buildingStats: BuildingStats;
-};
+import {
+  achievementsData,
+  RankStyle,
+  rankStyles,
+  RoleStyle,
+  roleStyles,
+} from "./Utils";
 
 @customElement("player-info-modal")
 export class PlayerInfoModal extends LitElement {
@@ -70,7 +47,7 @@ export class PlayerInfoModal extends LitElement {
   @state() private playTimeSeconds: number = 5 * 3600 + 33 * 60;
   @state() private progressPercent: number = 62;
 
-  @state() private buildingStats: BuildingStats = {
+  @state() private buildingStats = {
     city: { built: 0, destroyed: 0, finalCount: 0 },
     defense: { built: 0, destroyed: 0, finalCount: 0 },
     port: { built: 0, destroyed: 0, finalCount: 0 },
@@ -81,50 +58,7 @@ export class PlayerInfoModal extends LitElement {
     hydrogen: { built: "x", destroyed: "x", finalCount: 0 },
     mirv: { built: "x", destroyed: "x", finalCount: 0 },
   };
-  @state() private achievements: Achievement[] = [
-    {
-      title: "Builder",
-      description: "Build 10 structures",
-      unlocked: false,
-      difficulty: "easy",
-      secret: false,
-    },
-    {
-      title: "First Win",
-      description: "Win your first public game",
-      unlocked: false,
-      difficulty: "medium",
-      secret: false,
-    },
-    {
-      title: "5 Win Streak",
-      description: "Win 5 games in a row",
-      unlocked: false,
-      difficulty: "hard",
-      secret: false,
-    },
-    {
-      title: "Chocolate!",
-      description: "Get chocolate role!",
-      unlocked: true,
-      difficulty: "medium",
-      secret: false,
-    },
-    {
-      title: "Impossible Task",
-      description: "Achieve the unachievable",
-      unlocked: false,
-      difficulty: "impossible",
-      secret: true,
-    },
-    {
-      title: "Impossible Task",
-      description: "Achieve the unachievable",
-      unlocked: true,
-      difficulty: "impossible",
-      secret: true,
-    },
-  ];
+  @state() private achievements: string[] = [];
 
   private getNextRank(): string {
     const currentIndex = this.rankList.indexOf(this.currentRank);
@@ -337,12 +271,12 @@ export class PlayerInfoModal extends LitElement {
   }
 
   private getAchievementStats() {
-    const total = this.achievements.length;
-    const unlocked = this.achievements.filter((a) => a.unlocked).length;
+    const total = achievementsData.length;
+    const unlocked = this.achievements.length;
 
-    const difficultyCounts = this.achievements.reduce(
+    const difficultyCounts = achievementsData.reduce(
       (acc, achievement) => {
-        if (achievement.unlocked) {
+        if (this.achievements.includes(achievement.id)) {
           acc[achievement.difficulty] = (acc[achievement.difficulty] || 0) + 1;
         }
         return acc;
@@ -350,7 +284,7 @@ export class PlayerInfoModal extends LitElement {
       { easy: 0, medium: 0, hard: 0, impossible: 0 } as Record<string, number>,
     );
 
-    const difficultyTotals = this.achievements.reduce(
+    const difficultyTotals = achievementsData.reduce(
       (acc, achievement) => {
         acc[achievement.difficulty] = (acc[achievement.difficulty] || 0) + 1;
         return acc;
@@ -358,9 +292,9 @@ export class PlayerInfoModal extends LitElement {
       { easy: 0, medium: 0, hard: 0, impossible: 0 } as Record<string, number>,
     );
 
-    const secretTotal = this.achievements.filter((a) => a.secret).length;
-    const secretUnlocked = this.achievements.filter(
-      (a) => a.secret && a.unlocked,
+    const secretTotal = achievementsData.filter((a) => a.secret).length;
+    const secretUnlocked = achievementsData.filter(
+      (a) => a.secret && this.achievements.includes(a.id),
     ).length;
 
     return {
@@ -670,92 +604,125 @@ export class PlayerInfoModal extends LitElement {
             <div
               class="flex gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900"
             >
-              ${this.achievements.map((achievement) => {
-                const difficultyStyles = {
-                  easy: "border-green-500 bg-green-500/10 shadow-green-500/30",
-                  medium:
-                    "border-yellow-500 bg-yellow-500/10 shadow-yellow-500/30",
-                  hard: "border-red-500 bg-red-500/10 shadow-red-500/30",
-                  impossible:
-                    "border-purple-500 bg-purple-500/10 shadow-purple-500/30 impossible-animation",
-                };
+              ${achievementsData
+                .sort((a, b) => {
+                  if (
+                    this.achievements.includes(a.id) !==
+                    this.achievements.includes(b.id)
+                  ) {
+                    return this.achievements.includes(a.id) ? -1 : 1;
+                  }
+                  const difficultyOrder = [
+                    "easy",
+                    "medium",
+                    "hard",
+                    "impossible",
+                  ];
+                  return (
+                    difficultyOrder.indexOf(a.difficulty) -
+                    difficultyOrder.indexOf(b.difficulty)
+                  );
+                })
+                .map((achievement) => {
+                  const difficultyStyles = {
+                    easy: "border-green-500 bg-green-500/10 shadow-green-500/30",
+                    medium:
+                      "border-yellow-500 bg-yellow-500/10 shadow-yellow-500/30",
+                    hard: "border-red-500 bg-red-500/10 shadow-red-500/30",
+                    impossible:
+                      "border-purple-500 bg-purple-500/10 shadow-purple-500/30 impossible-animation",
+                  };
 
-                const lockedStyle = {
-                  easy: "border-green-500 bg-green-500/5 shadow-green-500/10",
-                  medium:
-                    "border-yellow-500 bg-yellow-500/5 shadow-yellow-500/10",
-                  hard: "border-red-500 bg-red-500/5 shadow-red-500/10",
-                  impossible:
-                    "border-purple-500 bg-purple-500/5 shadow-purple-500/10 impossible-animation",
-                };
+                  const lockedStyle = {
+                    easy: "border-green-500 bg-green-500/5 shadow-green-500/10",
+                    medium:
+                      "border-yellow-500 bg-yellow-500/5 shadow-yellow-500/10",
+                    hard: "border-red-500 bg-red-500/5 shadow-red-500/10",
+                    impossible:
+                      "border-purple-500 bg-purple-500/5 shadow-purple-500/10 impossible-animation",
+                  };
 
-                const difficultyStyle = achievement.unlocked
-                  ? difficultyStyles[achievement.difficulty] ||
-                    "border-gray-500 bg-gray-500/10 shadow-gray-500/30"
-                  : lockedStyle[achievement.difficulty] ||
-                    "border-gray-500 bg-gray-500/5 shadow-gray-500/10";
+                  const difficultyStyle = this.achievements.includes(
+                    achievement.id,
+                  )
+                    ? difficultyStyles[achievement.difficulty] ||
+                      "border-gray-500 bg-gray-500/10 shadow-gray-500/30"
+                    : lockedStyle[achievement.difficulty] ||
+                      "border-gray-500 bg-gray-500/5 shadow-gray-500/10";
 
-                return html`
-                  <div
-                    class="flex-shrink-0 w-48 p-4 rounded-lg border transition-transform duration-300 hover:scale-105 ${difficultyStyle}"
-                    style="transform: scale(0.9);"
-                    @mouseover=${(e: Event) =>
-                      ((e.currentTarget as HTMLElement).style.transform =
-                        "scale(0.95)")}
-                    @mouseout=${(e: Event) =>
-                      ((e.currentTarget as HTMLElement).style.transform =
-                        "scale(0.9)")}
-                  >
-                    ${achievement.secret
-                      ? html`<div
-                          class="absolute top-1 right-2 text-[10px] text-red-400 font-bold"
-                        >
-                          Hidden Achievement
-                        </div>`
-                      : null}
-                    <span
-                      class="text-2xl ${achievement.unlocked
-                        ? "text-white"
-                        : "text-gray-400"}"
-                    >
-                      ${achievement.unlocked ? "✅" : "🔒"}
-                    </span>
+                  return html`
                     <div
-                      class="mt-2 font-semibold ${achievement.unlocked
-                        ? "text-white"
-                        : "text-gray-400"} text-lg"
+                      class="flex-shrink-0 w-48 p-4 rounded-lg border transition-transform duration-300 hover:scale-105 ${difficultyStyle}"
+                      style="transform: scale(0.9);"
+                      @mouseover=${(e: Event) =>
+                        ((e.currentTarget as HTMLElement).style.transform =
+                          "scale(0.95)")}
+                      @mouseout=${(e: Event) =>
+                        ((e.currentTarget as HTMLElement).style.transform =
+                          "scale(0.9)")}
                     >
-                      ${achievement.secret && !achievement.unlocked
-                        ? "???"
-                        : achievement.title}
+                      ${achievement.secret
+                        ? html`<div
+                            class="absolute top-1 right-2 text-[10px] text-red-400 font-bold"
+                          >
+                            Hidden Achievement
+                          </div>`
+                        : null}
+                      <span
+                        class="text-2xl ${this.achievements.includes(
+                          achievement.id,
+                        )
+                          ? "text-white"
+                          : "text-gray-400"}"
+                      >
+                        ${this.achievements.includes(achievement.id)
+                          ? "✅"
+                          : "🔒"}
+                      </span>
+                      <div
+                        class="mt-2 font-semibold ${this.achievements.includes(
+                          achievement.id,
+                        )
+                          ? "text-white"
+                          : "text-gray-400"} text-lg"
+                      >
+                        ${achievement.secret &&
+                        !this.achievements.includes(achievement.id)
+                          ? "???"
+                          : achievement.title}
+                      </div>
+                      <div
+                        class="text-xs ${this.achievements.includes(
+                          achievement.id,
+                        )
+                          ? "text-gray-300"
+                          : "text-gray-500"}"
+                      >
+                        ${achievement.secret &&
+                        !this.achievements.includes(achievement.id)
+                          ? "Unlock to reveal"
+                          : achievement.description}
+                      </div>
+                      <div
+                        class="text-xs mt-1 ${this.achievements.includes(
+                          achievement.id,
+                        )
+                          ? "text-gray-400"
+                          : `text-${
+                              achievement.difficulty === "easy"
+                                ? "green-400"
+                                : achievement.difficulty === "medium"
+                                  ? "yellow-400"
+                                  : achievement.difficulty === "hard"
+                                    ? "red-400"
+                                    : "purple-400"
+                            }`}"
+                      >
+                        Difficulty: ${achievement.difficulty}
+                      </div>
                     </div>
-                    <div
-                      class="text-xs ${achievement.unlocked
-                        ? "text-gray-300"
-                        : "text-gray-500"}"
-                    >
-                      ${achievement.secret && !achievement.unlocked
-                        ? "Unlock to reveal"
-                        : achievement.description}
-                    </div>
-                    <div
-                      class="text-xs mt-1 ${achievement.unlocked
-                        ? "text-gray-400"
-                        : `text-${
-                            achievement.difficulty === "easy"
-                              ? "green-400"
-                              : achievement.difficulty === "medium"
-                                ? "yellow-400"
-                                : achievement.difficulty === "hard"
-                                  ? "red-400"
-                                  : "purple-400"
-                          }`}"
-                    >
-                      Difficulty: ${achievement.difficulty}
-                    </div>
-                  </div>
-                `;
-              })}
+                  `;
+                })}
             </div>
           </div>
 
@@ -813,6 +780,48 @@ export class PlayerInfoModal extends LitElement {
                   >
                     Advance Rank
                   </button>
+                  <div class="flex flex-wrap gap-2">
+                    ${achievementsData
+                      .slice()
+                      .sort((a, b) => {
+                        const difficultyOrder = [
+                          "easy",
+                          "medium",
+                          "hard",
+                          "impossible",
+                        ];
+                        const diffA = difficultyOrder.indexOf(a.difficulty);
+                        const diffB = difficultyOrder.indexOf(b.difficulty);
+
+                        if (diffA !== diffB) {
+                          return diffA - diffB;
+                        }
+
+                        return a.id.localeCompare(b.id);
+                      })
+                      .map((achievement) => {
+                        const isUnlocked = this.achievements.includes(
+                          achievement.id,
+                        );
+                        return html`
+                          <label
+                            class="flex items-center gap-1 text-xs bg-white/5 px-2 py-1 rounded border border-white/10 cursor-pointer"
+                          >
+                            <input
+                              type="checkbox"
+                              class="accent-white"
+                              .checked=${isUnlocked}
+                              @change=${(e: Event) =>
+                                this.toggleAchievement(
+                                  achievement.id,
+                                  (e.target as HTMLInputElement).checked,
+                                )}
+                            />
+                            ${achievement.title}
+                          </label>
+                        `;
+                      })}
+                  </div>
                 </div>
               `
             : null}
@@ -828,5 +837,16 @@ export class PlayerInfoModal extends LitElement {
 
   public close() {
     this.modalEl?.close();
+  }
+
+  private toggleAchievement(achievementId: string, checked: boolean): void {
+    if (checked && !this.achievements.includes(achievementId)) {
+      this.achievements = [...this.achievements, achievementId];
+    } else if (!checked) {
+      this.achievements = this.achievements.filter(
+        (id) => id !== achievementId,
+      );
+    }
+    this.requestUpdate();
   }
 }

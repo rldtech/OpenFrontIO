@@ -41,7 +41,7 @@ export class PlayerInfoModal extends LitElement {
     "Mythic Player",
   ];
 
-  @state() private isDebugMode: boolean = true;
+  @state() private isDebugMode: boolean = false;
 
   @state() private wins: number = 12;
   @state() private playTimeSeconds: number = 5 * 3600 + 33 * 60;
@@ -59,6 +59,65 @@ export class PlayerInfoModal extends LitElement {
     mirv: { built: "x", destroyed: "x", finalCount: 0 },
   };
   @state() private achievements: string[] = [];
+
+  @state() private recentPlayers: {
+    gameName: string;
+    flag: string;
+    rank: string;
+  }[] = [
+    { gameName: "[CHOCO]chocolate", flag: "us", rank: "Elite Player" },
+    { gameName: "dot_tungsten_dot", flag: "jp", rank: "Veteran Player" },
+    { gameName: "evan", flag: "un", rank: "Legend" },
+  ];
+
+  @state() private recentGames: {
+    gameId: string;
+    won: boolean;
+    gameMode: "ffa" | "team";
+    teamCount?: number;
+    teamColor?: string;
+  }[] = [
+    { gameId: "tGadjhgg", won: true, gameMode: "ffa" },
+    {
+      gameId: "I7XQ63rt",
+      won: false,
+      gameMode: "team",
+      teamCount: 2,
+      teamColor: "blue",
+    },
+    {
+      gameId: "Chocolat",
+      won: true,
+      gameMode: "team",
+      teamCount: 3,
+      teamColor: "red",
+    },
+  ];
+
+  private colorClassMap: Record<string, string> = {
+    red: "text-red-300",
+    blue: "text-blue-300",
+    green: "text-green-300",
+    yellow: "text-yellow-300",
+    purple: "text-purple-300",
+  };
+
+  private viewPlayer(player: {
+    gameName: string;
+    flag: string;
+    rank: string;
+  }): void {
+    console.log("Viewing player:", player);
+  }
+
+  private viewGame(game: {
+    gameId: string;
+    won: boolean;
+    gameMode: "ffa" | "team";
+    teamCount?: number;
+  }): void {
+    console.log("Viewing game:", game);
+  }
 
   private getNextRank(): string {
     const currentIndex = this.rankList.indexOf(this.currentRank);
@@ -735,8 +794,102 @@ export class PlayerInfoModal extends LitElement {
 
           <hr class="w-2/3 border-gray-600 my-2" />
 
+          <div class="mt-4 w-full max-w-md">
+            <div class="text-sm text-gray-400 font-semibold mb-1">
+              🎮 Recent Players
+            </div>
+            <div class="flex flex-col gap-2">
+              ${this.recentPlayers.map((player) => {
+                const rankStyle = this.getRankStyle(player.rank);
+                return html`
+                  <div
+                    class="flex items-center justify-between px-4 py-2 rounded border ${rankStyle.border} ${rankStyle.bgLight}"
+                  >
+                    <div class="flex items-center gap-3">
+                      <img
+                        class="w-8 h-8 rounded-full ${rankStyle.flagWrapper}"
+                        src="/flags/${player.flag}.svg"
+                        alt="${player.flag} flag"
+                      />
+                      <div>
+                        <div class="text-sm font-semibold ${rankStyle.text}">
+                          ${player.gameName}
+                        </div>
+                        <div class="text-xs ${rankStyle.text}">
+                          ${player.rank}
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      class="text-sm text-gray-300 bg-gray-700 px-3 py-1 rounded"
+                      @click=${() => this.viewPlayer(player)}
+                    >
+                      View
+                    </button>
+                  </div>
+                `;
+              })}
+            </div>
+          </div>
+
+          <hr class="w-2/3 border-gray-600 my-2" />
+
+          <div class="mt-4 w-full max-w-md">
+            <div class="text-sm text-gray-400 font-semibold mb-1">
+              🎮 Recent Games
+            </div>
+            <div class="flex flex-col gap-2">
+              ${this.recentGames.map(
+                (game) => html`
+                  <div
+                    class="flex items-center justify-between bg-white/5 px-4 py-2 rounded border border-white/10"
+                  >
+                    <div>
+                      <div class="text-sm font-semibold text-white">
+                        Game ID: ${game.gameId}
+                      </div>
+                      <div class="text-xs text-gray-400">
+                        Mode:
+                        ${game.gameMode === "ffa"
+                          ? "Free-for-All"
+                          : html`Team (${game.teamCount} teams)`}
+                      </div>
+                      ${game.gameMode === "team" && game.teamColor
+                        ? (() => {
+                            const className =
+                              this.colorClassMap[game.teamColor] ||
+                              "text-white";
+                            return html`
+                              <div class="${className} text-xs font-semibold">
+                                Player Team Color: ${game.teamColor}
+                              </div>
+                            `;
+                          })()
+                        : null}
+                      <div
+                        class="text-xs ${game.won
+                          ? "text-green-400"
+                          : "text-red-400"}"
+                      >
+                        ${game.won ? "Victory" : "Defeat"}
+                      </div>
+                    </div>
+                    <button
+                      class="text-sm text-gray-300 bg-gray-700 px-3 py-1 rounded"
+                      @click=${() => this.viewGame(game)}
+                    >
+                      View
+                    </button>
+                  </div>
+                `,
+              )}
+            </div>
+          </div>
+
           ${this.isDebugMode
             ? html`
+                <hr class="w-2/3 border-gray-600 my-2" />
+
                 <div class="mt-4 w-full max-w-md">
                   <div class="text-sm text-gray-400 font-semibold mb-1">
                     🛠️ Debug: Set Roles

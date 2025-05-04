@@ -303,6 +303,7 @@ export const roleStyles = {
 
 export type RankStyle = {
   bg: string;
+  bgLight: string;
   border: string;
   text: string;
   flagWrapper: string;
@@ -313,6 +314,7 @@ export type RankStyle = {
 export const rankStyles = {
   "New Player": {
     bg: "bg-gray-500/20",
+    bgLight: "bg-gray-500/20",
     border: "border-gray-400/30",
     text: "text-gray-300",
     flagWrapper: "p-[3px] rounded-full bg-gray-500",
@@ -320,6 +322,7 @@ export const rankStyles = {
   },
   "Logged-in Player": {
     bg: "bg-blue-500/20",
+    bgLight: "bg-blue-500/20",
     border: "border-blue-400/30",
     text: "text-blue-300",
     flagWrapper: "p-[3px] rounded-full bg-blue-500",
@@ -327,6 +330,7 @@ export const rankStyles = {
   },
   "Seen Player": {
     bg: "bg-green-500/20",
+    bgLight: "bg-green-500/20",
     border: "border-green-400/30",
     text: "text-green-300",
     flagWrapper: "p-[3px] rounded-full bg-green-500",
@@ -334,6 +338,7 @@ export const rankStyles = {
   },
   "Known Player": {
     bg: "bg-yellow-500/20",
+    bgLight: "bg-yellow-500/20",
     border: "border-yellow-400/30",
     text: "text-yellow-300",
     flagWrapper: "p-[3px] rounded-full bg-yellow-500",
@@ -341,6 +346,7 @@ export const rankStyles = {
   },
   "Well-Known Player": {
     bg: "bg-orange-500/20",
+    bgLight: "bg-orange-500/20",
     border: "border-orange-400/30",
     text: "text-orange-300",
     flagWrapper: "p-[3px] rounded-full bg-orange-500",
@@ -348,6 +354,7 @@ export const rankStyles = {
   },
   "Veteran Player": {
     bg: "bg-purple-500/20",
+    bgLight: "bg-purple-500/20",
     border: "border-purple-400/30",
     text: "text-purple-300",
     flagWrapper: "p-[3px] rounded-full bg-purple-500",
@@ -355,6 +362,7 @@ export const rankStyles = {
   },
   "Best-Known Player": {
     bg: "bg-red-500/20",
+    bgLight: "bg-red-500/20",
     border: "border-red-400/30",
     text: "text-red-300",
     glow: true,
@@ -364,6 +372,7 @@ export const rankStyles = {
   },
   "Elite Player": {
     bg: "bg-cyan-500/20",
+    bgLight: "bg-cyan-500/20",
     border: "border-cyan-400/30",
     text: "text-cyan-300",
     glow: true,
@@ -373,6 +382,7 @@ export const rankStyles = {
   },
   Legend: {
     bg: "bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-400",
+    bgLight: "bg-yellow-500/20",
     border: "border-yellow-300",
     text: "text-yellow-200",
     glow: true,
@@ -382,6 +392,7 @@ export const rankStyles = {
   },
   "Mythic Player": {
     bg: "bg-gradient-to-r from-indigo-500 via-pink-500 to-indigo-500",
+    bgLight: "bg-indigo-500/20",
     border: "border-pink-300",
     text: "text-pink-200",
     glow: true,

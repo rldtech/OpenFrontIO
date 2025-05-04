@@ -41,7 +41,7 @@ export class PlayerInfoModal extends LitElement {
     "Mythic Player",
   ];
 
-  @state() private isDebugMode: boolean = false;
+  @state() private isDebugMode: boolean = true;
 
   @state() private wins: number = 12;
   @state() private playTimeSeconds: number = 5 * 3600 + 33 * 60;
@@ -606,22 +606,29 @@ export class PlayerInfoModal extends LitElement {
             >
               ${achievementsData
                 .sort((a, b) => {
-                  if (
-                    this.achievements.includes(a.id) !==
-                    this.achievements.includes(b.id)
-                  ) {
-                    return this.achievements.includes(a.id) ? -1 : 1;
+                  const aUnlocked = this.achievements.includes(a.id);
+                  const bUnlocked = this.achievements.includes(b.id);
+                  if (aUnlocked !== bUnlocked) {
+                    return aUnlocked ? -1 : 1;
                   }
+
                   const difficultyOrder = [
                     "easy",
                     "medium",
                     "hard",
                     "impossible",
                   ];
-                  return (
-                    difficultyOrder.indexOf(a.difficulty) -
-                    difficultyOrder.indexOf(b.difficulty)
-                  );
+                  const diffA = difficultyOrder.indexOf(a.difficulty);
+                  const diffB = difficultyOrder.indexOf(b.difficulty);
+                  if (diffA !== diffB) {
+                    return diffA - diffB;
+                  }
+
+                  if (a.secret !== b.secret) {
+                    return a.secret ? 1 : -1;
+                  }
+
+                  return 0;
                 })
                 .map((achievement) => {
                   const difficultyStyles = {

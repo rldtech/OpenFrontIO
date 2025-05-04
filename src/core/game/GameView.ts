@@ -240,7 +240,11 @@ export class PlayerView {
   }
 
   isOnSameTeam(other: PlayerView): boolean {
-    return this.data.team != null && this.data.team == other.data.team;
+    return (
+      this.data.team !== null &&
+      this.data.team === other.data.team &&
+      this.data.playerType !== PlayerType.Bot
+    );
   }
 
   isFriendly(other: PlayerView): boolean {

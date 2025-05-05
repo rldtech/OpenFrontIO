@@ -106,7 +106,6 @@ export abstract class DefaultServerConfig implements ServerConfig {
           GameMapType.Oceania,
           GameMapType.Japan, // Japan at this level because its 2/3 water
           GameMapType.FaroeIslands,
-          GameMapType.DeglaciatedAntarctica,
           GameMapType.EuropeClassic,
         ].includes(map)
       ) {

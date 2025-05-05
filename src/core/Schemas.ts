@@ -1,4 +1,4 @@
-import { z, ZodLiteral } from "zod";
+import { z } from "zod";
 import quickChatData from "../../resources/QuickChat.json" with { type: "json" };
 import {
   AllPlayers,
@@ -272,23 +272,16 @@ export const MoveWarshipIntentSchema = BaseIntentSchema.extend({
   tile: z.number(),
 });
 
-const allowedQuickChatKeys = Object.entries(quickChatData).flatMap(
-  ([category, entries]) => entries.map((entry) => `${category}.${entry.key}`),
+export const QuickChatKeySchema = z.enum(
+  Object.entries(quickChatData).flatMap(([category, entries]) =>
+    entries.map((entry) => `${category}.${entry.key}`),
+  ) as [string, ...string[]],
 );
 
-const literals = allowedQuickChatKeys.map((key) => z.literal(key));
-
-// ✅ より型安全なアサーション
 export const QuickChatIntentSchema = BaseIntentSchema.extend({
   type: z.literal("quick_chat"),
   recipient: ID,
-  quickChatKey: z.union(
-    literals as [
-      ZodLiteral<string>,
-      ZodLiteral<string>,
-      ...ZodLiteral<string>[],
-    ],
-  ),
+  quickChatKey: QuickChatKeySchema,
   variables: z.record(z.string()).optional(),
 });
 

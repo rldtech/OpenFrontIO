@@ -262,6 +262,12 @@ export class FakeHumanExecution implements Execution {
     this.behavior.forgetOldEnemies();
     this.behavior.checkIncomingAttacks();
     this.behavior.assistAllies();
+
+    const sharesBorderWithTN = Array.from(this.player.borderTiles())
+      .flatMap((t) => this.mg.neighbors(t))
+      .some((t) => this.mg.isLand(t) && !this.mg.hasOwner(t));
+    if (sharesBorderWithTN) return;
+
     let enemy: Player | null = null;
 
     if (
@@ -879,6 +885,13 @@ export class FakeHumanExecution implements Execution {
       this.dogpileTarget = null;
       return;
     }
+    const isTeamGame = this.mg
+      .players()
+      .some((p) => p !== this.player && this.player.isOnSameTeam(p));
+    if (isTeamGame) {
+      this.dogpileTarget = null;
+      return;
+    }
 
     const CHECK_INTERVAL = 50;
     if (this.mg.ticks() - this.dogpileLastChecked < CHECK_INTERVAL) return;
@@ -886,7 +899,13 @@ export class FakeHumanExecution implements Execution {
 
     const alivePlayers = this.mg
       .players()
-      .filter((p) => p.isAlive() && p.isPlayer());
+      .filter(
+        (p) =>
+          p.isAlive() &&
+          p.isPlayer() &&
+          p.id() !== this.player?.id() &&
+          !this.player?.isOnSameTeam(p),
+      );
 
     if (alivePlayers.length < 2) {
       this.dogpileTarget = null;

@@ -49,14 +49,16 @@ export class PlayerInfoModal extends LitElement {
 
   @state() private buildingStats = {
     city: { built: 0, destroyed: 0, finalCount: 0 },
-    defense: { built: 0, destroyed: 0, finalCount: 0 },
     port: { built: 0, destroyed: 0, finalCount: 0 },
+    defense: { built: 0, destroyed: 0, finalCount: 0 },
     warship: { built: 0, destroyed: 0, finalCount: 0 },
+    atom: { built: 0, destroyed: 0, finalCount: 0 },
+    hydrogen: { built: 0, destroyed: 0, finalCount: 0 },
+    mirv: { built: 0, destroyed: 0, finalCount: 0 },
     silo: { built: 0, destroyed: 0, finalCount: 0 },
     sam: { built: 0, destroyed: 0, finalCount: 0 },
-    atom: { built: "x", destroyed: "x", finalCount: 0 },
-    hydrogen: { built: "x", destroyed: "x", finalCount: 0 },
-    mirv: { built: "x", destroyed: "x", finalCount: 0 },
+    transportShip: { built: 0, destroyed: 0, finalCount: 0 },
+    tradeShip: { built: 0, destroyed: 0, finalCount: 0 },
   };
   @state() private achievements: string[] = [];
 
@@ -231,14 +233,16 @@ export class PlayerInfoModal extends LitElement {
   private getBuildingName(building: string): string {
     const buildingNames: Record<string, string> = {
       city: "City",
-      defense: "Defense",
       port: "Port",
+      defense: "Defense",
       warship: "Warship",
-      silo: "Silo",
-      sam: "SAM",
-      atom: "Atom",
-      hydrogen: "Hydrogen",
+      atom: "Atom Bomb",
+      hydrogen: "Hydrogen Bomb",
       mirv: "MIRV",
+      silo: "Missile Silo",
+      sam: "SAM",
+      transportShip: "Transport Ship",
+      tradeShip: "Trade Ship",
     };
     return buildingNames[building] || building;
   }
@@ -492,31 +496,88 @@ export class PlayerInfoModal extends LitElement {
             <table class="w-full text-sm text-gray-300 border-collapse">
               <thead>
                 <tr class="border-b border-gray-600">
-                  <th class="text-left">Building</th>
-                  <th class="text-right">Built</th>
-                  <th class="text-right">Destroyed</th>
-                  <th class="text-right">Final Count</th>
+                  <th class="text-left w-1/4">Building</th>
+                  <th class="text-right w-1/4">Built</th>
+                  <th class="text-right w-1/4">Destroyed</th>
+                  <th class="text-right w-1/4">Lost</th>
                 </tr>
               </thead>
               <tbody>
-                ${Object.entries(this.buildingStats).map(
-                  ([building, stats]) => html`
+                ${Object.entries(this.buildingStats)
+                  .filter(([b]) =>
+                    ["city", "port", "defense", "sam", "warship"].includes(b),
+                  )
+                  .map(
+                    ([building, stats]) => html`
+                      <tr>
+                        <td>${this.getBuildingName(building)}</td>
+                        <td class="text-right">${stats.built ?? 0}</td>
+                        <td class="text-right">${stats.destroyed ?? 0}</td>
+                        <td class="text-right">${stats.destroyed ?? 0}</td>
+                      </tr>
+                    `,
+                  )}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 w-full max-w-md">
+            <div class="text-sm text-gray-400 font-semibold mb-1">
+              🚢 Ship Arrivals
+            </div>
+            <table class="w-full text-sm text-gray-300 border-collapse">
+              <thead>
+                <tr class="border-b border-gray-600">
+                  <th class="text-left w-1/4">Ship Type</th>
+                  <th class="text-right w-1/4">Built</th>
+                  <th class="text-right w-1/4">Destroyed</th>
+                  <th class="text-right w-1/4">Arrived</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${["transportShip", "tradeShip"].map((ship) => {
+                  const stats = this.buildingStats[ship];
+                  return html`
                     <tr>
-                      <td>${this.getBuildingName(building)}</td>
-                      <td class="text-right">
-                        ${stats.built === "x"
-                          ? html`<span class="text-gray-500 italic">N/A</span>`
-                          : stats.built}
-                      </td>
-                      <td class="text-right">
-                        ${stats.destroyed === "x"
-                          ? html`<span class="text-gray-500 italic">N/A</span>`
-                          : stats.destroyed}
-                      </td>
-                      <td class="text-right">${stats.finalCount}</td>
+                      <td>${this.getBuildingName(ship)}</td>
+                      <td class="text-right">${stats.built ?? 0}</td>
+                      <td class="text-right">${stats.destroyed ?? 0}</td>
+                      <td class="text-right">${stats.finalCount ?? 0}</td>
                     </tr>
-                  `,
-                )}
+                  `;
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 w-full max-w-md">
+            <div class="text-sm text-gray-400 font-semibold mb-1">
+              ☢️ Nuke Statistics
+            </div>
+            <table class="w-full text-sm text-gray-300 border-collapse">
+              <thead>
+                <tr class="border-b border-gray-600">
+                  <th class="text-left w-1/4">Weapon</th>
+                  <th class="text-right w-1/4">Built</th>
+                  <th class="text-right w-1/4">Destroyed</th>
+                  <th class="text-right w-1/4">Hits</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${Object.entries(this.buildingStats)
+                  .filter(([b]) =>
+                    ["atom", "hydrogen", "mirv", "silo"].includes(b),
+                  )
+                  .map(
+                    ([building, stats]) => html`
+                      <tr>
+                        <td>${this.getBuildingName(building)}</td>
+                        <td class="text-right">${stats.built ?? 0}</td>
+                        <td class="text-right">${stats.destroyed ?? 0}</td>
+                        <td class="text-right">${stats.finalCount ?? 0}</td>
+                      </tr>
+                    `,
+                  )}
               </tbody>
             </table>
           </div>

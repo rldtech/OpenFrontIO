@@ -276,7 +276,10 @@ export const QuickChatIntentSchema = BaseIntentSchema.extend({
   recipient: ID,
   quickChatKey: z
     .string()
-    .regex(/^(help|attack|defend|greet|misc)\.[a-zA-Z0-9_]+$/),
+    .regex(/^(help|attack|defend|greet|misc)\.[a-zA-Z0-9_]+$/)
+    .refine((val) => val.split(".")[1]?.length <= 50, {
+      message: "The key name (after the dot) must be 50 characters or less.",
+    }),
   variables: z.record(z.string()).optional(),
 });
 

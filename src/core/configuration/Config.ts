@@ -4,6 +4,7 @@ import {
   Difficulty,
   Game,
   GameMapType,
+  GameMode,
   Gold,
   Player,
   PlayerInfo,
@@ -26,7 +27,7 @@ export enum GameEnv {
 export interface ServerConfig {
   turnIntervalMs(): number;
   gameCreationRate(): number;
-  lobbyMaxPlayers(map: GameMapType): number;
+  lobbyMaxPlayers(map: GameMapType, mode: GameMode): number;
   discordRedirectURI(): string;
   numWorkers(): number;
   workerIndex(gameID: GameID): number;

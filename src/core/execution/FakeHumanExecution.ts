@@ -925,7 +925,7 @@ export class FakeHumanExecution implements Execution {
     // Dominant player condition
     if (top.numTilesOwned() > second.numTilesOwned() * 2) {
       if (this.dogpileTarget !== top) {
-        if (this.random.chance(25)) {
+        if (this.random.chance(20)) {
           this.dogpileTarget = top;
         }
       }

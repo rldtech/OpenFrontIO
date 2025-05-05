@@ -260,13 +260,14 @@ export class FakeHumanExecution implements Execution {
 
   handleEnemies() {
     this.behavior.forgetOldEnemies();
-    this.behavior.checkIncomingAttacks();
-    this.behavior.assistAllies();
 
     const sharesBorderWithTN = Array.from(this.player.borderTiles())
       .flatMap((t) => this.mg.neighbors(t))
       .some((t) => this.mg.isLand(t) && !this.mg.hasOwner(t));
     if (sharesBorderWithTN) return;
+
+    this.behavior.checkIncomingAttacks();
+    this.behavior.assistAllies();
 
     let enemy: Player | null = null;
 
@@ -881,6 +882,8 @@ export class FakeHumanExecution implements Execution {
   }
 
   private updateDogpile() {
+    if (!this.player) return;
+
     if (this.mg.ticks() < 3000) {
       this.dogpileTarget = null;
       return;
@@ -921,7 +924,7 @@ export class FakeHumanExecution implements Execution {
     // Dominant player condition
     if (top.numTilesOwned() > second.numTilesOwned() * 2) {
       // Enter dogpile with probability (e.g. 30%)
-      if (this.dogpileTarget !== top && this.random.chance(5)) {
+      if (this.dogpileTarget !== top && this.random.chance(30)) {
         this.dogpileTarget = top;
       }
     } else {

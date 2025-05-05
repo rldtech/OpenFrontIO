@@ -200,7 +200,7 @@ export class DefaultConfig implements Config {
     return 40;
   }
   defensePostDefenseBonus(): number {
-    return 4;
+    return 5;
   }
   spawnNPCs(): boolean {
     return !this._gameConfig.disableNPCs;

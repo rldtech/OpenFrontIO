@@ -272,8 +272,10 @@ export const MoveWarshipIntentSchema = BaseIntentSchema.extend({
 
 export const QuickChatIntentSchema = BaseIntentSchema.extend({
   type: z.literal("quick_chat"),
-  recipient: z.string(),
-  quickChatKey: z.string(),
+  recipient: ID,
+  quickChatKey: z
+    .string()
+    .regex(/^(help|attack|defend|greet|misc)\.[a-zA-Z0-9_]+$/),
   variables: z.record(z.string()).optional(),
 });
 

@@ -28,22 +28,7 @@ export class ChatModal extends LitElement {
     return this;
   }
 
-  private players: string[] = [
-    "Slovakia",
-    "Germany",
-    "Japan",
-    "Anon",
-    "Anon1",
-    "Anon2",
-    "Anon3",
-    "Anon4",
-    "Anon5",
-    "Anon6",
-    "Anon7",
-    "Anon8",
-    "Anon9",
-    "Anon10",
-  ];
+  private players: string[] = [];
 
   private playerSearchQuery: string = "";
   private previewText: string | null = null;

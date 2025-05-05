@@ -142,7 +142,7 @@ export function createRenderer(
   }
   chatModal.g = game;
   chatModal.eventBus = eventBus;
-  
+
   const multiTabModal = document.querySelector(
     "multi-tab-modal",
   ) as MultiTabModal;

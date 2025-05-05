@@ -2,13 +2,14 @@ import { z } from "zod";
 import {
   AllPlayers,
   Difficulty,
+  Duos,
   GameMapType,
   GameMode,
   GameType,
   PlayerType,
-  Team,
   UnitType,
 } from "./game/Game";
+import { flattenedEmojiTable } from "./Util";
 
 export type GameID = string;
 export type ClientID = string;
@@ -123,8 +124,10 @@ const GameConfigSchema = z.object({
   infiniteTroops: z.boolean(),
   instantBuild: z.boolean(),
   maxPlayers: z.number().optional(),
-  numPlayerTeams: z.number().optional(),
+  playerTeams: z.union([z.number().optional(), z.literal(Duos)]),
 });
+
+export const TeamSchema = z.string();
 
 const SafeString = z
   .string()
@@ -133,14 +136,10 @@ const SafeString = z
   )
   .max(1000);
 
-const EmojiSchema = z.string().refine(
-  (val) => {
-    return /\p{Emoji}/u.test(val);
-  },
-  {
-    message: "Must contain at least one emoji character",
-  },
-);
+const EmojiSchema = z
+  .number()
+  .nonnegative()
+  .max(flattenedEmojiTable.length - 1);
 const ID = z
   .string()
   .regex(/^[a-zA-Z0-9]+$/)
@@ -198,8 +197,10 @@ export const BoatAttackIntentSchema = BaseIntentSchema.extend({
   type: z.literal("boat"),
   targetID: ID.nullable(),
   troops: z.number().nullable(),
-  x: z.number(),
-  y: z.number(),
+  dstX: z.number(),
+  dstY: z.number(),
+  srcX: z.number().nullable().optional(),
+  srcY: z.number().nullable().optional(),
 });
 
 export const AllianceRequestIntentSchema = BaseIntentSchema.extend({
@@ -374,7 +375,7 @@ const ClientBaseMessageSchema = z.object({
 
 export const ClientSendWinnerSchema = ClientBaseMessageSchema.extend({
   type: z.literal("winner"),
-  winner: ID.or(z.nativeEnum(Team)).nullable(),
+  winner: z.union([ID, TeamSchema]).nullable(),
   allPlayersStats: AllPlayersStatsSchema,
   winnerType: z.enum(["player", "team"]),
 });
@@ -435,10 +436,7 @@ export const GameRecordSchema = z.object({
   date: SafeString,
   num_turns: z.number(),
   turns: z.array(TurnSchema),
-  winner: z
-    .union([ID, z.nativeEnum(Team)])
-    .nullable()
-    .optional(),
+  winner: z.union([ID, SafeString]).nullable().optional(),
   winnerType: z.enum(["player", "team"]).nullable().optional(),
   allPlayersStats: z.record(ID, PlayerStatsSchema),
   version: z.enum(["v0.0.1"]),

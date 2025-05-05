@@ -16,6 +16,7 @@ import {
 } from "../../../core/game/Game";
 import { TileRef } from "../../../core/game/GameMap";
 import { GameView, PlayerView } from "../../../core/game/GameView";
+import { flattenedEmojiTable } from "../../../core/Util";
 import { MouseUpEvent } from "../../InputHandler";
 import {
   SendAllianceRequestIntentEvent,
@@ -124,9 +125,16 @@ export class PlayerPanel extends LitElement implements Layer {
     e.stopPropagation();
     this.emojiTable.showTable((emoji: string) => {
       if (myPlayer == other) {
-        this.eventBus.emit(new SendEmojiIntentEvent(AllPlayers, emoji));
+        this.eventBus.emit(
+          new SendEmojiIntentEvent(
+            AllPlayers,
+            flattenedEmojiTable.indexOf(emoji),
+          ),
+        );
       } else {
-        this.eventBus.emit(new SendEmojiIntentEvent(other, emoji));
+        this.eventBus.emit(
+          new SendEmojiIntentEvent(other, flattenedEmojiTable.indexOf(emoji)),
+        );
       }
       this.emojiTable.hideTable();
       this.hide();
@@ -195,7 +203,9 @@ export class PlayerPanel extends LitElement implements Layer {
 
     let other = this.g.owner(this.tile);
     if (!other.isPlayer()) {
-      throw new Error("Tile is not owned by a player");
+      this.hide();
+      console.warn("Tile is not owned by a player");
+      return;
     }
     other = other as PlayerView;
 

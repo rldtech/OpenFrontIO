@@ -1,5 +1,6 @@
 import {
   Difficulty,
+  Duos,
   Game,
   GameMapType,
   GameMode,
@@ -24,6 +25,20 @@ import { pastelTheme } from "./PastelTheme";
 import { pastelThemeDark } from "./PastelThemeDark";
 
 export abstract class DefaultServerConfig implements ServerConfig {
+  otelEnabled(): boolean {
+    return Boolean(
+      this.otelEndpoint() && this.otelUsername() && this.otelPassword(),
+    );
+  }
+  otelEndpoint(): string {
+    return process.env.OTEL_ENDPOINT;
+  }
+  otelUsername(): string {
+    return process.env.OTEL_USERNAME;
+  }
+  otelPassword(): string {
+    return process.env.OTEL_PASSWORD;
+  }
   region(): string {
     if (this.env() == GameEnv.Dev) {
       return "dev";
@@ -42,7 +57,11 @@ export abstract class DefaultServerConfig implements ServerConfig {
   r2SecretKey(): string {
     return process.env.R2_SECRET_KEY;
   }
-  abstract r2Bucket(): string;
+
+  r2Bucket(): string {
+    return process.env.R2_BUCKET;
+  }
+
   adminHeader(): string {
     return "x-admin-key";
   }
@@ -58,60 +77,66 @@ export abstract class DefaultServerConfig implements ServerConfig {
   gameCreationRate(): number {
     return 60 * 1000;
   }
-  lobbyMaxPlayers(map: GameMapType): number {
-    // Maps with ~4 mil pixels
-    if (
-      [
-        GameMapType.GatewayToTheAtlantic,
-        GameMapType.SouthAmerica,
-        GameMapType.NorthAmerica,
-        GameMapType.Africa,
-        GameMapType.Europe,
-      ].includes(map)
-    ) {
-      return Math.random() < 0.2 ? 100 : 50;
-    }
-    // Maps with ~2.5 - ~3.5 mil pixels
-    if (
-      [
-        GameMapType.Australia,
-        GameMapType.Iceland,
-        GameMapType.Britannia,
-        GameMapType.Asia,
-      ].includes(map)
-    ) {
-      return Math.random() < 0.3 ? 50 : 25;
-    }
-    // Maps with ~2 mil pixels
-    if (
-      [
-        GameMapType.Mena,
-        GameMapType.Mars,
-        GameMapType.Oceania,
-        GameMapType.Japan, // Japan at this level because its 2/3 water
-        GameMapType.FaroeIslands,
-        GameMapType.EuropeClassic,
-      ].includes(map)
-    ) {
-      return Math.random() < 0.3 ? 50 : 25;
-    }
-    // Maps smaller than ~2 mil pixels
-    if (
-      [
-        GameMapType.BetweenTwoSeas,
-        GameMapType.BlackSea,
-        GameMapType.Pangaea,
-      ].includes(map)
-    ) {
-      return Math.random() < 0.5 ? 30 : 15;
-    }
-    // world belongs with the ~2 mils, but these amounts never made sense so I assume the insanity is intended.
-    if (map == GameMapType.World) {
-      return Math.random() < 0.2 ? 150 : 50;
-    }
-    // default return for non specified map
-    return Math.random() < 0.2 ? 50 : 20;
+
+  lobbyMaxPlayers(map: GameMapType, mode: GameMode): number {
+    const numPlayers = () => {
+      // Maps with ~4 mil pixels
+      if (
+        [
+          GameMapType.GatewayToTheAtlantic,
+          GameMapType.SouthAmerica,
+          GameMapType.NorthAmerica,
+          GameMapType.Africa,
+          GameMapType.Europe,
+        ].includes(map)
+      ) {
+        return Math.random() < 0.2 ? 100 : 50;
+      }
+      // Maps with ~2.5 - ~3.5 mil pixels
+      if (
+        [
+          GameMapType.Australia,
+          GameMapType.Iceland,
+          GameMapType.Britannia,
+          GameMapType.Asia,
+        ].includes(map)
+      ) {
+        return Math.random() < 0.3 ? 50 : 25;
+      }
+      // Maps with ~2 mil pixels
+      if (
+        [
+          GameMapType.Mena,
+          GameMapType.Mars,
+          GameMapType.Oceania,
+          GameMapType.Japan, // Japan at this level because its 2/3 water
+          GameMapType.FaroeIslands,
+          GameMapType.DeglaciatedAntarctica,
+          GameMapType.EuropeClassic,
+        ].includes(map)
+      ) {
+        return Math.random() < 0.3 ? 50 : 25;
+      }
+      // Maps smaller than ~2 mil pixels
+      if (
+        [
+          GameMapType.BetweenTwoSeas,
+          GameMapType.BlackSea,
+          GameMapType.Pangaea,
+        ].includes(map)
+      ) {
+        return Math.random() < 0.5 ? 30 : 15;
+      }
+      // world belongs with the ~2 mils, but these amounts never made sense so I assume the insanity is intended.
+      if (map == GameMapType.World) {
+        return Math.random() < 0.2 ? 150 : 50;
+      }
+      // default return for non specified map
+      return Math.random() < 0.2 ? 50 : 20;
+    };
+    return Math.min(150, numPlayers() * (mode == GameMode.Team ? 2 : 1));
   }
+
   workerIndex(gameID: GameID): number {
     return simpleHash(gameID) % this.numWorkers();
   }
@@ -132,10 +157,6 @@ export class DefaultConfig implements Config {
     private _gameConfig: GameConfig,
     private _userSettings: UserSettings,
   ) {}
-
-  numPlayerTeams(): number {
-    return this.gameConfig().numPlayerTeams;
-  }
 
   samHittingChance(): number {
     return 0.8;
@@ -202,9 +223,14 @@ export class DefaultConfig implements Config {
   defensePostDefenseBonus(): number {
     return 5;
   }
+  playerTeams(): number | typeof Duos {
+    return this._gameConfig.playerTeams ?? 0;
+  }
+
   spawnNPCs(): boolean {
     return !this._gameConfig.disableNPCs;
   }
+
   disableNukes(): boolean {
     return this._gameConfig.disableNukes;
   }
@@ -688,7 +714,8 @@ export class DefaultConfig implements Config {
   }
 
   structureMinDist(): number {
-    return 12;
+    // TODO: Increase this to ~15 once upgradable structures are implemented.
+    return 1;
   }
 
   shellLifetime(): number {

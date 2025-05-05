@@ -21,7 +21,6 @@ import {
   BuildableUnit,
   Cell,
   EmojiMessage,
-  GameMode,
   Gold,
   MessageType,
   MutableAlliance,
@@ -527,13 +526,6 @@ export class PlayerImpl implements Player {
   }
 
   canDonate(recipient: Player): boolean {
-    if (
-      recipient.type() == PlayerType.Human &&
-      this.mg.config().gameConfig().gameMode == GameMode.FFA
-    ) {
-      return false;
-    }
-
     if (!this.isFriendly(recipient)) {
       return false;
     }
@@ -754,7 +746,9 @@ export class PlayerImpl implements Player {
     return Object.values(UnitType).map((u) => {
       return {
         type: u,
-        canBuild: this.canBuild(u, tile, validTiles),
+        canBuild: this.mg.inSpawnPhase()
+          ? false
+          : this.canBuild(u, tile, validTiles),
         cost: this.mg.config().unitInfo(u).cost(this),
       } as BuildableUnit;
     });

@@ -212,6 +212,21 @@
     <!-- Main container with responsive padding -->
     <main class="flex justify-center flex-grow">
       <div class="container pt-12">
+        <o-button
+          id="login-discord"
+          title="Initializing..."
+          disable="true"
+          block
+        ></o-button>
+
+        <o-button
+          id="logout-discord"
+          title="Log out"
+          translationKey="main.log_out"
+          visible="false"
+          block
+        ></o-button>
+
         <div class="container__row">
           <flag-input class="w-[20%] md:w-[15%]"></flag-input>
           <username-input class="w-full"></username-input>
@@ -328,13 +343,18 @@
           </a>
         </div>
         <div class="l-footer__col t-text-white">
-          © 2025
           <a
             href="https://github.com/openfrontio/OpenFrontIO"
             class="t-link"
             target="_blank"
           >
-            OpenFront™
+            ©2025 OpenFront™
+          </a>
+          <a href="/privacy-policy.html" class="t-link" target="_blank">
+            Privacy Policy
+          </a>
+          <a href="/terms-of-service.html" class="t-link" target="_blank">
+            Terms of Service
           </a>
         </div>
       </div>

@@ -2,8 +2,10 @@ import { Colord } from "colord";
 import { GameConfig, GameID } from "../Schemas";
 import {
   Difficulty,
+  Duos,
   Game,
   GameMapType,
+  GameMode,
   Gold,
   Player,
   PlayerInfo,
@@ -26,7 +28,7 @@ export enum GameEnv {
 export interface ServerConfig {
   turnIntervalMs(): number;
   gameCreationRate(): number;
-  lobbyMaxPlayers(map: GameMapType): number;
+  lobbyMaxPlayers(map: GameMapType, mode: GameMode): number;
   discordRedirectURI(): string;
   numWorkers(): number;
   workerIndex(gameID: GameID): number;
@@ -43,6 +45,10 @@ export interface ServerConfig {
   r2Endpoint(): string;
   r2AccessKey(): string;
   r2SecretKey(): string;
+  otelEndpoint(): string;
+  otelUsername(): string;
+  otelPassword(): string;
+  otelEnabled(): boolean;
 }
 
 export interface NukeMagnitude {
@@ -67,7 +73,7 @@ export interface Config {
   instantBuild(): boolean;
   numSpawnPhaseTurns(): number;
   userSettings(): UserSettings;
-  numPlayerTeams(): number;
+  playerTeams(): number | typeof Duos;
 
   startManpower(playerInfo: PlayerInfo): number;
   populationIncreaseRate(player: Player | PlayerView): number;

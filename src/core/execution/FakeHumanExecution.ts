@@ -892,6 +892,7 @@ export class FakeHumanExecution implements Execution {
       .players()
       .some((p) => p !== this.player && this.player.isOnSameTeam(p));
     if (isTeamGame) {
+      consolex.log("Dogpile disabled in team game");
       this.dogpileTarget = null;
       return;
     }
@@ -923,17 +924,15 @@ export class FakeHumanExecution implements Execution {
 
     // Dominant player condition
     if (top.numTilesOwned() > second.numTilesOwned() * 2) {
-      // Enter dogpile with probability (e.g. 30%)
-      if (this.dogpileTarget !== top && this.random.chance(30)) {
-        this.dogpileTarget = top;
+      if (this.dogpileTarget !== top) {
+        if (this.random.chance(25)) {
+          this.dogpileTarget = top;
+        }
       }
     } else {
-      this.dogpileTarget = null;
-    }
-
-    // Reset if the dominant player changed
-    if (this.dogpileTarget && this.dogpileTarget !== top) {
-      this.dogpileTarget = null;
+      if (this.dogpileTarget === top) {
+        this.dogpileTarget = null;
+      }
     }
   }
 }

@@ -17,7 +17,12 @@ import {
 import { euclDistFN, manhattanDistFN, TileRef } from "../game/GameMap";
 import { PseudoRandom } from "../PseudoRandom";
 import { GameID } from "../Schemas";
-import { calculateBoundingBox, simpleHash, within } from "../Util";
+import {
+  calculateBoundingBox,
+  flattenedEmojiTable,
+  simpleHash,
+  within,
+} from "../Util";
 import { ConstructionExecution } from "./ConstructionExecution";
 import { EmojiExecution } from "./EmojiExecution";
 import { NukeExecution } from "./NukeExecution";
@@ -68,6 +73,9 @@ export class FakeHumanExecution implements Execution {
     this.attackTick = this.random.nextInt(0, this.attackRate);
     this.triggerRatio = this.random.nextInt(60, 90) / 100;
     this.reserveRatio = this.random.nextInt(40, 60) / 100;
+
+    this.heckleEmoji = ["🤡", "😡"].map((e) => flattenedEmojiTable.indexOf(e));
+    this.dogpileEmoji = flattenedEmojiTable.indexOf("🖕");
   }
 
   init(mg: Game) {

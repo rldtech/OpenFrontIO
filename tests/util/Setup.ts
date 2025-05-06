@@ -3,6 +3,8 @@ import path from "path";
 import {
   Difficulty,
   Game,
+  GameMapType,
+  GameMode,
   GameType,
   PlayerInfo,
   PlayerType,

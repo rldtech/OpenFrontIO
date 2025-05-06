@@ -26,6 +26,8 @@ export class ChatDisplay extends LitElement implements Layer {
   public game: GameView;
   public clientID: ClientID;
 
+  private active: boolean = false;
+
   private updateMap = new Map([
     [GameUpdateType.DisplayEvent, (u) => this.onDisplayMessageEvent(u)],
   ]);
@@ -78,6 +80,7 @@ export class ChatDisplay extends LitElement implements Layer {
   init() {}
 
   tick() {
+    this.active = true;
     const updates = this.game.updatesSinceLastTick();
     const messages = updates[GameUpdateType.DisplayEvent] as
       | DisplayMessageUpdate[]
@@ -109,6 +112,8 @@ export class ChatDisplay extends LitElement implements Layer {
     if (this.chatEvents.length > 100) {
       this.chatEvents = this.chatEvents.slice(-100);
     }
+
+    this.requestUpdate();
   }
 
   private getChatContent(
@@ -120,6 +125,9 @@ export class ChatDisplay extends LitElement implements Layer {
   }
 
   render() {
+    if (!this.active) {
+      return html``;
+    }
     return html`
       <div
         class="${this._hidden

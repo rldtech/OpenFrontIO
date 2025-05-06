@@ -62,6 +62,7 @@ export class ChatModal extends LitElement {
     { id: "defend", name: "Defend" },
     { id: "greet", name: "Greetings" },
     { id: "misc", name: "Miscellaneous" },
+    { id: "warnings", name: "Warnings" },
   ];
 
   private getPhrasesForCategory(categoryId: string) {

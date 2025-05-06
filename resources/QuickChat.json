@@ -7,7 +7,7 @@
     },
     {
       "key": "gold",
-      "text": "Please give me golds!",
+      "text": "Please give me gold!",
       "requiresPlayer": false
     },
     {
@@ -131,6 +131,33 @@
     {
       "key": "pr",
       "text": "When will my PR finally get merged...?",
+      "requiresPlayer": false
+    }
+  ],
+  "warnings": [
+    {
+      "key": "strong",
+      "text": "[P1] is strong.",
+      "requiresPlayer": true
+    },
+    {
+      "key": "weak",
+      "text": "[P1] is weak.",
+      "requiresPlayer": true
+    },
+    {
+      "key": "mirv_soon",
+      "text": "[P1] can launch a MIRV soon!",
+      "requiresPlayer": true
+    },
+    {
+      "key": "number1_warning",
+      "text": "The #1 player will win soon unless we team up!",
+      "requiresPlayer": false
+    },
+    {
+      "key": "stalemate",
+      "text": "Let's make peace. This is a stalemate, we will both lose.",
       "requiresPlayer": false
     }
   ]

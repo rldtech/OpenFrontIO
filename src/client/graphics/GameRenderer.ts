@@ -90,7 +90,7 @@ export function createRenderer(
   eventsDisplay.clientID = clientID;
 
   const chatDisplay = document.querySelector("chat-display") as ChatDisplay;
-  if (!(eventsDisplay instanceof ChatDisplay)) {
+  if (!(chatDisplay instanceof ChatDisplay)) {
     consolex.error("chat display not found");
   }
   chatDisplay.eventBus = eventBus;

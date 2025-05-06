@@ -66,9 +66,12 @@ export class PlayerInfoModal extends LitElement {
 
   @state() private isDebugMode: boolean = false;
 
-  @state() private wins: number = 12;
+  @state() private wins: number = 57;
   @state() private playTimeSeconds: number = 5 * 3600 + 33 * 60;
   @state() private progressPercent: number = 62;
+  @state() private gamesPlayed: number = 119;
+  @state() private losses: number = 62;
+  @state() private lastActive: string = "1992/4/27";
 
   @state() private buildingStats: AllBuildingStats = {
     city: { built: 0, destroyed: 0, lost: 0, captured: 0 },
@@ -476,17 +479,38 @@ export class PlayerInfoModal extends LitElement {
 
           <hr class="w-2/3 border-gray-600 my-2" />
 
-          <div class="flex justify-center gap-6 text-sm text-white">
-            <div class="flex items-center gap-1">
-              <span>🏆</span>
-              <span>Wins: ${this.wins ?? 0}</span>
+          <div
+            class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm text-white text-center mb-2"
+          >
+            <div>
+              <div class="text-xl font-semibold">${this.wins ?? 0}</div>
+              <div class="text-gray-400">Wins</div>
             </div>
-            <div class="flex items-center gap-1">
-              <span>⏱️</span>
-              <span
-                >Play Time:
-                ${this.formatPlayTime(this.playTimeSeconds ?? 0)}</span
-              >
+            <div>
+              <div class="text-xl font-semibold">${this.losses}</div>
+              <div class="text-gray-400">Losses</div>
+            </div>
+            <div>
+              <div class="text-xl font-semibold">
+                ${((this.wins / this.gamesPlayed) * 100).toFixed(1)}%
+              </div>
+              <div class="text-gray-400">Win Rate</div>
+            </div>
+            <div>
+              <div class="text-xl font-semibold">${this.gamesPlayed}</div>
+              <div class="text-gray-400">Games Played</div>
+            </div>
+            <div>
+              <div class="text-xl font-semibold">
+                ${this.playTimeSeconds
+                  ? this.formatPlayTime(this.playTimeSeconds)
+                  : "0h 0m"}
+              </div>
+              <div class="text-gray-400">Play Time</div>
+            </div>
+            <div>
+              <div class="text-xl font-semibold">${this.lastActive}</div>
+              <div class="text-gray-400">Last Active</div>
             </div>
           </div>
 

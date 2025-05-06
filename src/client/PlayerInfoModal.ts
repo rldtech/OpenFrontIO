@@ -514,6 +514,8 @@ export class PlayerInfoModal extends LitElement {
             </div>
           </div>
 
+          <hr class="w-2/3 border-gray-600 my-2" />
+
           <div class="text-sm text-gray-300 mb-2">
             📈 Your rank increases based on play time and number of wins.
           </div>

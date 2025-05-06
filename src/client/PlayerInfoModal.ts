@@ -433,7 +433,7 @@ export class PlayerInfoModal extends LitElement {
 
           <hr class="w-2/3 border-gray-600 my-2" />
 
-          <div class="flex flex-wrap justify-center gap-2 mb-2">
+          <div class="flex flex-wrap justify-center gap-2">
             <span
               class="text-sm border px-2 py-1 rounded-full flex items-center gap-1 ${this.getRankStyle(
                 this.currentRank,
@@ -450,7 +450,7 @@ export class PlayerInfoModal extends LitElement {
           ${this.isLoggedIn
             ? html` <hr class="w-2/3 border-gray-600 my-2" />
 
-                <div class="flex flex-wrap justify-center gap-2 mb-2">
+                <div class="flex flex-wrap justify-center gap-2">
                   ${this.roles
                     .map((role) => ({
                       role,

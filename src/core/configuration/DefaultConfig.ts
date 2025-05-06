@@ -443,9 +443,9 @@ export class DefaultConfig implements Config {
     tilesPerTickUsed: number;
   } {
     const terrainModifiers = {
-      [TerrainType.Plains]: { mag: 0.85, speed: 0.75 },
+      [TerrainType.Plains]: { mag: 0.85, speed: 0.8 },
       [TerrainType.Highland]: { mag: 1, speed: 1 },
-      [TerrainType.Mountain]: { mag: 1.2, speed: 1.4 },
+      [TerrainType.Mountain]: { mag: 1.2, speed: 1.3 },
     } as const;
 
     const type = gm.terrainType(tileToConquer);
@@ -514,11 +514,11 @@ export class DefaultConfig implements Config {
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: defenderdensity,
         tilesPerTickUsed:
-          27 *
+          25 *
           within(defenderdensity, 3, 100) ** 0.2 *
           (10_000 / attackTroops) ** 0.1 *
           speed *
-          within(attackratio, 0.3, 20) ** 0.3,
+          within(attackratio, 0.1, 20) ** 0.3,
       };
     } else {
       return {

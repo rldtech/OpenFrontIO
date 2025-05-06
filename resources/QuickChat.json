@@ -24,6 +24,16 @@
       "key": "alliance",
       "text": "Alliance?",
       "requiresPlayer": false
+    },
+    {
+      "key": "help_defend",
+      "text": "Help me defend against [P1]!",
+      "requiresPlayer": true
+    },
+    {
+      "key": "team_up",
+      "text": "Let’s team up against [P1]!",
+      "requiresPlayer": true
     }
   ],
   "attack": [
@@ -110,6 +120,21 @@
       "key": "thanks",
       "text": "Thanks!",
       "requiresPlayer": false
+    },
+    {
+      "key": "oops",
+      "text": "Oops, wrong button!",
+      "requiresPlayer": false
+    },
+    {
+      "key": "trust_me",
+      "text": "You can trust me. Promise!",
+      "requiresPlayer": false
+    },
+    {
+      "key": "trust_broken",
+      "text": "I trusted you...",
+      "requiresPlayer": false
     }
   ],
   "misc": [
@@ -159,6 +184,41 @@
       "key": "stalemate",
       "text": "Let's make peace. This is a stalemate, we will both lose.",
       "requiresPlayer": false
+    },
+    {
+      "key": "has_allies",
+      "text": "[P1] has many allies.",
+      "requiresPlayer": true
+    },
+    {
+      "key": "no_allies",
+      "text": "[P1] has no allies.",
+      "requiresPlayer": true
+    },
+    {
+      "key": "betrayed",
+      "text": "[P1] betrayed their ally!",
+      "requiresPlayer": true
+    },
+    {
+      "key": "getting_big",
+      "text": "[P1] is growing too fast!",
+      "requiresPlayer": true
+    },
+    {
+      "key": "danger_base",
+      "text": "[P1] is unprotected!",
+      "requiresPlayer": true
+    },
+    {
+      "key": "saving_for_mirv",
+      "text": "[P1] is saving up to launch a MIRV.",
+      "requiresPlayer": true
+    },
+    {
+      "key": "mirv_ready",
+      "text": "[P1] has enough gold to launch a MIRV!",
+      "requiresPlayer": true
     }
   ]
 }

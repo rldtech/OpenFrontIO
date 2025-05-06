@@ -76,7 +76,7 @@
 }
 
 .player-scroll-area {
-  max-height: 200px;
+  max-height: 240px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -85,7 +85,7 @@
 }
 
 .phrase-scroll-area {
-  max-height: 234px;
+  max-height: 280px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;

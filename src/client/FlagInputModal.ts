@@ -29,6 +29,7 @@ export class FlagInputModal extends LitElement {
   }
 
   @state() private flag: string = "";
+  @state() private errorMessage: string = "";
   @state() private search: string = "";
   @state() private showModal: boolean = false;
   @state() private activeTab: "real" | "custom" = "real";
@@ -116,7 +117,6 @@ export class FlagInputModal extends LitElement {
     this.flag = flag;
     this.showModal = false;
     this.storeFlag(flag);
-    this.close();
     const el = document.querySelector("flag-input") as FlagInput;
     el.flag = this.flag;
     el.requestUpdate();
@@ -276,7 +276,10 @@ export class FlagInputModal extends LitElement {
                 ).map(
                   (country) => html`
                     <button
-                      @click=${() => this.setFlag(country.code)}
+                      @click=${() => {
+                        this.setFlag(country.code);
+                        this.close();
+                      }}
                       class="text-center cursor-pointer border-none bg-none opacity-70 
                         w-[calc(100%/2-15px)] sm:w-[calc(100%/3-15px)] 
                         md:w-[calc(100%/4-15px)] lg:w-[calc(100%/5-15px)] 
@@ -498,6 +501,7 @@ mask: url(${src}) center / contain no-repeat;
                       navigator.clipboard.writeText(code);
                       console.log("Applied: " + code);
                       this.setFlag(code);
+                      this.close();
                     }}
                     class="mt-2 px-4 py-1 bg-green-600 text-white rounded hover:bg-green-500"
                   >
@@ -505,6 +509,142 @@ mask: url(${src}) center / contain no-repeat;
                   </button>
 
                   <div class="mt-4 w-full max-h-[300px] overflow-y-auto mb-2">
+                    <!-- Code input and copy -->
+                    <div class="mt-2 w-full space-y-2">
+                      ${this.errorMessage
+                        ? html`
+                            <div
+                              class="p-2 bg-red-200 border border-red-500 text-red-800 rounded mb-2"
+                            >
+                              ${this.errorMessage}
+                            </div>
+                          `
+                        : null}
+                      <div class="grid grid-cols-2 gap-2 items-end">
+                        <div>
+                          <label class="text-white block mb-1"
+                            >${translateText("flag_input.paste_code")}</label
+                          >
+                          <input
+                            class="w-full p-1 border border-gray-500 rounded text-black ctmfg-input"
+                            type="text"
+                            placeholder=${translateText(
+                              "flag_input.paste_ctmfg_placeholder",
+                            )}
+                          />
+                        </div>
+                        <div>
+                          <button
+                            @click=${() => {
+                              const input = this.renderRoot.querySelector(
+                                ".ctmfg-input",
+                              ) as HTMLInputElement;
+                              const val = input?.value?.trim();
+                              if (!val?.startsWith("ctmfg")) {
+                                this.errorMessage = translateText(
+                                  "flag_input.error_invalid_code",
+                                );
+                                console.warn(
+                                  "Rejected flag code not starting with 'ctmfg'.",
+                                );
+                                return;
+                              }
+                              if (!val || !this.isCustomFlag(val)) return;
+
+                              const flagInfo = this.decodeCustomFlag(val);
+                              const validLayerNames = Object.keys(FlagMap);
+                              const validColorKeys = [
+                                ...Object.keys(ColorShortNames),
+                                ...Object.values(ColorShortNames),
+                              ];
+                              const hasUnknownLayer = flagInfo.some(
+                                (l) => !validLayerNames.includes(l.name),
+                              );
+                              const hasUnknownColor = flagInfo.some(
+                                (l) =>
+                                  !validColorKeys.includes(l.color) &&
+                                  !/^#[0-9a-fA-F]{6}$/.test(l.color),
+                              );
+
+                              if (hasUnknownLayer || hasUnknownColor) {
+                                this.errorMessage = translateText(
+                                  "flag_input.error_invalid_elements",
+                                );
+                                console.warn(
+                                  "Blocked custom flag code due to invalid elements.",
+                                );
+                                return;
+                              }
+
+                              const result = checkPermission();
+                              const lockedLayers = Array.isArray(result[0])
+                                ? result[0]
+                                : [result[0]];
+                              const lockedColors = Array.isArray(result[1])
+                                ? result[1]
+                                : [result[1]];
+                              const maxLayer = result[3];
+
+                              const hasLockedLayer = flagInfo.some((l) =>
+                                lockedLayers.includes(l.name),
+                              );
+                              const hasLockedColor = flagInfo.some((l) =>
+                                lockedColors.includes(l.color),
+                              );
+                              const isLayerCountExceeded =
+                                flagInfo.length > maxLayer;
+
+                              if (
+                                hasLockedLayer ||
+                                hasLockedColor ||
+                                isLayerCountExceeded
+                              ) {
+                                this.errorMessage = translateText(
+                                  "flag_input.error_restricted_or_exceed",
+                                );
+                                console.warn(
+                                  "Blocked custom flag code due to permissions.",
+                                );
+                                return;
+                              }
+
+                              this.errorMessage = "";
+                              this.customLayers = flagInfo;
+                              this.setFlag(val);
+                            }}
+                            class="w-full px-3 py-1 border border-gray-500 rounded text-white bg-green-700 hover:bg-green-600"
+                          >
+                            ${translateText("flag_input.apply_ctmfg_code")}
+                          </button>
+                        </div>
+                      </div>
+                      <div class="grid grid-cols-2 gap-2 items-end">
+                        <div>
+                          <label class="text-white block mb-1"
+                            >${translateText("flag_input.current_code")}</label
+                          >
+                          <input
+                            class="w-full p-1 border border-gray-500 rounded text-black"
+                            type="text"
+                            .value=${this.encodeCustomFlag()}
+                            readonly
+                          />
+                        </div>
+                        <div>
+                          <button
+                            @click=${() => {
+                              const code = this.encodeCustomFlag();
+                              navigator.clipboard.writeText(code);
+                              console.log("Copied: " + code);
+                            }}
+                            class="w-full px-3 py-1 border border-gray-500 rounded text-white bg-gray-700 hover:bg-gray-600"
+                          >
+                            ${translateText("flag_input.copy_code")}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
                     <p class="text-lg font-bold text-white mb-2">
                       ${translateText("flag_input.layer")}
                       (${this.customLayers.length})

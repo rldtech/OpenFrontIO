@@ -947,7 +947,7 @@ export class FakeHumanExecution implements Execution {
         }
       }
     } else {
-      if (this.dogpileTarget === top) {
+      if (this.dogpileTarget !== top) {
         this.dogpileTarget = null;
       }
     }

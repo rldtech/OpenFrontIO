@@ -499,7 +499,7 @@ export class PlayerInfoModal extends LitElement {
                   <th class="text-left w-1/4">Building</th>
                   <th class="text-right w-1/4">Built</th>
                   <th class="text-right w-1/4">Destroyed</th>
-                  <th class="text-right w-1/4">Lost</th>
+                  <th class="text-right w-1/4">Captured</th>
                 </tr>
               </thead>
               <tbody>

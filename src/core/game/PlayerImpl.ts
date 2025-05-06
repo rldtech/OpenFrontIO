@@ -639,6 +639,9 @@ export class PlayerImpl implements Player {
   workers(): number {
     return Math.max(1, Number(this._workers));
   }
+  adjustedPopulation(): number {
+    return this.population() + this.boatTroops() + this.attackingTroops();
+  }
   addWorkers(toAdd: number): void {
     this._workers += toInt(toAdd);
   }

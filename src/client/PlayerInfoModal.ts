@@ -9,6 +9,29 @@ import {
   roleStyles,
 } from "./Utils";
 
+type BuildingStat = {
+  built: number;
+  destroyed: number;
+  lost: number;
+  captured: number;
+};
+type ShipStat = { sent: number; destroyed: number; arrived: number };
+type NukeStat = { built: number; destroyed: number; hits: number };
+
+type AllBuildingStats = {
+  city: BuildingStat;
+  port: BuildingStat;
+  defense: BuildingStat;
+  sam: BuildingStat;
+  warship: ShipStat;
+  transportShip: ShipStat;
+  tradeShip: ShipStat;
+  atom: NukeStat;
+  hydrogen: NukeStat;
+  mirv: NukeStat;
+  silo: NukeStat;
+};
+
 @customElement("player-info-modal")
 export class PlayerInfoModal extends LitElement {
   @query("o-modal") private modalEl!: HTMLElement & {
@@ -47,18 +70,18 @@ export class PlayerInfoModal extends LitElement {
   @state() private playTimeSeconds: number = 5 * 3600 + 33 * 60;
   @state() private progressPercent: number = 62;
 
-  @state() private buildingStats = {
-    city: { built: 0, destroyed: 0, finalCount: 0 },
-    port: { built: 0, destroyed: 0, finalCount: 0 },
-    defense: { built: 0, destroyed: 0, finalCount: 0 },
-    warship: { built: 0, destroyed: 0, finalCount: 0 },
-    atom: { built: 0, destroyed: 0, finalCount: 0 },
-    hydrogen: { built: 0, destroyed: 0, finalCount: 0 },
-    mirv: { built: 0, destroyed: 0, finalCount: 0 },
-    silo: { built: 0, destroyed: 0, finalCount: 0 },
-    sam: { built: 0, destroyed: 0, finalCount: 0 },
-    transportShip: { built: 0, destroyed: 0, finalCount: 0 },
-    tradeShip: { built: 0, destroyed: 0, finalCount: 0 },
+  @state() private buildingStats: AllBuildingStats = {
+    city: { built: 0, destroyed: 0, lost: 0, captured: 0 },
+    port: { built: 0, destroyed: 0, lost: 0, captured: 0 },
+    defense: { built: 0, destroyed: 0, lost: 0, captured: 0 },
+    sam: { built: 0, destroyed: 0, lost: 0, captured: 0 },
+    warship: { sent: 0, destroyed: 0, arrived: 0 },
+    transportShip: { sent: 0, destroyed: 0, arrived: 0 },
+    tradeShip: { sent: 0, destroyed: 0, arrived: 0 },
+    atom: { built: 0, destroyed: 0, hits: 0 },
+    hydrogen: { built: 0, destroyed: 0, hits: 0 },
+    mirv: { built: 0, destroyed: 0, hits: 0 },
+    silo: { built: 0, destroyed: 0, hits: 0 },
   };
   @state() private achievements: string[] = [];
 
@@ -496,27 +519,32 @@ export class PlayerInfoModal extends LitElement {
             <table class="w-full text-sm text-gray-300 border-collapse">
               <thead>
                 <tr class="border-b border-gray-600">
-                  <th class="text-left w-1/4">Building</th>
-                  <th class="text-right w-1/4">Built</th>
-                  <th class="text-right w-1/4">Destroyed</th>
-                  <th class="text-right w-1/4">Captured</th>
+                  <th class="text-left w-1/5">Building</th>
+                  <th class="text-center w-1/5">Built</th>
+                  <th class="text-center w-1/5">Destroyed</th>
+                  <th class="text-center w-1/5">Captured</th>
+                  <th class="text-center w-1/5">Lost</th>
                 </tr>
               </thead>
               <tbody>
                 ${Object.entries(this.buildingStats)
                   .filter(([b]) =>
-                    ["city", "port", "defense", "sam", "warship"].includes(b),
+                    ["city", "port", "defense", "sam"].includes(b),
                   )
-                  .map(
-                    ([building, stats]) => html`
+                  .map(([building, stats]) => {
+                    const typedStats = stats as BuildingStat;
+                    return html`
                       <tr>
                         <td>${this.getBuildingName(building)}</td>
-                        <td class="text-right">${stats.built ?? 0}</td>
-                        <td class="text-right">${stats.destroyed ?? 0}</td>
-                        <td class="text-right">${stats.destroyed ?? 0}</td>
+                        <td class="text-center">${typedStats.built ?? 0}</td>
+                        <td class="text-center">
+                          ${typedStats.destroyed ?? 0}
+                        </td>
+                        <td class="text-center">${typedStats.captured ?? 0}</td>
+                        <td class="text-center">${typedStats.lost ?? 0}</td>
                       </tr>
-                    `,
-                  )}
+                    `;
+                  })}
               </tbody>
             </table>
           </div>
@@ -528,21 +556,21 @@ export class PlayerInfoModal extends LitElement {
             <table class="w-full text-sm text-gray-300 border-collapse">
               <thead>
                 <tr class="border-b border-gray-600">
-                  <th class="text-left w-1/4">Ship Type</th>
-                  <th class="text-right w-1/4">Built</th>
-                  <th class="text-right w-1/4">Destroyed</th>
-                  <th class="text-right w-1/4">Arrived</th>
+                  <th class="text-left w-2/5">Ship Type</th>
+                  <th class="text-center w-1/5">Sent</th>
+                  <th class="text-center w-1/5">Destroyed</th>
+                  <th class="text-center w-1/5">Arrived</th>
                 </tr>
               </thead>
               <tbody>
-                ${["transportShip", "tradeShip"].map((ship) => {
-                  const stats = this.buildingStats[ship];
+                ${["transportShip", "tradeShip", "warship"].map((ship) => {
+                  const stats = this.buildingStats[ship] as ShipStat;
                   return html`
                     <tr>
                       <td>${this.getBuildingName(ship)}</td>
-                      <td class="text-right">${stats.built ?? 0}</td>
-                      <td class="text-right">${stats.destroyed ?? 0}</td>
-                      <td class="text-right">${stats.finalCount ?? 0}</td>
+                      <td class="text-center">${stats.sent ?? 0}</td>
+                      <td class="text-center">${stats.destroyed ?? 0}</td>
+                      <td class="text-center">${stats.arrived ?? 0}</td>
                     </tr>
                   `;
                 })}
@@ -557,10 +585,10 @@ export class PlayerInfoModal extends LitElement {
             <table class="w-full text-sm text-gray-300 border-collapse">
               <thead>
                 <tr class="border-b border-gray-600">
-                  <th class="text-left w-1/4">Weapon</th>
-                  <th class="text-right w-1/4">Built</th>
-                  <th class="text-right w-1/4">Destroyed</th>
-                  <th class="text-right w-1/4">Hits</th>
+                  <th class="text-left w-2/5">Weapon</th>
+                  <th class="text-center w-1/5">Built</th>
+                  <th class="text-center w-1/5">Destroyed</th>
+                  <th class="text-center w-1/5">Hits</th>
                 </tr>
               </thead>
               <tbody>
@@ -568,16 +596,19 @@ export class PlayerInfoModal extends LitElement {
                   .filter(([b]) =>
                     ["atom", "hydrogen", "mirv", "silo"].includes(b),
                   )
-                  .map(
-                    ([building, stats]) => html`
+                  .map(([building, stats]) => {
+                    const typedStats = stats as NukeStat;
+                    return html`
                       <tr>
                         <td>${this.getBuildingName(building)}</td>
-                        <td class="text-right">${stats.built ?? 0}</td>
-                        <td class="text-right">${stats.destroyed ?? 0}</td>
-                        <td class="text-right">${stats.finalCount ?? 0}</td>
+                        <td class="text-center">${typedStats.built ?? 0}</td>
+                        <td class="text-center">
+                          ${typedStats.destroyed ?? 0}
+                        </td>
+                        <td class="text-center">${typedStats.hits ?? 0}</td>
                       </tr>
-                    `,
-                  )}
+                    `;
+                  })}
               </tbody>
             </table>
           </div>

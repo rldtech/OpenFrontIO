@@ -666,8 +666,8 @@ export class FakeHumanExecution implements Execution {
     const silos = this.player.units(UnitType.MissileSilo);
 
     for (const silo of silos) {
-      if (this.builtSAMNearSilo.has(silo)) {
-        continue;
+      if (this.hasLiveSAMNearSilo(silo)) {
+        continue; // Skip if there's already a SAM nearby
       }
 
       const siloTile = silo.tile();
@@ -677,7 +677,6 @@ export class FakeHumanExecution implements Execution {
           this.mg.ownerID(t) === this.player.smallID() &&
           this.player.canBuild(UnitType.SAMLauncher, t)
         ) {
-          // Build immediately on the first valid tile
           this.mg.addExecution(
             new ConstructionExecution(
               this.player.id(),
@@ -685,11 +684,17 @@ export class FakeHumanExecution implements Execution {
               UnitType.SAMLauncher,
             ),
           );
-          this.builtSAMNearSilo.add(silo);
-          return; // Only build 1 SAM per handleUnits
+          return; // Build only one per tick
         }
       }
     }
+  }
+  private hasLiveSAMNearSilo(silo: Unit): boolean {
+    const radiusSq = 40 * 40;
+    return this.player.units(UnitType.SAMLauncher).some((sam) => {
+      const distSq = this.mg.euclideanDistSquared(silo.tile(), sam.tile());
+      return distSq <= radiusSq;
+    });
   }
 
   private maybeSpawnStructure(type: UnitType, maxNum: number) {

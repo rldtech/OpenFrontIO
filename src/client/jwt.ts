@@ -16,7 +16,7 @@ function getAudience() {
 function getApiBase() {
   const domainname = getAudience();
   return domainname === "localhost"
-    ? "http://localhost:8787"
+    ? (localStorage.getItem("apiHost") ?? "http://localhost:8787")
     : `https://api.${domainname}`;
 }
 
@@ -42,9 +42,27 @@ export function discordLogin() {
   window.location.href = `${getApiBase()}/login/discord?redirect_uri=${window.location.href}`;
 }
 
-export function logOut() {
+export async function logOut(allSessions: boolean = false) {
+  const token = localStorage.getItem("token");
+  if (token === null) return;
   localStorage.removeItem("token");
   __isLoggedIn = false;
+
+  const response = await fetch(
+    getApiBase() + allSessions ? "/revoke" : "/logout",
+    {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (response.ok === false) {
+    console.error("Logout failed", response);
+    return false;
+  }
+  return true;
 }
 
 let __isLoggedIn: TokenPayload | false | undefined = undefined;

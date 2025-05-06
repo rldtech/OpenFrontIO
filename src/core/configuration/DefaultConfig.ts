@@ -221,7 +221,7 @@ export class DefaultConfig implements Config {
     return 40;
   }
   defensePostDefenseBonus(): number {
-    return 5;
+    return 4;
   }
   playerTeams(): number | typeof Duos {
     return this._gameConfig.playerTeams ?? 0;

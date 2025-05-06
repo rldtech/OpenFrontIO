@@ -291,8 +291,20 @@ export class PlayerInfoModal extends LitElement {
   }
 
   onUserMe(userMeResponse: UserMeResponse) {
-    const { user } = userMeResponse;
+    const { user, player } = userMeResponse;
     const { username, id, avatar } = user;
+    if (player) {
+      const { publicId, roles, flares } = player;
+      if (publicId) {
+        // ...
+      }
+      if (roles) {
+        // ...
+      }
+      if (flares) {
+        // ...
+      }
+    }
     this.discordUserName = username;
     this.discordAvatarUrl = avatar
       ? `https://cdn.discordapp.com/avatars/${id}/${avatar}.${avatar.startsWith("a_") ? "gif" : "png"}`

@@ -83,6 +83,13 @@ export const DiscordUserSchema = z.object({
 export type DiscordUser = z.infer<typeof DiscordUserSchema>;
 
 export const UserMeResponseSchema = z.object({
+  player: z
+    .object({
+      publicId: z.string().optional(),
+      flares: z.string().array().optional(),
+      roles: z.string().array().optional(),
+    })
+    .optional(),
   user: DiscordUserSchema,
 });
 export type UserMeResponse = z.infer<typeof UserMeResponseSchema>;

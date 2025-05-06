@@ -918,28 +918,25 @@ export class FakeHumanExecution implements Execution {
     if (this.mg.ticks() - this.dogpileLastChecked < CHECK_INTERVAL) return;
     this.dogpileLastChecked = this.mg.ticks();
 
-    const alivePlayers = this.mg
+    const competitors = this.mg
       .players()
       .filter(
-        (p) =>
-          p.isAlive() &&
-          p.isPlayer() &&
-          p.id() !== this.player?.id() &&
-          !this.player?.isOnSameTeam(p),
+        (p) => p.isAlive() && p.isPlayer() && !this.player?.isOnSameTeam(p),
       );
 
-    if (alivePlayers.length < 2) {
+    const sorted = competitors.sort(
+      (a, b) => b.numTilesOwned() - a.numTilesOwned(),
+    );
+
+    const top = sorted[0];
+    const second = sorted[1];
+
+    // ✅ Don't dogpile if we are the top player
+    if (top.id() === this.player.id()) {
       this.dogpileTarget = null;
       return;
     }
 
-    const sorted = alivePlayers.sort(
-      (a, b) => b.numTilesOwned() - a.numTilesOwned(),
-    );
-    const top = sorted[0];
-    const second = sorted[1];
-
-    // Dominant player condition
     if (top.numTilesOwned() > second.numTilesOwned() * 2) {
       if (this.dogpileTarget !== top) {
         if (this.random.chance(20)) {

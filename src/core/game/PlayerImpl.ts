@@ -642,6 +642,16 @@ export class PlayerImpl implements Player {
   adjustedPopulation(): number {
     return this.population() + this.boatTroops() + this.attackingTroops();
   }
+  private attackingTroops(): number {
+    return this._outgoingAttacks
+      .filter((a) => a.isActive())
+      .reduce((sum, a) => sum + a.troops(), 0);
+  }
+  private boatTroops(): number {
+    return this.units(UnitType.TransportShip)
+      .map((u) => u.troops())
+      .reduce((sum, n) => sum + n, 0);
+  }
   addWorkers(toAdd: number): void {
     this._workers += toInt(toAdd);
   }

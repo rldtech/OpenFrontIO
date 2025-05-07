@@ -643,8 +643,13 @@ export class PlayerImpl implements Player {
   private attackingTroops(): number {
     return this._outgoingAttacks
       .filter((a) => a.isActive())
-      .reduce((sum, a) => sum + a.troops(), 0);
+      .reduce(
+        (sum, a) =>
+          sum + (a instanceof AttackImpl ? a.remainingTroops() : a.troops()),
+        0,
+      );
   }
+
   private boatTroops(): number {
     return this.units(UnitType.TransportShip)
       .map((u) => u.troops())

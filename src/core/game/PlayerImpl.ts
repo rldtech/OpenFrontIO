@@ -137,6 +137,7 @@ export class PlayerImpl implements Player {
       tilesOwned: this.numTilesOwned(),
       gold: Number(this._gold),
       population: this.population(),
+      adjustedPopulation: this.adjustedPopulation(),
       workers: this.workers(),
       troops: this.troops(),
       targetTroopRatio: this.targetTroopRatio(),

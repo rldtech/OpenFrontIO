@@ -616,10 +616,7 @@ export class DefaultConfig implements Config {
     let toAdd =
       10 +
       (1400 / max + 1 / 125) * (0.8 * player.troops() + 1.2 * player.workers());
-    const adjustedPop =
-      typeof player.adjustedPopulation === "function"
-        ? player.adjustedPopulation()
-        : player.population();
+    const adjustedPop = player.adjustedPopulation();
 
     const ratio = 1 - adjustedPop / max;
     toAdd *= ratio;
@@ -645,7 +642,10 @@ export class DefaultConfig implements Config {
       }
     }
 
-    return Math.min(player.population() + toAdd, max) - player.population();
+    return (
+      Math.min(player.adjustedPopulation() + toAdd, max) -
+      player.adjustedPopulation()
+    );
   }
 
   goldAdditionRate(player: Player): number {

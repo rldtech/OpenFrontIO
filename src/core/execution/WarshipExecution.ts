@@ -1,13 +1,7 @@
 import { consolex } from "../Consolex";
-import {
-  Execution,
-  Game,
-  Player,
-  PlayerID,
-  Unit,
-  UnitType,
-} from "../game/Game";
+import { Execution, Game, Player, PlayerID } from "../game/Game";
 import { TileRef } from "../game/GameMap";
+import { AnyUnit, UnitType, Warship } from "../game/Unit";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
@@ -18,16 +12,16 @@ export class WarshipExecution implements Execution {
 
   private _owner: Player;
   private active = true;
-  private warship: Unit = null;
+  private warship: Warship = null;
   private mg: Game = null;
 
-  private target: Unit = null;
+  private target: AnyUnit = null;
   private pathfinder: PathFinder;
 
   private patrolTile: TileRef;
 
   private lastShellAttack = 0;
-  private alreadySentShell = new Set<Unit>();
+  private alreadySentShell = new Set<AnyUnit>();
 
   constructor(
     private playerID: PlayerID,
@@ -53,7 +47,7 @@ export class WarshipExecution implements Execution {
     const result = this.pathfinder.nextTile(this.warship.tile(), target);
     switch (result.type) {
       case PathFindResultType.Completed:
-        this.warship.setMoveTarget(null);
+        this.warship.moveTarget = null;
         return;
       case PathFindResultType.NextTile:
         this.warship.move(result.tile);
@@ -78,7 +72,7 @@ export class WarshipExecution implements Execution {
           this.target,
         ),
       );
-      if (!this.target.hasHealth()) {
+      if (this.target.type == UnitType.TransportShip) {
         // Don't send multiple shells to target that can be oneshotted
         this.alreadySentShell.add(this.target);
         this.target = null;
@@ -88,8 +82,8 @@ export class WarshipExecution implements Execution {
   }
 
   private patrol() {
-    this.warship.setWarshipTarget(this.target);
-    if (this.target == null || this.target.type() != UnitType.TradeShip) {
+    this.warship.attackTarget = this.target;
+    if (this.target == null || this.target.type != UnitType.TradeShip) {
       // Patrol unless we are hunting down a tradeship
       const result = this.pathfinder.nextTile(
         this.warship.tile(),
@@ -119,7 +113,23 @@ export class WarshipExecution implements Execution {
         this.active = false;
         return;
       }
-      this.warship = this._owner.buildUnit(UnitType.Warship, 0, spawn);
+      this.warship = this._owner.buildUnit(spawn, {
+        type: UnitType.Warship,
+        health: 100n,
+        moveTarget: null,
+        attackTarget: null,
+      });
+
+      const test: AnyUnit = this._owner.buildUnit(spawn, {
+        type: UnitType.Warship,
+        health: 100n,
+        moveTarget: null,
+        attackTarget: null,
+      });
+      if (test.type == UnitType.Warship) {
+        test.attackTarget;
+      }
+
       return;
     }
     if (!this.warship.isActive()) {
@@ -142,11 +152,11 @@ export class WarshipExecution implements Execution {
           unit !== this.warship &&
           !unit.owner().isFriendly(this.warship.owner()) &&
           !this.alreadySentShell.has(unit) &&
-          (unit.type() !== UnitType.TradeShip ||
+          (unit.type !== UnitType.TradeShip ||
             (hasPort &&
-              unit.dstPort()?.owner() !== this.warship.owner() &&
-              !unit.dstPort()?.owner().isFriendly(this.warship.owner()) &&
-              unit.isSafeFromPirates() !== true)),
+              unit.dstPort?.owner() !== this.warship.owner() &&
+              !unit.dstPort?.owner().isFriendly(this.warship.owner()) &&
+              !unit.isSafeFromPirates())),
       );
 
     this.target =
@@ -155,26 +165,20 @@ export class WarshipExecution implements Execution {
         const { unit: unitB, distSquared: distB } = b;
 
         // Prioritize Warships
-        if (
-          unitA.type() === UnitType.Warship &&
-          unitB.type() !== UnitType.Warship
-        )
+        if (unitA.type === UnitType.Warship && unitB.type !== UnitType.Warship)
           return -1;
-        if (
-          unitA.type() !== UnitType.Warship &&
-          unitB.type() === UnitType.Warship
-        )
+        if (unitA.type !== UnitType.Warship && unitB.type === UnitType.Warship)
           return 1;
 
         // Then favor Transport Ships over Trade Ships
         if (
-          unitA.type() === UnitType.TransportShip &&
-          unitB.type() !== UnitType.TransportShip
+          unitA.type === UnitType.TransportShip &&
+          unitB.type !== UnitType.TransportShip
         )
           return -1;
         if (
-          unitA.type() !== UnitType.TransportShip &&
-          unitB.type() === UnitType.TransportShip
+          unitA.type !== UnitType.TransportShip &&
+          unitB.type === UnitType.TransportShip
         )
           return 1;
 
@@ -182,14 +186,14 @@ export class WarshipExecution implements Execution {
         return distA - distB;
       })[0]?.unit ?? null;
 
-    if (this.warship.moveTarget()) {
-      this.goToMoveTarget(this.warship.moveTarget());
+    if (this.warship.moveTarget) {
+      this.goToMoveTarget(this.warship.moveTarget);
       // If we have a "move target" then we cannot target trade ships as it
       // requires moving.
-      if (this.target && this.target.type() == UnitType.TradeShip) {
+      if (this.target && this.target.type == UnitType.TradeShip) {
         this.target = null;
       }
-    } else if (!this.target || this.target.type() != UnitType.TradeShip) {
+    } else if (!this.target || this.target.type == UnitType.TradeShip) {
       this.patrol();
     }
 
@@ -197,21 +201,22 @@ export class WarshipExecution implements Execution {
       this.target == null ||
       !this.target.isActive() ||
       this.target.owner() == this._owner ||
-      this.target.isSafeFromPirates() == true
+      (this.target.type == UnitType.TradeShip &&
+        this.target.isSafeFromPirates())
     ) {
       // In case another warship captured or destroyed target, or the target escaped into safe waters
       this.target = null;
       return;
     }
 
-    this.warship.setWarshipTarget(this.target);
+    this.warship.attackTarget = this.target;
 
     // If we have a move target we do not want to go after trading ships
     if (!this.target) {
       return;
     }
 
-    if (this.target.type() != UnitType.TradeShip) {
+    if (this.target.type != UnitType.TradeShip) {
       this.shoot();
       return;
     }

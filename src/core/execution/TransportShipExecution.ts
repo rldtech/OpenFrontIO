@@ -6,11 +6,10 @@ import {
   Player,
   PlayerID,
   TerraNullius,
-  Unit,
-  UnitType,
 } from "../game/Game";
 import { TileRef } from "../game/GameMap";
 import { targetTransportTile } from "../game/TransportShipUtils";
+import { TransportShip, UnitType } from "../game/Unit";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { AttackExecution } from "./AttackExecution";
@@ -31,7 +30,7 @@ export class TransportShipExecution implements Execution {
   public path: TileRef[];
   private dst: TileRef | null;
 
-  private boat: Unit;
+  private boat: TransportShip;
 
   private pathFinder: PathFinder;
 
@@ -139,11 +138,11 @@ export class TransportShipExecution implements Execution {
       }
     }
 
-    this.boat = this.attacker.buildUnit(
-      UnitType.TransportShip,
-      this.troops,
-      this.src,
-    );
+    this.boat = this.attacker.buildUnit(this.src, {
+      type: UnitType.TransportShip,
+      troops: this.troops,
+      dst: this.dst,
+    });
   }
 
   tick(ticks: number) {

@@ -1,9 +1,9 @@
-import { Unit, UnitType } from "./Game";
 import { GameMap, TileRef } from "./GameMap";
-import { UnitView } from "./GameView";
+import { AnyUnitView } from "./GameView";
+import { AnyUnit, UnitType } from "./Unit";
 
-export class UnitGrid {
-  private grid: Set<Unit | UnitView>[][];
+export class UnitGrid<T extends AnyUnit | AnyUnitView> {
+  private grid: Set<T>[][];
   private readonly cellSize = 100;
 
   constructor(private gm: GameMap) {
@@ -12,7 +12,7 @@ export class UnitGrid {
       .map(() =>
         Array(Math.ceil(gm.width() / this.cellSize))
           .fill(null)
-          .map(() => new Set<Unit | UnitView>()),
+          .map(() => new Set<T>()),
       );
   }
 
@@ -22,7 +22,7 @@ export class UnitGrid {
   }
 
   // Add a unit to the grid
-  addUnit(unit: Unit | UnitView) {
+  addUnit(unit: T) {
     const tile = unit.tile();
     const [gridX, gridY] = this.getGridCoords(this.gm.x(tile), this.gm.y(tile));
 
@@ -32,7 +32,7 @@ export class UnitGrid {
   }
 
   // Remove a unit from the grid
-  removeUnit(unit: Unit | UnitView) {
+  removeUnit(unit: T) {
     const tile = unit.tile();
     const [gridX, gridY] = this.getGridCoords(this.gm.x(tile), this.gm.y(tile));
 
@@ -56,12 +56,12 @@ export class UnitGrid {
     tile: TileRef,
     searchRange: number,
     types: UnitType | UnitType[],
-  ): Array<{ unit: Unit | UnitView; distSquared: number }> {
+  ): Array<{ unit: T; distSquared: number }> {
     const x = this.gm.x(tile);
     const y = this.gm.y(tile);
     const [gridX, gridY] = this.getGridCoords(x, y);
     const cellsToCheck = Math.ceil(searchRange / this.cellSize);
-    const nearby: Array<{ unit: Unit | UnitView; distSquared: number }> = [];
+    const nearby: Array<{ unit: T; distSquared: number }> = [];
 
     const startGridX = Math.max(0, gridX - cellsToCheck);
     const endGridX = Math.min(this.grid[0].length - 1, gridX + cellsToCheck);
@@ -81,8 +81,10 @@ export class UnitGrid {
             const dy = tileY - y;
             const distSquared = dx * dx + dy * dy;
 
-            if (distSquared <= rangeSquared && typeSet.has(unit.type())) {
-              nearby.push({ unit, distSquared });
+            if (distSquared <= rangeSquared && typeSet.has(unit.type)) {
+              if (typeSet.has(unit.type)) {
+                nearby.push({ unit: unit, distSquared });
+              }
             }
           }
         }

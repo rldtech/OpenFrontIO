@@ -2,10 +2,15 @@ import { colord, Colord } from "colord";
 import { EventBus } from "../../../core/EventBus";
 import { ClientID } from "../../../core/Schemas";
 import { Theme } from "../../../core/configuration/Config";
-import { UnitType } from "../../../core/game/Game";
 import { TileRef } from "../../../core/game/GameMap";
 import { GameUpdateType } from "../../../core/game/GameUpdates";
-import { GameView, PlayerView, UnitView } from "../../../core/game/GameView";
+import {
+  AnyUnitView,
+  GameView,
+  PlayerView,
+  UnitView,
+} from "../../../core/game/GameView";
+import { UnitType } from "../../../core/game/Unit";
 import {
   AlternateViewEvent,
   MouseUpEvent,
@@ -232,7 +237,7 @@ export class UnitLayer implements Layer {
       this.handleUnitDeactivation(unit);
     }
 
-    switch (unit.type()) {
+    switch (unit.type) {
       case UnitType.TransportShip:
         this.handleBoatEvent(unit);
         break;
@@ -260,7 +265,7 @@ export class UnitLayer implements Layer {
   }
 
   private handleWarShipEvent(unit: UnitView) {
-    if (unit.warshipTargetId()) {
+    if (unit.info().type == UnitType.Warship) {
       this.drawSprite(unit, colord({ r: 200, b: 0, g: 0 }));
     } else {
       this.drawSprite(unit);
@@ -416,7 +421,7 @@ export class UnitLayer implements Layer {
     context.clearRect(x, y, 1, 1);
   }
 
-  drawSprite(unit: UnitView, customTerritoryColor?: Colord) {
+  drawSprite(unit: AnyUnitView, customTerritoryColor?: Colord) {
     const x = this.game.x(unit.tile());
     const y = this.game.y(unit.tile());
     const lastX = this.game.x(unit.lastTile());
@@ -426,7 +431,7 @@ export class UnitLayer implements Layer {
 
     if (this.alternateView) {
       let rel = this.relationship(unit);
-      if (unit.type() == UnitType.TradeShip && unit.dstPortId() != null) {
+      if (unit.type == UnitType.TradeShip && unit.info().dstPort != null) {
         const target = this.game.unit(unit.dstPortId())?.owner();
         const myPlayer = this.game.myPlayer();
         if (myPlayer != null && target != null) {

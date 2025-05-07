@@ -1,15 +1,8 @@
 import { renderNumber } from "../../client/Utils";
 import { consolex } from "../Consolex";
-import {
-  Execution,
-  Game,
-  MessageType,
-  Player,
-  PlayerID,
-  Unit,
-  UnitType,
-} from "../game/Game";
+import { Execution, Game, MessageType, Player, PlayerID } from "../game/Game";
 import { TileRef } from "../game/GameMap";
+import { Port, Unit, UnitType } from "../game/Unit";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { distSortUnit } from "../Util";
@@ -18,14 +11,14 @@ export class TradeShipExecution implements Execution {
   private active = true;
   private mg: Game;
   private origOwner: Player;
-  private tradeShip: Unit;
+  private tradeShip: Unit<UnitType.TradeShip>;
   private index = 0;
   private wasCaptured = false;
 
   constructor(
     private _owner: PlayerID,
-    private srcPort: Unit,
-    private _dstPort: Unit,
+    private srcPort: Port,
+    private _dstPort: Port,
     private pathFinder: PathFinder,
   ) {}
 
@@ -45,7 +38,9 @@ export class TradeShipExecution implements Execution {
         this.active = false;
         return;
       }
-      this.tradeShip = this.origOwner.buildUnit(UnitType.TradeShip, 0, spawn, {
+      this.tradeShip = this.origOwner.buildUnit(spawn, {
+        type: UnitType.TradeShip,
+        srcPort: this.srcPort,
         dstPort: this._dstPort,
         lastSetSafeFromPirates: ticks,
       });
@@ -90,7 +85,7 @@ export class TradeShipExecution implements Execution {
         return;
       } else {
         this._dstPort = ports[0];
-        this.tradeShip.setDstPort(this._dstPort);
+        this.tradeShip.dstPort = this._dstPort;
       }
     }
 
@@ -110,7 +105,7 @@ export class TradeShipExecution implements Execution {
       case PathFindResultType.NextTile:
         // Update safeFromPirates status
         if (this.mg.isWater(result.tile) && this.mg.isShoreline(result.tile)) {
-          this.tradeShip.setSafeFromPirates();
+          this.tradeShip.lastSetSafeFromPirates = ticks;
         }
         this.tradeShip.move(result.tile);
         break;

@@ -8,14 +8,10 @@ import swordIcon from "../../../../resources/images/SwordIconWhite.svg";
 import traitorIcon from "../../../../resources/images/TraitorIconWhite.svg";
 import { consolex } from "../../../core/Consolex";
 import { EventBus } from "../../../core/EventBus";
-import {
-  Cell,
-  PlayerActions,
-  TerraNullius,
-  UnitType,
-} from "../../../core/game/Game";
+import { Cell, PlayerActions, TerraNullius } from "../../../core/game/Game";
 import { TileRef } from "../../../core/game/GameMap";
 import { GameView, PlayerView } from "../../../core/game/GameView";
+import { UnitType } from "../../../core/game/Unit";
 import { ClientID } from "../../../core/Schemas";
 import {
   CloseViewEvent,

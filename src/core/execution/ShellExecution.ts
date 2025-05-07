@@ -1,20 +1,21 @@
-import { Execution, Game, Player, Unit, UnitType } from "../game/Game";
+import { Execution, Game, Player } from "../game/Game";
 import { TileRef } from "../game/GameMap";
+import { AnyUnit, Shell, UnitType } from "../game/Unit";
 import { AirPathFinder } from "../pathfinding/PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
 
 export class ShellExecution implements Execution {
   private active = true;
   private pathFinder: AirPathFinder;
-  private shell: Unit;
+  private shell: Shell;
   private mg: Game;
   private destroyAtTick: number = -1;
 
   constructor(
     private spawn: TileRef,
     private _owner: Player,
-    private ownerUnit: Unit,
-    private target: Unit,
+    private ownerUnit: AnyUnit,
+    private target: AnyUnit,
   ) {}
 
   init(mg: Game, ticks: number): void {
@@ -24,7 +25,9 @@ export class ShellExecution implements Execution {
 
   tick(ticks: number): void {
     if (this.shell == null) {
-      this.shell = this._owner.buildUnit(UnitType.Shell, 0, this.spawn);
+      this.shell = this._owner.buildUnit(this.spawn, {
+        type: UnitType.Shell,
+      });
     }
     if (!this.shell.isActive()) {
       this.active = false;
@@ -51,7 +54,11 @@ export class ShellExecution implements Execution {
       );
       if (result === true) {
         this.active = false;
-        this.target.modifyHealth(-this.effectOnTarget());
+        if ("health" in this.target) {
+          this.target.modifyHealth(-this.effectOnTarget());
+        } else {
+          this.target.delete();
+        }
         this.shell.delete(false);
         return;
       } else {

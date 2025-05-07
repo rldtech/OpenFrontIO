@@ -3,14 +3,20 @@ import {
   Execution,
   Game,
   MessageType,
-  NukeType,
   Player,
   PlayerID,
   TerraNullius,
-  Unit,
-  UnitType,
 } from "../game/Game";
 import { TileRef } from "../game/GameMap";
+import {
+  AnyUnit,
+  AtomBombInfo,
+  HydrogenBombInfo,
+  MIRVInfo,
+  MIRVWarheadInfo,
+  NukeType,
+  UnitType,
+} from "../game/Unit";
 import { AirPathFinder } from "../pathfinding/PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
 
@@ -18,7 +24,7 @@ export class NukeExecution implements Execution {
   private player: Player;
   private active = true;
   private mg: Game;
-  private nuke: Unit;
+  private nuke: AnyUnit;
 
   private random: PseudoRandom;
   private pathFinder: AirPathFinder;
@@ -53,7 +59,7 @@ export class NukeExecution implements Execution {
   }
 
   private tilesToDestroy(): Set<TileRef> {
-    const magnitude = this.mg.config().nukeMagnitudes(this.nuke.type());
+    const magnitude = this.mg.config().nukeMagnitudes(this.nuke.type);
     const rand = new PseudoRandom(this.mg.ticks());
     const inner2 = magnitude.inner * magnitude.inner;
     const outer2 = magnitude.outer * magnitude.outer;
@@ -74,7 +80,7 @@ export class NukeExecution implements Execution {
     }
 
     for (const [other, tilesDestroyed] of attacked) {
-      if (tilesDestroyed > 100 && this.nuke.type() != UnitType.MIRVWarhead) {
+      if (tilesDestroyed > 100 && this.nuke.type != UnitType.MIRVWarhead) {
         // Mirv warheads shouldn't break alliances
         const alliance = this.player.allianceWith(other);
         if (alliance != null) {
@@ -95,9 +101,10 @@ export class NukeExecution implements Execution {
         this.active = false;
         return;
       }
-      this.nuke = this.player.buildUnit(this.type, 0, spawn, {
+      this.nuke = this.player.buildUnit(spawn, {
+        type: UnitType.MIRVWarhead,
         detonationDst: this.dst,
-      });
+      } as MIRVWarheadInfo | AtomBombInfo | HydrogenBombInfo | MIRVInfo);
       if (this.mg.hasOwner(this.dst)) {
         const target = this.mg.owner(this.dst) as Player;
         if (this.type == UnitType.AtomBomb) {
@@ -120,7 +127,7 @@ export class NukeExecution implements Execution {
           .increaseNukeCount(
             this.senderID,
             target.id(),
-            this.nuke.type() as NukeType,
+            this.nuke.type as NukeType,
           );
       }
 
@@ -129,7 +136,7 @@ export class NukeExecution implements Execution {
         .units(UnitType.MissileSilo)
         .find((silo) => silo.tile() === spawn);
       if (silo) {
-        silo.setCooldown(true);
+        silo.lastFired = this.mg.ticks();
       }
       return;
     }
@@ -159,7 +166,7 @@ export class NukeExecution implements Execution {
   }
 
   private detonate() {
-    const magnitude = this.mg.config().nukeMagnitudes(this.nuke.type());
+    const magnitude = this.mg.config().nukeMagnitudes(this.nuke.type);
     const toDestroy = this.tilesToDestroy();
     this.breakAlliances(toDestroy);
 
@@ -186,8 +193,8 @@ export class NukeExecution implements Execution {
         owner.units(UnitType.TransportShip).forEach((attack) => {
           const deaths = this.mg
             .config()
-            .nukeDeathFactor(attack.troops(), owner.numTilesOwned());
-          attack.setTroops(attack.troops() - deaths);
+            .nukeDeathFactor(attack.troops, owner.numTilesOwned());
+          attack.troops = Math.max(0, attack.troops - deaths);
         });
       }
 
@@ -199,10 +206,10 @@ export class NukeExecution implements Execution {
     const outer2 = magnitude.outer * magnitude.outer;
     for (const unit of this.mg.units()) {
       if (
-        unit.type() != UnitType.AtomBomb &&
-        unit.type() != UnitType.HydrogenBomb &&
-        unit.type() != UnitType.MIRVWarhead &&
-        unit.type() != UnitType.MIRV
+        unit.type != UnitType.AtomBomb &&
+        unit.type != UnitType.HydrogenBomb &&
+        unit.type != UnitType.MIRVWarhead &&
+        unit.type != UnitType.MIRV
       ) {
         if (this.mg.euclideanDistSquared(this.dst, unit.tile()) < outer2) {
           unit.delete();

@@ -1,14 +1,7 @@
 import { consolex } from "../Consolex";
-import {
-  Execution,
-  Game,
-  Player,
-  PlayerID,
-  Tick,
-  Unit,
-  UnitType,
-} from "../game/Game";
+import { Execution, Game, Player, PlayerID, Tick } from "../game/Game";
 import { TileRef } from "../game/GameMap";
+import { AnyUnit, UnitType } from "../game/Unit";
 import { CityExecution } from "./CityExecution";
 import { DefensePostExecution } from "./DefensePostExecution";
 import { MirvExecution } from "./MIRVExecution";
@@ -20,7 +13,7 @@ import { WarshipExecution } from "./WarshipExecution";
 
 export class ConstructionExecution implements Execution {
   private player: Player;
-  private construction: Unit;
+  private construction: AnyUnit;
   private active: boolean = true;
   private mg: Game;
 
@@ -58,14 +51,13 @@ export class ConstructionExecution implements Execution {
         this.active = false;
         return;
       }
-      this.construction = this.player.buildUnit(
-        UnitType.Construction,
-        0,
-        spawnTile,
-      );
+      this.construction = this.player.buildUnit(spawnTile, {
+        type: UnitType.Construction,
+        toBuild: this.constructionType,
+      });
       this.cost = this.mg.unitInfo(this.constructionType).cost(this.player);
       this.player.removeGold(this.cost);
-      this.construction.setConstructionType(this.constructionType);
+      this.construction.toBuild = this.constructionType;
       this.ticksUntilComplete = info.constructionDuration;
       return;
     }

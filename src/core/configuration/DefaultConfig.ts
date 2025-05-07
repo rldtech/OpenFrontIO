@@ -12,11 +12,10 @@ import {
   TerrainType,
   TerraNullius,
   Tick,
-  UnitInfo,
-  UnitType,
 } from "../game/Game";
 import { TileRef } from "../game/GameMap";
 import { PlayerView } from "../game/GameView";
+import { UnitAttrs, UnitType } from "../game/Unit";
 import { UserSettings } from "../game/UserSettings";
 import { GameConfig, GameID } from "../Schemas";
 import { assertNever, simpleHash, within } from "../Util";
@@ -258,7 +257,7 @@ export class DefaultConfig implements Config {
     return 50;
   }
 
-  unitInfo(type: UnitType): UnitInfo {
+  unitInfo(type: UnitType): UnitAttrs {
     switch (type) {
       case UnitType.TransportShip:
         return {

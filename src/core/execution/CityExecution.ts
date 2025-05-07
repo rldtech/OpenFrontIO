@@ -1,18 +1,12 @@
 import { consolex } from "../Consolex";
-import {
-  Execution,
-  Game,
-  Player,
-  PlayerID,
-  Unit,
-  UnitType,
-} from "../game/Game";
+import { Execution, Game, Player, PlayerID } from "../game/Game";
 import { TileRef } from "../game/GameMap";
+import { City, UnitType } from "../game/Unit";
 
 export class CityExecution implements Execution {
   private player: Player;
   private mg: Game;
-  private city: Unit;
+  private city: City;
   private active: boolean = true;
 
   constructor(
@@ -38,7 +32,9 @@ export class CityExecution implements Execution {
         this.active = false;
         return;
       }
-      this.city = this.player.buildUnit(UnitType.City, 0, spawnTile);
+      this.city = this.player.buildUnit(spawnTile, {
+        type: UnitType.City,
+      });
     }
     if (!this.city.isActive()) {
       this.active = false;

@@ -2,8 +2,8 @@ import { Colord } from "colord";
 import { EventBus } from "../../../core/EventBus";
 import { ClientID } from "../../../core/Schemas";
 import { Theme } from "../../../core/configuration/Config";
-import { UnitType } from "../../../core/game/Game";
 import { GameView, UnitView } from "../../../core/game/GameView";
+import { UnitType } from "../../../core/game/Unit";
 import { UnitSelectionEvent } from "../../InputHandler";
 import { TransformHandler } from "../TransformHandler";
 import { Layer } from "./Layer";
@@ -50,7 +50,7 @@ export class UILayer implements Layer {
     this.selectionAnimTime = (this.selectionAnimTime + 1) % 60;
 
     // If there's a selected warship, redraw to update the selection box animation
-    if (this.selectedUnit && this.selectedUnit.type() === UnitType.Warship) {
+    if (this.selectedUnit && this.selectedUnit.type === UnitType.Warship) {
       this.drawSelectionBox(this.selectedUnit);
     }
   }
@@ -84,7 +84,7 @@ export class UILayer implements Layer {
   private onUnitSelection(event: UnitSelectionEvent) {
     if (event.isSelected) {
       this.selectedUnit = event.unit;
-      if (event.unit && event.unit.type() === UnitType.Warship) {
+      if (event.unit && event.unit.type === UnitType.Warship) {
         this.drawSelectionBox(event.unit);
       }
     } else {

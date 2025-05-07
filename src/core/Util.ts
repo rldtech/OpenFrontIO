@@ -1,7 +1,7 @@
 import DOMPurify from "dompurify";
 import { customAlphabet } from "nanoid";
 import twemoji from "twemoji";
-import { Cell, Team, Unit } from "./game/Game";
+import { Cell, Team } from "./game/Game";
 import { GameMap, TileRef } from "./game/GameMap";
 import {
   AllPlayersStats,
@@ -17,6 +17,7 @@ import {
   BOT_NAME_PREFIXES,
   BOT_NAME_SUFFIXES,
 } from "./execution/utils/BotNames";
+import { AnyUnit } from "./game/Unit";
 
 export function manhattanDistWrapped(
   c1: Cell,
@@ -50,11 +51,11 @@ export function distSort(
 
 export function distSortUnit(
   gm: GameMap,
-  target: Unit | TileRef,
-): (a: Unit, b: Unit) => number {
+  target: AnyUnit | TileRef,
+): (a: AnyUnit, b: AnyUnit) => number {
   const targetRef = typeof target === "number" ? target : target.tile();
 
-  return (a: Unit, b: Unit) => {
+  return (a: AnyUnit, b: AnyUnit) => {
     return (
       gm.manhattanDist(a.tile(), targetRef) -
       gm.manhattanDist(b.tile(), targetRef)

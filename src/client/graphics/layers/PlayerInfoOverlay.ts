@@ -6,10 +6,10 @@ import {
   PlayerType,
   Relation,
   Unit,
-  UnitType,
 } from "../../../core/game/Game";
 import { TileRef } from "../../../core/game/GameMap";
 import { GameView, PlayerView, UnitView } from "../../../core/game/GameView";
+import { UnitType } from "../../../core/game/Unit";
 import { ClientID } from "../../../core/Schemas";
 import { MouseMoveEvent } from "../../InputHandler";
 import { renderNumber, renderTroops } from "../../Utils";

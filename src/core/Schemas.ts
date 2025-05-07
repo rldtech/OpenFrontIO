@@ -7,8 +7,8 @@ import {
   GameMode,
   GameType,
   PlayerType,
-  UnitType,
 } from "./game/Game";
+import { UnitType } from "./game/Unit";
 import { flattenedEmojiTable } from "./Util";
 
 export type GameID = string;

@@ -1,11 +1,7 @@
 import { SpawnExecution } from "../src/core/execution/SpawnExecution";
-import {
-  Game,
-  Player,
-  PlayerInfo,
-  PlayerType,
-  UnitType,
-} from "../src/core/game/Game";
+import { Game, Player, PlayerInfo, PlayerType } from "../src/core/game/Game";
+import { Unit, UnitType } from "../src/core/game/Unit";
+import { toInt } from "../src/core/Util";
 import { setup } from "./util/Setup";
 import { constructionExecution } from "./util/utils";
 
@@ -59,25 +55,30 @@ describe("Warship", () => {
   test("Warship heals only if player has port", async () => {
     const maxHealth = game.config().unitInfo(UnitType.Warship).maxHealth;
 
-    const port = player1.buildUnit(UnitType.Port, 0, game.ref(coastX, 10));
-    const warship = player1.buildUnit(
-      UnitType.Warship,
-      0,
+    const port = player1.buildUnit(game.ref(coastX, 10), {
+      type: UnitType.Port,
+    });
+
+    const warship: Unit<UnitType.Warship> = player1.buildUnit(
       game.ref(coastX + 1, 10),
+      {
+        type: UnitType.Warship,
+        health: toInt(maxHealth),
+      },
     );
 
     game.executeNextTick();
 
-    expect(warship.health()).toBe(maxHealth);
+    expect(warship.health).toBe(maxHealth);
     warship.modifyHealth(-10);
-    expect(warship.health()).toBe(maxHealth - 10);
+    expect(warship.health).toBe(maxHealth - 10);
     game.executeNextTick();
-    expect(warship.health()).toBe(maxHealth - 9);
+    expect(warship.health).toBe(maxHealth - 9);
 
     port.delete();
 
     game.executeNextTick();
-    expect(warship.health()).toBe(maxHealth - 9);
+    expect(warship.health).toBe(maxHealth - 9);
   });
 
   test("Warship captures trade if player has port", async () => {
@@ -89,11 +90,11 @@ describe("Warship", () => {
 
     // Cannot buildExec with trade ship as it's not buildable (but
     // we can obviously directly add it to the player)
-    const tradeShip = player2.buildUnit(
-      UnitType.TradeShip,
-      0,
-      game.ref(coastX + 1, 7),
-    );
+    const tradeShip = player2.buildUnit(game.ref(coastX + 1, 7), {
+      type: UnitType.TradeShip,
+      srcPort: null,
+      dstPort: null,
+    });
 
     expect(tradeShip.owner().id()).toBe(player2.id());
     // Let plenty of time for A* to execute
@@ -111,11 +112,11 @@ describe("Warship", () => {
     player1.units(UnitType.Port)[0].delete();
     // Cannot buildExec with trade ship as it's not buildable (but
     // we can obviously directly add it to the player)
-    const tradeShip = player2.buildUnit(
-      UnitType.TradeShip,
-      0,
-      game.ref(coastX + 1, 11),
-    );
+    const tradeShip = player2.buildUnit(game.ref(coastX + 1, 11), {
+      type: UnitType.TradeShip,
+      srcPort: player1.units(UnitType.Port)[0],
+      dstPort: player1.units(UnitType.Port)[0],
+    });
 
     expect(tradeShip.owner().id()).toBe(player2.id());
     // Let plenty of time for A* to execute

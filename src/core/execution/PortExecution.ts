@@ -1,13 +1,7 @@
 import { consolex } from "../Consolex";
-import {
-  Execution,
-  Game,
-  Player,
-  PlayerID,
-  Unit,
-  UnitType,
-} from "../game/Game";
+import { Execution, Game, Player, PlayerID } from "../game/Game";
 import { TileRef } from "../game/GameMap";
+import { Port, UnitType } from "../game/Unit";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
 import { TradeShipExecution } from "./TradeShipExecution";
@@ -15,7 +9,7 @@ import { TradeShipExecution } from "./TradeShipExecution";
 export class PortExecution implements Execution {
   private active = true;
   private mg: Game;
-  private port: Unit;
+  private port: Port;
   private random: PseudoRandom;
   private checkOffset: number;
 
@@ -45,7 +39,9 @@ export class PortExecution implements Execution {
         this.active = false;
         return;
       }
-      this.port = player.buildUnit(UnitType.Port, 0, spawn);
+      this.port = player.buildUnit(spawn, {
+        type: UnitType.Port,
+      });
     }
 
     if (!this.port.isActive()) {

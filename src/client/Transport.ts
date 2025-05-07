@@ -8,9 +8,9 @@ import {
   PlayerType,
   Team,
   Tick,
-  UnitType,
 } from "../core/game/Game";
 import { PlayerView } from "../core/game/GameView";
+import { UnitType } from "../core/game/Unit";
 import {
   AllPlayersStats,
   ClientID,

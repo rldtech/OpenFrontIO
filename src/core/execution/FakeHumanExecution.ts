@@ -11,10 +11,9 @@ import {
   Relation,
   TerrainType,
   Tick,
-  Unit,
-  UnitType,
 } from "../game/Game";
 import { euclDistFN, manhattanDistFN, TileRef } from "../game/GameMap";
+import { AnyUnit, MissileSilo, UnitType } from "../game/Unit";
 import { PseudoRandom } from "../PseudoRandom";
 import { GameID } from "../Schemas";
 import { calculateBoundingBox, flattenedEmojiTable, simpleHash } from "../Util";
@@ -341,13 +340,17 @@ export class FakeHumanExecution implements Execution {
     );
   }
 
-  private nukeTileScore(tile: TileRef, silos: Unit[], targets: Unit[]): number {
+  private nukeTileScore(
+    tile: TileRef,
+    silos: MissileSilo[],
+    targets: AnyUnit[],
+  ): number {
     // Potential damage in a 25-tile radius
     const dist = euclDistFN(tile, 25, false);
     let tileValue = targets
       .filter((unit) => dist(this.mg, unit.tile()))
       .map((unit) => {
-        switch (unit.type()) {
+        switch (unit.type) {
           case UnitType.City:
             return 25_000;
           case UnitType.DefensePost:

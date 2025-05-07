@@ -24,9 +24,6 @@ import {
   Team,
   TerrainType,
   TerraNullius,
-  Unit,
-  UnitInfo,
-  UnitType,
 } from "./Game";
 import { GameMap, TileRef, TileUpdate } from "./GameMap";
 import { GameUpdate, GameUpdateType } from "./GameUpdates";
@@ -35,8 +32,8 @@ import { Stats } from "./Stats";
 import { StatsImpl } from "./StatsImpl";
 import { assignTeams } from "./TeamAssignment";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
+import { AnyUnit, Unit, UnitAttrs, UnitType } from "./Unit";
 import { UnitGrid } from "./UnitGrid";
-import { UnitImpl } from "./UnitImpl";
 
 export function createGame(
   humans: PlayerInfo[],
@@ -70,7 +67,7 @@ export class GameImpl implements Game {
   private _nextUnitID = 1;
 
   private updates: GameUpdates = createGameUpdatesMap();
-  private unitGrid: UnitGrid;
+  private unitGrid: UnitGrid<AnyUnit>;
 
   private _stats: StatsImpl = new StatsImpl();
 
@@ -87,7 +84,7 @@ export class GameImpl implements Game {
     this._terraNullius = new TerraNulliusImpl();
     this._width = _map.width();
     this._height = _map.height();
-    this.unitGrid = new UnitGrid(this._map);
+    this.unitGrid = new UnitGrid<AnyUnit>(this._map);
 
     if (_config.gameConfig().gameMode === GameMode.Team) {
       this.populateTeams();
@@ -182,10 +179,10 @@ export class GameImpl implements Game {
     });
   }
 
-  units(...types: UnitType[]): UnitImpl[] {
+  units<T extends UnitType>(...types: T[]): Unit<T>[] {
     return Array.from(this._players.values()).flatMap((p) => p.units(...types));
   }
-  unitInfo(type: UnitType): UnitInfo {
+  unitInfo(type: UnitType): UnitAttrs {
     return this.config().unitInfo(type);
   }
   nations(): Nation[] {
@@ -442,9 +439,9 @@ export class GameImpl implements Game {
     }
     const previousOwner = this.owner(tile) as TerraNullius | PlayerImpl;
     if (previousOwner.isPlayer()) {
-      previousOwner._lastTileChange = this._ticks;
-      previousOwner._tiles.delete(tile);
-      previousOwner._borderTiles.delete(tile);
+      (previousOwner as PlayerImpl)._lastTileChange = this._ticks;
+      (previousOwner as PlayerImpl)._tiles.delete(tile);
+      (previousOwner as PlayerImpl)._borderTiles.delete(tile);
     }
     this._map.setOwnerID(tile, owner.smallID());
     owner._tiles.add(tile);
@@ -606,10 +603,11 @@ export class GameImpl implements Game {
     });
   }
 
-  addUnit(u: Unit) {
+  addUnit(u: AnyUnit) {
     this.unitGrid.addUnit(u);
   }
-  removeUnit(u: Unit) {
+
+  removeUnit(u: AnyUnit) {
     this.unitGrid.removeUnit(u);
   }
 
@@ -617,11 +615,8 @@ export class GameImpl implements Game {
     tile: TileRef,
     searchRange: number,
     types: UnitType | UnitType[],
-  ): Array<{ unit: Unit; distSquared: number }> {
-    return this.unitGrid.nearbyUnits(tile, searchRange, types) as Array<{
-      unit: Unit;
-      distSquared: number;
-    }>;
+  ): Array<{ unit: AnyUnit; distSquared: number }> {
+    return this.unitGrid.nearbyUnits(tile, searchRange, types);
   }
 
   ref(x: number, y: number): TileRef {

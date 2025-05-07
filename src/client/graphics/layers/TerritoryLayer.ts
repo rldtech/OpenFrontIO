@@ -2,7 +2,7 @@ import { PriorityQueue } from "@datastructures-js/priority-queue";
 import { Colord } from "colord";
 import { Theme } from "../../../core/configuration/Config";
 import { EventBus } from "../../../core/EventBus";
-import { Cell, PlayerType, UnitType } from "../../../core/game/Game";
+import { Cell, PlayerType } from "../../../core/game/Game";
 import {
   euclDistFN,
   manhattanDistFN,
@@ -10,6 +10,7 @@ import {
 } from "../../../core/game/GameMap";
 import { GameUpdateType, UnitUpdate } from "../../../core/game/GameUpdates";
 import { GameView, PlayerView } from "../../../core/game/GameView";
+import { UnitType } from "../../../core/game/Unit";
 import { PseudoRandom } from "../../../core/PseudoRandom";
 import { AlternateViewEvent, DragEvent } from "../../InputHandler";
 import { Layer } from "./Layer";

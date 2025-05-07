@@ -1,25 +1,19 @@
 import { consolex } from "../Consolex";
-import {
-  Execution,
-  Game,
-  Player,
-  PlayerID,
-  Unit,
-  UnitType,
-} from "../game/Game";
+import { Execution, Game, Player, PlayerID } from "../game/Game";
 import { TileRef } from "../game/GameMap";
+import { AnyUnit, DefensePost, UnitType } from "../game/Unit";
 import { ShellExecution } from "./ShellExecution";
 
 export class DefensePostExecution implements Execution {
   private player: Player;
   private mg: Game;
-  private post: Unit;
+  private post: DefensePost;
   private active: boolean = true;
 
-  private target: Unit = null;
+  private target: AnyUnit = null;
   private lastShellAttack = 0;
 
-  private alreadySentShell = new Set<Unit>();
+  private alreadySentShell = new Set<AnyUnit>();
 
   constructor(
     private ownerId: PlayerID,
@@ -48,7 +42,7 @@ export class DefensePostExecution implements Execution {
           this.target,
         ),
       );
-      if (!this.target.hasHealth()) {
+      if (!("health" in this.target)) {
         // Don't send multiple shells to target that can be oneshotted
         this.alreadySentShell.add(this.target);
         this.target = null;
@@ -65,7 +59,9 @@ export class DefensePostExecution implements Execution {
         this.active = false;
         return;
       }
-      this.post = this.player.buildUnit(UnitType.DefensePost, 0, spawnTile);
+      this.post = this.player.buildUnit(spawnTile, {
+        type: UnitType.DefensePost,
+      });
     }
     if (!this.post.isActive()) {
       this.active = false;
@@ -103,13 +99,13 @@ export class DefensePostExecution implements Execution {
 
         // Prioritize TransportShip
         if (
-          unitA.type() === UnitType.TransportShip &&
-          unitB.type() !== UnitType.TransportShip
+          unitA.type === UnitType.TransportShip &&
+          unitB.type !== UnitType.TransportShip
         )
           return -1;
         if (
-          unitA.type() !== UnitType.TransportShip &&
-          unitB.type() === UnitType.TransportShip
+          unitA.type !== UnitType.TransportShip &&
+          unitB.type === UnitType.TransportShip
         )
           return 1;
 

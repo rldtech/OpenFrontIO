@@ -1,6 +1,5 @@
 import { Execution, Game } from "../game/Game";
-
-const cancelDelay = 2;
+import { UnitType, Warship } from "../game/Unit";
 
 export class MoveWarshipExecution implements Execution {
   private active = true;
@@ -16,12 +15,14 @@ export class MoveWarshipExecution implements Execution {
   }
 
   tick(ticks: number): void {
-    const warship = this.mg.units().find((u) => u.id() == this.unitId);
+    const warship: Warship = this.mg
+      .units(UnitType.Warship)
+      .find((u) => u.id() == this.unitId) as Warship;
     if (!warship) {
       console.log("MoveWarshipExecution: warship is already dead");
       return;
     }
-    warship.setMoveTarget(this.position);
+    warship.moveTarget = this.position;
     this.active = false;
   }
 

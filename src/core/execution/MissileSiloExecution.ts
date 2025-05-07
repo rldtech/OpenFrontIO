@@ -1,19 +1,12 @@
 import { consolex } from "../Consolex";
-import {
-  Execution,
-  Game,
-  Player,
-  PlayerID,
-  Unit,
-  UnitType,
-} from "../game/Game";
+import { Execution, Game, Player, PlayerID } from "../game/Game";
 import { TileRef } from "../game/GameMap";
+import { MissileSilo, UnitType } from "../game/Unit";
 
 export class MissileSiloExecution implements Execution {
   private active = true;
-  private mg: Game;
   private player: Player;
-  private silo: Unit;
+  private silo: MissileSilo;
 
   constructor(
     private _owner: PlayerID,
@@ -27,7 +20,6 @@ export class MissileSiloExecution implements Execution {
       return;
     }
 
-    this.mg = mg;
     this.player = mg.player(this._owner);
   }
 
@@ -41,20 +33,13 @@ export class MissileSiloExecution implements Execution {
         this.active = false;
         return;
       }
-      this.silo = this.player.buildUnit(UnitType.MissileSilo, 0, spawn, {
-        cooldownDuration: this.mg.config().SiloCooldown(),
+      this.silo = this.player.buildUnit(spawn, {
+        type: UnitType.MissileSilo,
       });
 
       if (this.player != this.silo.owner()) {
         this.player = this.silo.owner();
       }
-    }
-
-    if (
-      this.silo.isCooldown() &&
-      this.silo.ticksLeftInCooldown(this.mg.config().SiloCooldown()) == 0
-    ) {
-      this.silo.setCooldown(false);
     }
   }
 

@@ -1,6 +1,7 @@
 import { AllPlayersStats, PlayerStats } from "../Schemas";
-import { NukeType, PlayerID, UnitType } from "./Game";
+import { PlayerID } from "./Game";
 import { Stats } from "./Stats";
+import { NukeType, UnitType } from "./Unit";
 
 export class StatsImpl implements Stats {
   data: AllPlayersStats = {};

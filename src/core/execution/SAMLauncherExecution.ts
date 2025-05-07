@@ -1,14 +1,7 @@
 import { consolex } from "../Consolex";
-import {
-  Execution,
-  Game,
-  MessageType,
-  Player,
-  PlayerID,
-  Unit,
-  UnitType,
-} from "../game/Game";
+import { Execution, Game, MessageType, Player, PlayerID } from "../game/Game";
 import { TileRef } from "../game/GameMap";
+import { AnyUnit, MIRVWarhead, SAMLauncher, UnitType } from "../game/Unit";
 import { PseudoRandom } from "../PseudoRandom";
 import { SAMMissileExecution } from "./SAMMissileExecution";
 
@@ -28,7 +21,7 @@ export class SAMLauncherExecution implements Execution {
   constructor(
     private ownerId: PlayerID,
     private tile: TileRef,
-    private sam: Unit | null = null,
+    private sam: SAMLauncher | null = null,
   ) {
     if (sam != null) {
       this.tile = sam.tile();
@@ -45,7 +38,7 @@ export class SAMLauncherExecution implements Execution {
     this.player = mg.player(this.ownerId);
   }
 
-  private getSingleTarget(): Unit | null {
+  private getSingleTarget(): AnyUnit | null {
     const nukes = this.mg
       .nearbyUnits(this.sam.tile(), this.searchRangeRadius, [
         UnitType.AtomBomb,
@@ -63,13 +56,13 @@ export class SAMLauncherExecution implements Execution {
 
         // Prioritize Hydrogen Bombs
         if (
-          unitA.type() === UnitType.HydrogenBomb &&
-          unitB.type() !== UnitType.HydrogenBomb
+          unitA.type === UnitType.HydrogenBomb &&
+          unitB.type !== UnitType.HydrogenBomb
         )
           return -1;
         if (
-          unitA.type() !== UnitType.HydrogenBomb &&
-          unitB.type() === UnitType.HydrogenBomb
+          unitA.type !== UnitType.HydrogenBomb &&
+          unitB.type === UnitType.HydrogenBomb
         )
           return 1;
 
@@ -99,8 +92,8 @@ export class SAMLauncherExecution implements Execution {
         this.active = false;
         return;
       }
-      this.sam = this.player.buildUnit(UnitType.SAMLauncher, 0, spawnTile, {
-        cooldownDuration: this.mg.config().SAMCooldown(),
+      this.sam = this.player.buildUnit(spawnTile, {
+        type: UnitType.SAMLauncher,
       });
     }
     if (!this.sam.isActive()) {
@@ -122,37 +115,29 @@ export class SAMLauncherExecution implements Execution {
         this.MIRVWarheadSearchRadius,
         UnitType.MIRVWarhead,
       )
-      .map(({ unit }) => unit)
+      .map(({ unit }) => unit as MIRVWarhead)
       .filter(
         (unit) =>
           unit.owner() !== this.player && !this.player.isFriendly(unit.owner()),
       )
       .filter(
         (unit) =>
-          this.mg.manhattanDist(unit.detonationDst(), this.sam.tile()) <
+          this.mg.manhattanDist(unit.detonationDst, this.sam.tile()) <
           this.MIRVWarheadProtectionRadius,
       );
 
-    let target: Unit | null = null;
+    let target: AnyUnit | null = null;
     if (mirvWarheadTargets.length == 0) {
       target = this.getSingleTarget();
     }
 
-    if (
-      this.sam.isCooldown() &&
-      this.sam.ticksLeftInCooldown(this.mg.config().SAMCooldown()) == 0
-    ) {
-      this.sam.setCooldown(false);
-    }
-
-    const isSingleTarget = target && !target.targetedBySAM();
+    const isSingleTarget = target && !target.targetedBySAM;
     if (
       (isSingleTarget || mirvWarheadTargets.length > 0) &&
-      !this.sam.isCooldown()
+      !this.isCooldown()
     ) {
-      this.sam.setCooldown(true);
       const type =
-        mirvWarheadTargets.length > 0 ? UnitType.MIRVWarhead : target.type();
+        mirvWarheadTargets.length > 0 ? UnitType.MIRVWarhead : target.type;
       const random = this.pseudoRandom.next();
       const hit = this.isHit(type, random);
       if (!hit) {
@@ -172,7 +157,7 @@ export class SAMLauncherExecution implements Execution {
           // Delete warheads
           mirvWarheadTargets.forEach((u) => u.delete());
         } else {
-          target.setTargetedBySAM(true);
+          target.targetedBySAM = true;
           this.mg.addExecution(
             new SAMMissileExecution(
               this.sam.tile(),
@@ -192,5 +177,11 @@ export class SAMLauncherExecution implements Execution {
 
   activeDuringSpawnPhase(): boolean {
     return false;
+  }
+
+  private isCooldown(): boolean {
+    return (
+      this.mg.ticks() - this.sam.lastFired < this.mg.config().SAMCooldown()
+    );
   }
 }

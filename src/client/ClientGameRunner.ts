@@ -11,7 +11,7 @@ import {
 import { createGameRecord } from "../core/Util";
 import { ServerConfig } from "../core/configuration/Config";
 import { getConfig } from "../core/configuration/ConfigLoader";
-import { Cell, Team, UnitType } from "../core/game/Game";
+import { Cell, Team } from "../core/game/Game";
 import { TileRef } from "../core/game/GameMap";
 import {
   ErrorUpdate,
@@ -22,6 +22,7 @@ import {
 } from "../core/game/GameUpdates";
 import { GameView, PlayerView } from "../core/game/GameView";
 import { loadTerrainMap, TerrainMapData } from "../core/game/TerrainMapLoader";
+import { UnitType } from "../core/game/Unit";
 import { UserSettings } from "../core/game/UserSettings";
 import { WorkerClient } from "../core/worker/WorkerClient";
 import { InputHandler, MouseMoveEvent, MouseUpEvent } from "./InputHandler";

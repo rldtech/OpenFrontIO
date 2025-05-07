@@ -34,9 +34,6 @@ import {
   Team,
   TerraNullius,
   Tick,
-  Unit,
-  UnitSpecificInfos,
-  UnitType,
 } from "./Game";
 import { GameImpl } from "./GameImpl";
 import { andFN, manhattanDistFN, TileRef } from "./GameMap";
@@ -46,6 +43,7 @@ import {
   bestShoreDeploymentSource,
   canBuildTransportShip,
 } from "./TransportShipUtils";
+import { AnyUnit, Port, Unit, UnitInfo, UnitType } from "./Unit";
 import { UnitImpl } from "./UnitImpl";
 
 interface Target {
@@ -77,7 +75,7 @@ export class PlayerImpl implements Player {
 
   public _borderTiles: Set<TileRef> = new Set();
 
-  public _units: UnitImpl[] = [];
+  public _units: AnyUnit[] = [];
   public _tiles: Set<TileRef> = new Set();
 
   private _flag: string;
@@ -203,20 +201,25 @@ export class PlayerImpl implements Player {
     return this.playerInfo.clan;
   }
 
-  units(...types: UnitType[]): UnitImpl[] {
+  units<T extends UnitType>(...types: T[]): Unit<T>[] {
     if (types.length == 0) {
-      return this._units;
+      return this._units as Unit<T>[];
     }
-    const ts = new Set(types);
-    return this._units.filter((u) => ts.has(u.type()));
+
+    const ts = new Set(types as UnitType[]);
+    // We need the type assertion here because TypeScript doesn't understand
+    // that filtering by type will maintain the type relationship
+    return this._units.filter((u: AnyUnit) => ts.has(u.type)) as Unit<T>[];
   }
 
-  unitsIncludingConstruction(type: UnitType): Unit[] {
-    const units = this.units(type);
+  unitsIncludingConstruction(type: UnitType): AnyUnit[] {
+    const units: AnyUnit[] = this.units(type);
     units.push(
-      ...this.units(UnitType.Construction).filter(
-        (u) => u.constructionType() == type,
-      ),
+      ...(this.units(UnitType.Construction).filter(
+        (u) =>
+          u.type == UnitType.Construction &&
+          (u as UnitInfo<UnitType.Construction>).toBuild == type,
+      ) as AnyUnit[]),
     );
     return units;
   }
@@ -680,7 +683,7 @@ export class PlayerImpl implements Player {
     return Number(toRemove);
   }
 
-  captureUnit(unit: Unit): void {
+  captureUnit(unit: AnyUnit): void {
     if (unit.owner() == this) {
       throw new Error(`Cannot capture unit, ${this} already owns ${unit}`);
     }
@@ -688,40 +691,40 @@ export class PlayerImpl implements Player {
     (prev as PlayerImpl)._units = (prev as PlayerImpl)._units.filter(
       (u) => u != unit,
     );
-    (unit as UnitImpl)._owner = this;
-    this._units.push(unit as UnitImpl);
+    (unit as unknown as UnitImpl)._owner = this;
+    this._units.push(unit as unknown as AnyUnit);
     this.mg.addUpdate(unit.toUpdate());
     this.mg.displayMessage(
-      `${unit.type()} captured by ${this.displayName()}`,
+      `${unit.type} captured by ${this.displayName()}`,
       MessageType.ERROR,
       prev.id(),
     );
     this.mg.displayMessage(
-      `Captured ${unit.type()} from ${prev.displayName()}`,
+      `Captured ${unit.type} from ${prev.displayName()}`,
       MessageType.SUCCESS,
       this.id(),
     );
   }
 
-  buildUnit(
-    type: UnitType,
-    troops: number,
+  buildUnit<T extends UnitType>(
     spawnTile: TileRef,
-    unitSpecificInfos: UnitSpecificInfos = {},
-  ): UnitImpl {
-    const cost = this.mg.unitInfo(type).cost(this);
-    const b = new UnitImpl(
-      type,
+    unitInfo: UnitInfo<T>,
+  ): Unit<T> {
+    const cost = this.mg.unitInfo(unitInfo.type).cost(this);
+    const unitImpl = new UnitImpl(
       this.mg,
+      unitInfo,
       spawnTile,
-      troops,
       this.mg.nextUnitID(),
       this,
-      unitSpecificInfos,
     );
+    const b = Object.assign(unitImpl, unitInfo) as unknown as Unit<T>;
     this._units.push(b);
     this.removeGold(cost);
-    this.removeTroops(troops);
+    if (unitInfo.type == UnitType.TransportShip) {
+      const ship = unitInfo as UnitInfo<UnitType.TransportShip>;
+      this.removeTroops(ship.troops);
+    }
     this.mg.addUpdate(b.toUpdate());
     this.mg.addUnit(b);
 
@@ -808,7 +811,10 @@ export class PlayerImpl implements Player {
     // only get missilesilos that are not on cooldown
     const spawns = this.units(UnitType.MissileSilo)
       .filter((silo) => {
-        return !silo.isCooldown();
+        return (
+          this.mg.ticks() - (silo.lastFired ?? -1000) >
+          this.mg.config().SiloCooldown()
+        );
       })
       .sort(distSortUnit(this.mg, tile));
     if (spawns.length == 0) {
@@ -921,7 +927,10 @@ export class PlayerImpl implements Player {
   hash(): number {
     return (
       simpleHash(this.id()) * (this.population() + this.numTilesOwned()) +
-      this._units.reduce((acc, unit) => acc + unit.hash(), 0)
+      this._units.reduce(
+        (acc, unit) => acc + (unit as unknown as UnitImpl).hash(),
+        0,
+      )
     );
   }
   toString(): string {
@@ -1019,7 +1028,7 @@ export class PlayerImpl implements Player {
 
   // It's a probability list, so if an element appears twice it's because it's
   // twice more likely to be picked later.
-  tradingPorts(port: Unit): Unit[] {
+  tradingPorts(port: Port): Port[] {
     const ports = this.mg
       .players()
       .filter((p) => p != port.owner() && p.canTrade(port.owner()))

@@ -1,26 +1,20 @@
-import {
-  Execution,
-  Game,
-  MessageType,
-  Player,
-  Unit,
-  UnitType,
-} from "../game/Game";
+import { Execution, Game, MessageType, Player } from "../game/Game";
 import { TileRef } from "../game/GameMap";
+import { AnyUnit, SAMLauncher, Unit, UnitType } from "../game/Unit";
 import { AirPathFinder } from "../pathfinding/PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
 
 export class SAMMissileExecution implements Execution {
   private active = true;
   private pathFinder: AirPathFinder;
-  private SAMMissile: Unit;
+  private SAMMissile: Unit<UnitType.SAMMissile>;
   private mg: Game;
 
   constructor(
     private spawn: TileRef,
     private _owner: Player,
-    private ownerUnit: Unit,
-    private target: Unit,
+    private ownerUnit: SAMLauncher,
+    private target: AnyUnit,
     private speed: number = 12,
   ) {}
 
@@ -31,11 +25,9 @@ export class SAMMissileExecution implements Execution {
 
   tick(ticks: number): void {
     if (this.SAMMissile == null) {
-      this.SAMMissile = this._owner.buildUnit(
-        UnitType.SAMMissile,
-        0,
-        this.spawn,
-      );
+      this.SAMMissile = this._owner.buildUnit(this.spawn, {
+        type: UnitType.SAMMissile,
+      });
     }
     if (!this.SAMMissile.isActive()) {
       this.active = false;
@@ -47,7 +39,7 @@ export class SAMMissileExecution implements Execution {
       !this.target.isActive() ||
       !this.ownerUnit.isActive() ||
       this.target.owner() == this.SAMMissile.owner() ||
-      !nukesWhitelist.includes(this.target.type())
+      !nukesWhitelist.includes(this.target.type)
     ) {
       this.SAMMissile.delete(false);
       this.active = false;
@@ -60,7 +52,7 @@ export class SAMMissileExecution implements Execution {
       );
       if (result === true) {
         this.mg.displayMessage(
-          `Missile intercepted ${this.target.type()}`,
+          `Missile intercepted ${this.target.type}`,
           MessageType.SUCCESS,
           this._owner.id(),
         );

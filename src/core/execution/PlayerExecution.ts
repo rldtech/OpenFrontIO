@@ -1,16 +1,10 @@
 import { renderNumber } from "../../client/Utils";
 import { Config } from "../configuration/Config";
 import { consolex } from "../Consolex";
-import {
-  Execution,
-  Game,
-  MessageType,
-  Player,
-  PlayerID,
-  UnitType,
-} from "../game/Game";
+import { Execution, Game, MessageType, Player, PlayerID } from "../game/Game";
 import { GameImpl } from "../game/GameImpl";
 import { TileRef } from "../game/GameMap";
+import { UnitType } from "../game/Unit";
 import { calculateBoundingBox, getMode, inscribed, simpleHash } from "../Util";
 
 export class PlayerExecution implements Execution {
@@ -45,15 +39,9 @@ export class PlayerExecution implements Execution {
     this.player.decayRelations();
     const hasPort = this.player.units(UnitType.Port).length > 0;
     this.player.units().forEach((u) => {
-      if (u.health() <= 0) {
-        u.delete();
-        return;
-      }
-      if (hasPort && u.type() == UnitType.Warship) {
-        u.modifyHealth(1);
-      }
+      // TODO: kill if too low health, add health (warships)
       const tileOwner = this.mg.owner(u.tile());
-      if (u.info().territoryBound) {
+      if (u.attrs().territoryBound) {
         if (tileOwner.isPlayer()) {
           if (tileOwner != this.player) {
             this.mg.player(tileOwner.id()).captureUnit(u);
@@ -67,10 +55,10 @@ export class PlayerExecution implements Execution {
     if (!this.player.isAlive()) {
       this.player.units().forEach((u) => {
         if (
-          u.type() != UnitType.AtomBomb &&
-          u.type() != UnitType.HydrogenBomb &&
-          u.type() != UnitType.MIRVWarhead &&
-          u.type() != UnitType.MIRV
+          u.type != UnitType.AtomBomb &&
+          u.type != UnitType.HydrogenBomb &&
+          u.type != UnitType.MIRVWarhead &&
+          u.type != UnitType.MIRV
         ) {
           u.delete();
         }

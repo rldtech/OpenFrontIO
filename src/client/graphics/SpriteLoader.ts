@@ -7,8 +7,8 @@ import tradeShipSprite from "../../../resources/sprites/tradeship.png";
 import transportShipSprite from "../../../resources/sprites/transportship.png";
 import warshipSprite from "../../../resources/sprites/warship.png";
 import { Theme } from "../../core/configuration/Config";
-import { UnitType } from "../../core/game/Game";
 import { UnitView } from "../../core/game/GameView";
+import { UnitType } from "../../core/game/Unit";
 
 const SPRITE_CONFIG: Partial<Record<UnitType, string>> = {
   [UnitType.TransportShip]: transportShipSprite,

@@ -1,14 +1,17 @@
 import { Config } from "../configuration/Config";
 import { AllPlayersStats, ClientID } from "../Schemas";
 import { GameMap, TileRef } from "./GameMap";
-import {
-  GameUpdate,
-  GameUpdateType,
-  PlayerUpdate,
-  UnitUpdate,
-} from "./GameUpdates";
-import { PlayerView } from "./GameView";
+import { GameUpdate, GameUpdateType, PlayerUpdate } from "./GameUpdates";
 import { Stats } from "./Stats";
+import {
+  AnyUnit,
+  BaseUnit,
+  Port,
+  Unit,
+  UnitAttrs,
+  UnitInfo,
+  UnitType,
+} from "./Unit";
 
 export type PlayerID = string;
 export type Tick = number;
@@ -116,42 +119,6 @@ export enum GameMode {
   FFA = "Free For All",
   Team = "Team",
 }
-
-export interface UnitInfo {
-  cost: (player: Player | PlayerView) => Gold;
-  // Determines if its owner changes when its tile is conquered.
-  territoryBound: boolean;
-  maxHealth?: number;
-  damage?: number;
-  constructionDuration?: number;
-}
-
-export enum UnitType {
-  TransportShip = "Transport",
-  Warship = "Warship",
-  Shell = "Shell",
-  SAMMissile = "SAMMissile",
-  Port = "Port",
-  AtomBomb = "Atom Bomb",
-  HydrogenBomb = "Hydrogen Bomb",
-  TradeShip = "Trade Ship",
-  MissileSilo = "Missile Silo",
-  DefensePost = "Defense Post",
-  SAMLauncher = "SAM Launcher",
-  City = "City",
-  MIRV = "MIRV",
-  MIRVWarhead = "MIRV Warhead",
-  Construction = "Construction",
-}
-
-export const nukeTypes = [
-  UnitType.AtomBomb,
-  UnitType.HydrogenBomb,
-  UnitType.MIRVWarhead,
-  UnitType.MIRV,
-] as UnitType[];
-
-export type NukeType = (typeof nukeTypes)[number];
 
 export enum Relation {
   Hostile = 0,
@@ -272,65 +239,6 @@ export class PlayerInfo {
   }
 }
 
-// Some units have info specific to them
-export interface UnitSpecificInfos {
-  dstPort?: Unit; // Only for trade ships
-  lastSetSafeFromPirates?: number; // Only for trade ships
-  detonationDst?: TileRef; // Only for nukes
-  warshipTarget?: Unit;
-  cooldownDuration?: number;
-}
-
-export interface Unit {
-  id(): number;
-
-  // Properties
-  type(): UnitType;
-  troops(): number;
-  owner(): Player;
-  info(): UnitInfo;
-
-  // Location
-  tile(): TileRef;
-  lastTile(): TileRef;
-  move(tile: TileRef): void;
-
-  // State
-  isActive(): boolean;
-  hasHealth(): boolean;
-  health(): number;
-  modifyHealth(delta: number): void;
-
-  setWarshipTarget(target: Unit): void; // warship only
-  warshipTarget(): Unit;
-
-  setCooldown(triggerCooldown: boolean): void;
-  ticksLeftInCooldown(cooldownDuration: number): Tick;
-  isCooldown(): boolean;
-  setDstPort(dstPort: Unit): void;
-  dstPort(): Unit; // Only for trade ships
-  setSafeFromPirates(): void; // Only for trade ships
-  isSafeFromPirates(): boolean; // Only for trade ships
-  detonationDst(): TileRef; // Only for nukes
-
-  setMoveTarget(cell: TileRef): void;
-  moveTarget(): TileRef | null;
-
-  setTargetedBySAM(targeted: boolean): void;
-  targetedBySAM(): boolean;
-
-  // Mutations
-  setTroops(troops: number): void;
-  delete(displayerMessage?: boolean): void;
-
-  // Only for Construction type
-  constructionType(): UnitType | null;
-  setConstructionType(type: UnitType): void;
-
-  // Updates
-  toUpdate(): UnitUpdate;
-}
-
 export interface TerraNullius {
   isPlayer(): false;
   id(): PlayerID; // always zero, maybe make it TerraNulliusID?
@@ -383,17 +291,14 @@ export interface Player {
   removeTroops(troops: number): number;
 
   // Units
-  units(...types: UnitType[]): Unit[];
-  unitsIncludingConstruction(type: UnitType): Unit[];
+  units<T extends UnitType>(...types: T[]): Unit<T>[];
+  unitsIncludingConstruction(type: UnitType): AnyUnit[];
   buildableUnits(tile: TileRef): BuildableUnit[];
   canBuild(type: UnitType, targetTile: TileRef): TileRef | false;
-  buildUnit(
-    type: UnitType,
-    troops: number,
-    tile: TileRef,
-    unitSpecificInfos?: UnitSpecificInfos,
-  ): Unit;
-  captureUnit(unit: Unit): void;
+
+  buildUnit<T extends UnitType>(tile: TileRef, unitInfo: UnitInfo<T>): Unit<T>;
+
+  captureUnit(unit: BaseUnit): void;
 
   // Relations & Diplomacy
   neighbors(): (Player | TerraNullius)[];
@@ -455,7 +360,7 @@ export interface Player {
   // Misc
   toUpdate(): PlayerUpdate;
   playerProfile(): PlayerProfile;
-  tradingPorts(port: Unit): Unit[];
+  tradingPorts(port: Port): Port[];
   // WARNING: this operation is expensive.
   bestTransportShipSpawn(tile: TileRef): TileRef | false;
 }
@@ -490,13 +395,13 @@ export interface Game extends GameMap {
   config(): Config;
 
   // Units
-  units(...types: UnitType[]): Unit[];
-  unitInfo(type: UnitType): UnitInfo;
+  units<T extends UnitType>(...types: T[]): AnyUnit[];
+  unitInfo(type: UnitType): UnitAttrs;
   nearbyUnits(
     tile: TileRef,
     searchRange: number,
     types: UnitType | UnitType[],
-  ): Array<{ unit: Unit; distSquared: number }>;
+  ): Array<{ unit: AnyUnit; distSquared: number }>;
 
   addExecution(...exec: Execution[]): void;
   displayMessage(

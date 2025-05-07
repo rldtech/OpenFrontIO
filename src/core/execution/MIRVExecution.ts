@@ -6,10 +6,9 @@ import {
   Player,
   PlayerID,
   TerraNullius,
-  Unit,
-  UnitType,
 } from "../game/Game";
 import { TileRef } from "../game/GameMap";
+import { MIRV, UnitType } from "../game/Unit";
 import { AirPathFinder } from "../pathfinding/PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
 import { simpleHash } from "../Util";
@@ -22,7 +21,7 @@ export class MirvExecution implements Execution {
 
   private mg: Game;
 
-  private nuke: Unit;
+  private nuke: MIRV;
 
   private mirvRange = 1500;
   private warheadCount = 350;
@@ -70,7 +69,10 @@ export class MirvExecution implements Execution {
         this.active = false;
         return;
       }
-      this.nuke = this.player.buildUnit(UnitType.MIRV, 0, spawn);
+      this.nuke = this.player.buildUnit(spawn, {
+        type: UnitType.MIRV,
+        detonationDst: this.dst,
+      });
       const x = Math.floor(
         (this.mg.x(this.dst) + this.mg.x(this.mg.x(this.nuke.tile()))) / 2,
       );

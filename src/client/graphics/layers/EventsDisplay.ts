@@ -8,7 +8,6 @@ import {
   MessageType,
   PlayerType,
   Tick,
-  UnitType,
 } from "../../../core/game/Game";
 import {
   AllianceExpiredUpdate,
@@ -21,6 +20,7 @@ import {
   GameUpdateType,
   TargetPlayerUpdate,
 } from "../../../core/game/GameUpdates";
+import { UnitType } from "../../../core/game/Unit";
 import { ClientID } from "../../../core/Schemas";
 import {
   CancelAttackIntentEvent,

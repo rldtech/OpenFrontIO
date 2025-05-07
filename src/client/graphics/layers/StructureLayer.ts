@@ -10,7 +10,7 @@ import MissileSiloReloadingIcon from "../../../../resources/images/buildings/sil
 import missileSiloIcon from "../../../../resources/images/buildings/silo1.png";
 import SAMMissileReloadingIcon from "../../../../resources/images/buildings/silo4-reloading.png";
 import SAMMissileIcon from "../../../../resources/images/buildings/silo4.png";
-import { Cell, UnitType } from "../../../core/game/Game";
+import { Cell } from "../../../core/game/Game";
 import {
   euclDistFN,
   hexDistFN,
@@ -19,6 +19,7 @@ import {
 } from "../../../core/game/GameMap";
 import { GameUpdateType } from "../../../core/game/GameUpdates";
 import { GameView, UnitView } from "../../../core/game/GameView";
+import { UnitType } from "../../../core/game/Unit";
 
 const underConstructionColor = colord({ r: 150, g: 150, b: 150 });
 const reloadingColor = colord({ r: 255, g: 0, b: 0 });

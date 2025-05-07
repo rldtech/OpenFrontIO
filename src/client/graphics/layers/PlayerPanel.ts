@@ -7,14 +7,10 @@ import emojiIcon from "../../../../resources/images/EmojiIconWhite.svg";
 import targetIcon from "../../../../resources/images/TargetIconWhite.svg";
 import traitorIcon from "../../../../resources/images/TraitorIconWhite.svg";
 import { EventBus } from "../../../core/EventBus";
-import {
-  AllPlayers,
-  PlayerActions,
-  PlayerID,
-  UnitType,
-} from "../../../core/game/Game";
+import { AllPlayers, PlayerActions, PlayerID } from "../../../core/game/Game";
 import { TileRef } from "../../../core/game/GameMap";
 import { GameView, PlayerView } from "../../../core/game/GameView";
+import { UnitType } from "../../../core/game/Unit";
 import { flattenedEmojiTable } from "../../../core/Util";
 import { MouseUpEvent } from "../../InputHandler";
 import {

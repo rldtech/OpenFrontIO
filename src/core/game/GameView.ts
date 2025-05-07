@@ -8,7 +8,6 @@ import {
   GameUpdates,
   Gold,
   NameViewData,
-  nukeTypes,
   Player,
   PlayerActions,
   PlayerBorderTiles,
@@ -20,8 +19,6 @@ import {
   TerrainType,
   TerraNullius,
   Tick,
-  UnitInfo,
-  UnitType,
 } from "./Game";
 import { GameMap, TileRef, TileUpdate } from "./GameMap";
 import {
@@ -32,20 +29,25 @@ import {
   UnitUpdate,
 } from "./GameUpdates";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
+import { UnitAttrs, UnitInfo, UnitType } from "./Unit";
 import { UnitGrid } from "./UnitGrid";
 import { UserSettings } from "./UserSettings";
 
+export type AnyUnitView = UnitView<UnitType>;
+
 const userSettings: UserSettings = new UserSettings();
 
-export class UnitView {
+export class UnitView<T extends UnitType> {
   public _wasUpdated = true;
   public lastPos: TileRef[] = [];
+  public type: UnitType;
 
   constructor(
     private gameView: GameView,
     private data: UnitUpdate,
   ) {
     this.lastPos.push(data.pos);
+    this.type = data.unitType;
   }
 
   wasUpdated(): boolean {
@@ -67,18 +69,13 @@ export class UnitView {
     this.lastPos.push(data.pos);
     this._wasUpdated = true;
     this.data = data;
+    this.type = data.unitType;
   }
 
   id(): number {
     return this.data.id;
   }
 
-  type(): UnitType {
-    return this.data.unitType;
-  }
-  troops(): number {
-    return this.data.troops;
-  }
   tile(): TileRef {
     return this.data.pos;
   }
@@ -88,38 +85,8 @@ export class UnitView {
   isActive(): boolean {
     return this.data.isActive;
   }
-  hasHealth(): boolean {
-    return this.data.health != undefined;
-  }
-  health(): number {
-    return this.data.health ?? 0;
-  }
-  constructionType(): UnitType | undefined {
-    return this.data.constructionType;
-  }
-  dstPortId(): number {
-    if (this.type() != UnitType.TradeShip) {
-      throw Error("Must be a trade ship");
-    }
-    return this.data.dstPortId;
-  }
-  detonationDst(): TileRef {
-    if (!nukeTypes.includes(this.type())) {
-      throw Error("Must be a nuke");
-    }
-    return this.data.detonationDst;
-  }
-  warshipTargetId(): number {
-    if (this.type() != UnitType.Warship) {
-      throw Error("Must be a warship");
-    }
-    return this.data.warshipTargetId;
-  }
-  ticksLeftInCooldown(): Tick {
-    return this.data.ticksLeftInCooldown;
-  }
-  isCooldown(): boolean {
-    return this.data.ticksLeftInCooldown > 0;
+  info(): UnitInfo<T> {
+    return this.data.unitInfo as UnitInfo<T>;
   }
 }
 
@@ -161,10 +128,12 @@ export class PlayerView {
     return this.data.incomingAttacks;
   }
 
-  units(...types: UnitType[]): UnitView[] {
+  units(...types: UnitType[]): UnitView<UnitType>[] {
     return this.game
       .units(...types)
-      .filter((u) => u.owner().smallID() == this.smallID());
+      .filter(
+        (u) => u.owner().smallID() == this.smallID(),
+      ) as UnitView<UnitType>[];
   }
 
   nameLocation(): NameViewData {
@@ -294,13 +263,13 @@ export class GameView implements GameMap {
   private lastUpdate: GameUpdateViewData;
   private smallIDToID = new Map<number, PlayerID>();
   private _players = new Map<PlayerID, PlayerView>();
-  private _units = new Map<number, UnitView>();
+  private _units = new Map<number, AnyUnitView>();
   private updatedTiles: TileRef[] = [];
 
   private _myPlayer: PlayerView | null = null;
   private _focusedPlayer: PlayerView | null = null;
 
-  private unitGrid: UnitGrid;
+  private unitGrid: UnitGrid<AnyUnitView>;
 
   private toDelete = new Set<number>();
 
@@ -318,7 +287,7 @@ export class GameView implements GameMap {
       updates: null,
       playerNameViewData: {},
     };
-    this.unitGrid = new UnitGrid(_map);
+    this.unitGrid = new UnitGrid<AnyUnitView>(_map);
   }
   isOnEdgeOfMap(ref: TileRef): boolean {
     return this._map.isOnEdgeOfMap(ref);
@@ -356,7 +325,7 @@ export class GameView implements GameMap {
       unit.lastPos = unit.lastPos.slice(-1);
     }
     gu.updates[GameUpdateType.Unit].forEach((update) => {
-      let unit: UnitView = null;
+      let unit: AnyUnitView = null;
       if (this._units.has(update.id)) {
         unit = this._units.get(update.id);
         unit.update(update);
@@ -384,9 +353,9 @@ export class GameView implements GameMap {
     tile: TileRef,
     searchRange: number,
     types: UnitType | UnitType[],
-  ): Array<{ unit: UnitView; distSquared: number }> {
+  ): Array<{ unit: AnyUnitView; distSquared: number }> {
     return this.unitGrid.nearbyUnits(tile, searchRange, types) as Array<{
-      unit: UnitView;
+      unit: AnyUnitView;
       distSquared: number;
     }>;
   }
@@ -452,18 +421,18 @@ export class GameView implements GameMap {
   config(): Config {
     return this._config;
   }
-  units(...types: UnitType[]): UnitView[] {
+  units(...types: UnitType[]): AnyUnitView[] {
     if (types.length == 0) {
       return Array.from(this._units.values()).filter((u) => u.isActive());
     }
     return Array.from(this._units.values()).filter(
-      (u) => u.isActive() && types.includes(u.type()),
+      (u) => u.isActive() && types.includes(u.type),
     );
   }
-  unit(id: number): UnitView {
+  unit(id: number): AnyUnitView {
     return this._units.get(id);
   }
-  unitInfo(type: UnitType): UnitInfo {
+  unitInfo(type: UnitType): UnitAttrs {
     return this._config.unitInfo(type);
   }
 

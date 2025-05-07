@@ -1,14 +1,9 @@
 import { AttackExecution } from "../src/core/execution/AttackExecution";
 import { SpawnExecution } from "../src/core/execution/SpawnExecution";
 import { TransportShipExecution } from "../src/core/execution/TransportShipExecution";
-import {
-  Game,
-  Player,
-  PlayerInfo,
-  PlayerType,
-  UnitType,
-} from "../src/core/game/Game";
+import { Game, Player, PlayerInfo, PlayerType } from "../src/core/game/Game";
 import { TileRef } from "../src/core/game/GameMap";
+import { UnitType } from "../src/core/game/Unit";
 import { setup } from "./util/Setup";
 import { TestConfig } from "./util/TestConfig";
 import { constructionExecution } from "./util/utils";
@@ -104,11 +99,11 @@ describe("Attack", () => {
     expect(nuke.isActive()).toBe(true);
 
     const ship = defender.units(UnitType.TransportShip)[0];
-    expect(ship.troops()).toBe(100);
+    expect(ship.troops).toBe(100);
 
     game.executeNextTick();
 
     expect(nuke.isActive()).toBe(false);
-    expect(defender.units(UnitType.TransportShip)[0].troops()).toBeLessThan(90);
+    expect(ship.troops).toBeLessThan(90);
   });
 });

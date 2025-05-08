@@ -219,7 +219,7 @@ export class DefaultConfig implements Config {
     return 40;
   }
   defensePostDefenseBonus(): number {
-    return 4;
+    return 5;
   }
   numPlayerTeams(): number {
     return this._gameConfig.numPlayerTeams ?? 0;
@@ -506,13 +506,13 @@ export class DefaultConfig implements Config {
       const attackratio = defenderTroops / attackTroops;
       return {
         attackerTroopLoss:
-          mag * 10 +
+          mag * 12 +
           defenderdensity *
             mag *
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: defenderdensity,
         tilesPerTickUsed:
-          25 *
+          26 *
           within(defenderdensity, 3, 100) ** 0.2 *
           (10_000 / attackTroops) ** 0.1 *
           speed *
@@ -520,9 +520,9 @@ export class DefaultConfig implements Config {
       };
     } else {
       return {
-        attackerTroopLoss: attackerType == PlayerType.Bot ? mag * 10 : mag * 10,
+        attackerTroopLoss: attackerType == PlayerType.Bot ? mag * 12 : mag * 12,
         defenderTroopLoss: 0,
-        tilesPerTickUsed: 30 * speed, // * (10_000 / attackTroops) ** 0.5,
+        tilesPerTickUsed: 31 * speed, // * (10_000 / attackTroops) ** 0.5,
       };
     }
   }
@@ -580,7 +580,7 @@ export class DefaultConfig implements Config {
           return 50_000 + 8000 * (playerInfo?.nation?.strength ?? 1);
       }
     }
-    return this.infiniteTroops() ? 1_000_000 : 25_000;
+    return this.infiniteTroops() ? 1_000_000 : 20_000;
   }
 
   maxPopulation(player: Player | PlayerView): number {
@@ -615,7 +615,7 @@ export class DefaultConfig implements Config {
 
     let toAdd =
       10 +
-      (1400 / max + 1 / 125) * (0.8 * player.troops() + 1.2 * player.workers());
+      (840 / max + 1 / 210) * (0.8 * player.troops() + 1.2 * player.workers());
     const adjustedPop = player.adjustedPopulation();
 
     const ratio = 1 - adjustedPop / max;

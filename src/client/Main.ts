@@ -220,6 +220,17 @@ class Client {
         ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
       slider.style.setProperty("--progress", `${percent}%`);
     }
+    // Establish minimal WebSocket connection to track homepage view
+    try {
+      const ws = new WebSocket(`ws://${location.host}/w0`);
+
+      ws.onopen = () => {
+        console.log("WebSocket opened: sending homepage_ping");
+        ws.send(JSON.stringify({ type: "homepage_ping" }));
+      };
+    } catch (e) {
+      console.warn("Failed to connect to homepage tracking WebSocket", e);
+    }
 
     document
       .querySelectorAll("#bots-count, #private-lobby-bots-count")

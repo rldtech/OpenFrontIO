@@ -2,6 +2,7 @@ import { getServerConfigFromServer } from "../core/configuration/ConfigLoader";
 import { Difficulty, GameMapType, GameMode, GameType } from "../core/game/Game";
 import { PseudoRandom } from "../core/PseudoRandom";
 import { GameConfig } from "../core/Schemas";
+import { getTotalHomepageViewers } from "./homepagetracker";
 import { logger } from "./Logger";
 
 const log = logger.child({});
@@ -41,6 +42,10 @@ export class MapPlaylist {
 
   public gameConfig(): GameConfig {
     const { map, mode } = this.getNextMap();
+    const viewerCount = getTotalHomepageViewers();
+    log.info(
+      `Picking map: ${map} | Mode: ${mode} | Homepage viewers: ${viewerCount}`,
+    );
 
     const numPlayerTeams =
       mode === GameMode.Team ? 2 + Math.floor(Math.random() * 5) : undefined;

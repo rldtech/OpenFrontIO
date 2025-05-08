@@ -19,6 +19,7 @@ const config = getServerConfigFromServer();
 
 const workerId = parseInt(process.env.WORKER_ID || "0");
 const log = logger.child({ comp: `w_${workerId}` });
+const homepageClients = new Set<WebSocket>();
 
 // Worker setup
 export function startWorker() {
@@ -265,6 +266,12 @@ export function startWorker() {
           // Parse and handle client messages
           const clientMsg = JSON.parse(message.toString());
 
+          if (clientMsg.type === "homepage_ping") {
+            homepageClients.add(ws);
+            sendHomepageCount();
+            return;
+          }
+
           if (clientMsg.type == "join") {
             // Verify this worker should handle this game
             const expectedWorkerId = config.workerIndex(clientMsg.gameID);
@@ -311,6 +318,12 @@ export function startWorker() {
       }),
     );
 
+    // Handle homepage presence tracking
+    ws.on("close", () => {
+      homepageClients.delete(ws);
+      sendHomepageCount();
+    });
+
     ws.on("error", (error: Error) => {
       if ((error as any).code === "WS_ERR_UNEXPECTED_RSV_1") {
         ws.close(1002);
@@ -347,4 +360,15 @@ export function startWorker() {
   process.on("unhandledRejection", (reason, promise) => {
     log.error(`unhandled rejection at:`, promise, "reason:", reason);
   });
+
+  function sendHomepageCount() {
+    const count = homepageClients.size;
+    if (process.send) {
+      process.send({
+        type: "HOMEPAGE_VIEW_COUNT",
+        count,
+        workerId,
+      });
+    }
+  }
 }

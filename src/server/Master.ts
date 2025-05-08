@@ -8,13 +8,13 @@ import { getServerConfigFromServer } from "../core/configuration/ConfigLoader";
 import { GameInfo } from "../core/Schemas";
 import { generateID } from "../core/Util";
 import { gatekeeper, LimiterType } from "./Gatekeeper";
+import { setHomepageViewers } from "./homepagetracker";
 import { logger } from "./Logger";
 import { MapPlaylist } from "./MapPlaylist";
 
 const config = getServerConfigFromServer();
 const playlist = new MapPlaylist();
 const readyWorkers = new Set();
-
 const app = express();
 const server = http.createServer(app);
 
@@ -110,6 +110,9 @@ export async function startMaster() {
           100,
         );
       }
+    }
+    if (message.type === "HOMEPAGE_VIEW_COUNT") {
+      setHomepageViewers(message.workerId, message.count);
     }
   });
 

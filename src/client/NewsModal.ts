@@ -32,22 +32,19 @@ export class NewsModal extends LitElement {
 
   render() {
     return html`
-      <o-modal title=${translateText("news.title")}>
+      <o-modal title="EXPERIMENTAL">
         <div class="options-layout">
           <div class="options-section">
             <div class="news-container">
               <div class="news-content">
-                <h3>Combat Mechanics Update</h3>
                 <p>
-                  Attack speed is influenced by the size of the attacking army,
-                  terrain type, defender strength, and presence of a defense
-                  post. Defender losses are based on their troop density (as
-                  shown by the shield), while attacker losses are proportional
-                  to defender losses and further affected by terrain, defense
-                  posts, and whether the defender is a traitor.
-                </p>
-                <p>
-                  The shield icon represents density: number of Troops per tile.
+                  This experiment contains the following changes:
+                  <br />
+                  <br />
+                  Your defense (shown under your player name) is based on your
+                  troop density (number of troops / number of tiles owned).
+                  Attack losses are proportional to the defender's defense.
+                  Workers reproduce faster than troops.
                 </p>
               </div>
             </div>

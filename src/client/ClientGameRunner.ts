@@ -80,12 +80,14 @@ export function joinLobby(
       onPrestart();
     }
     if (message.type == "start") {
-      // Trigger prestart for singleplayer games
       onPrestart();
       consolex.log(`lobby: game started: ${JSON.stringify(message)}`);
       onJoin();
-      // For multiplayer games, GameStartInfo is not known until game starts.
       lobbyConfig.gameStartInfo = message.gameStartInfo;
+
+      // ✅ Add this line to ensure gameID is defined
+      lobbyConfig.gameID = message.gameStartInfo.gameID;
+
       createClientGame(
         lobbyConfig,
         eventBus,

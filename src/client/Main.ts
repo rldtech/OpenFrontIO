@@ -44,7 +44,7 @@ export interface JoinLobbyEvent {
 
 class Client {
   private gameStop: () => void;
-
+  private homepageWS: WebSocket | null = null;
   private usernameInput: UsernameInput | null = null;
   private flagInput: FlagInput | null = null;
   private darkModeButton: DarkModeButton | null = null;
@@ -222,11 +222,10 @@ class Client {
     }
     // Establish minimal WebSocket connection to track homepage view
     try {
-      const ws = new WebSocket(`ws://${location.host}/w0`);
-
-      ws.onopen = () => {
+      this.homepageWS = new WebSocket(`ws://${location.host}/w0`);
+      this.homepageWS.onopen = () => {
         console.log("WebSocket opened: sending homepage_ping");
-        ws.send(JSON.stringify({ type: "homepage_ping" }));
+        this.homepageWS?.send(JSON.stringify({ type: "homepage_ping" }));
       };
     } catch (e) {
       console.warn("Failed to connect to homepage tracking WebSocket", e);
@@ -243,6 +242,11 @@ class Client {
   private async handleJoinLobby(event: CustomEvent) {
     const lobby = event.detail as JoinLobbyEvent;
     consolex.log(`joining lobby ${lobby.gameID}`);
+    if (this.homepageWS) {
+      this.homepageWS.close();
+      this.homepageWS = null;
+    }
+
     if (this.gameStop != null) {
       consolex.log("joining lobby, stopping existing game");
       this.gameStop();
@@ -320,6 +324,15 @@ class Client {
     this.gameStop();
     this.gameStop = null;
     this.publicLobby.leaveLobby();
+
+    try {
+      const ws = new WebSocket(`ws://${location.host}/w0`);
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ type: "homepage_ping" }));
+      };
+    } catch (e) {
+      console.warn("Failed to reconnect to homepage tracking WebSocket", e);
+    }
   }
 }
 

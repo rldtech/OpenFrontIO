@@ -15,7 +15,6 @@ import {
   AllPlayersStats,
   ClientID,
   ClientIntentMessageSchema,
-  ClientJoinMessageSchema,
   ClientLogMessageSchema,
   ClientMessageSchema,
   ClientPingMessageSchema,
@@ -329,18 +328,20 @@ export class Transport {
   }
 
   joinGame(numTurns: number) {
+    if (!this.lobbyConfig.gameID) {
+      throw new Error("gameID is missing in lobbyConfig. Cannot join game.");
+    }
+
     this.sendMsg(
-      JSON.stringify(
-        ClientJoinMessageSchema.parse({
-          type: "join",
-          gameID: this.lobbyConfig.gameID,
-          clientID: this.lobbyConfig.clientID,
-          lastTurn: numTurns,
-          persistentID: this.lobbyConfig.persistentID,
-          username: this.lobbyConfig.playerName,
-          flag: this.lobbyConfig.flag,
-        }),
-      ),
+      JSON.stringify({
+        type: "join",
+        gameID: this.lobbyConfig.gameID,
+        clientID: this.lobbyConfig.clientID,
+        lastTurn: numTurns,
+        persistentID: this.lobbyConfig.persistentID,
+        username: this.lobbyConfig.playerName,
+        flag: this.lobbyConfig.flag,
+      }),
     );
   }
 

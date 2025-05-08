@@ -271,9 +271,15 @@ export function startWorker() {
             sendHomepageCount();
             return;
           }
+          log.info("FULL JOIN MSG:", clientMsg);
 
-          if (clientMsg.type == "join") {
-            // Verify this worker should handle this game
+          if (
+            clientMsg.type === "join" &&
+            typeof clientMsg.gameID === "string" &&
+            typeof clientMsg.clientID === "string" &&
+            typeof clientMsg.username === "string" &&
+            typeof clientMsg.persistentID === "string"
+          ) {
             const expectedWorkerId = config.workerIndex(clientMsg.gameID);
             if (expectedWorkerId !== workerId) {
               log.warn(
@@ -282,28 +288,39 @@ export function startWorker() {
               return;
             }
 
-            // Create client and add to game
+            log.info(
+              `Processing join for gameID: ${clientMsg.gameID}, clientID: ${clientMsg.clientID}`,
+            );
+
             const client = new Client(
               clientMsg.clientID,
               clientMsg.persistentID,
               ip,
               clientMsg.username,
               ws,
-              clientMsg.flag,
+              clientMsg.flag ?? "", // fallback if flag is missing
             );
+            homepageClients.delete(ws); // Remove from homepage tracker
+            sendHomepageCount(); // Update count immediately
 
-            const wasFound = gm.addClient(
-              client,
-              clientMsg.gameID,
-              clientMsg.lastTurn,
-            );
+            let wasFound = false;
+            try {
+              wasFound = gm.addClient(
+                client,
+                clientMsg.gameID,
+                clientMsg.lastTurn ?? 0, // default to 0
+              );
+            } catch (err) {
+              log.error("gm.addClient threw error:", err);
+            }
 
             if (!wasFound) {
               log.info(
                 `game ${clientMsg.gameID} not found on worker ${workerId}`,
               );
-              // Handle game not found case
             }
+
+            return;
           }
 
           // Handle other message types

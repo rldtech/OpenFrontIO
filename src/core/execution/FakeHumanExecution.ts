@@ -928,6 +928,10 @@ export class FakeHumanExecution implements Execution {
       (a, b) => b.numTilesOwned() - a.numTilesOwned(),
     );
 
+    if (sorted.length < 2) {
+      this.dogpileTarget = null;
+      return;
+    }
     const top = sorted[0];
     const second = sorted[1];
 

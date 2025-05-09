@@ -508,7 +508,7 @@ export class DefaultConfig implements Config {
       const attackratio = defenderTroops / attackTroops;
       return {
         attackerTroopLoss:
-          mag * 12 +
+          mag * 20 +
           defenderdensity *
             mag *
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
@@ -522,7 +522,7 @@ export class DefaultConfig implements Config {
       };
     } else {
       return {
-        attackerTroopLoss: attackerType == PlayerType.Bot ? mag * 12 : mag * 12,
+        attackerTroopLoss: attackerType == PlayerType.Bot ? mag * 20 : mag * 20,
         defenderTroopLoss: 0,
         tilesPerTickUsed: 31 * speed, // * (10_000 / attackTroops) ** 0.5,
       };
@@ -613,7 +613,7 @@ export class DefaultConfig implements Config {
 
     let toAdd =
       10 +
-      (1400 / max + 1 / 125) * (0.8 * player.troops() + 1.2 * player.workers());
+      (1300 / max + 1 / 140) * (0.8 * player.troops() + 1.2 * player.workers());
     const adjustedPop = player.adjustedPopulation();
 
     const ratio = 1 - adjustedPop / max;

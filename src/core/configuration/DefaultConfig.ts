@@ -514,11 +514,11 @@ export class DefaultConfig implements Config {
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: defenderdensity,
         tilesPerTickUsed:
-          26 *
+          23 *
           within(defenderdensity, 3, 100) ** 0.2 *
           (10_000 / attackTroops) ** 0.1 *
           speed *
-          within(attackratio, 0.1, 20) ** 0.3,
+          within(attackratio, 0.1, 20) ** 0.4,
       };
     } else {
       return {
@@ -593,7 +593,7 @@ export class DefaultConfig implements Config {
           player.units(UnitType.City).length * this.cityPopulationIncrease();
 
     if (player.type() == PlayerType.Bot) {
-      return maxPop / 3;
+      return maxPop / 2;
     }
 
     if (player.type() == PlayerType.Human) {

@@ -584,11 +584,7 @@ export class DefaultConfig implements Config {
   }
 
   maxPopulation(player: Player | PlayerView): number {
-    const maxPop =
-      player.type() == PlayerType.Human && this.infiniteTroops()
-        ? 1_000_000_000
-        : 1 * (player.numTilesOwned() * 30 + 50000) +
-          player.units(UnitType.City).length * this.cityPopulationIncrease();
+    const maxPop = player.maxPopulation();
 
     if (player.type() == PlayerType.Bot) {
       return maxPop / 2;

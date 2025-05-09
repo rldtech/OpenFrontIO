@@ -272,6 +272,7 @@ export interface UnitSpecificInfos {
   detonationDst?: TileRef; // Only for nukes
   warshipTarget?: Unit;
   cooldownDuration?: number;
+  createdAtTick?: number; // Only for cities
 }
 
 export interface Unit {
@@ -305,6 +306,7 @@ export interface Unit {
   setSafeFromPirates(): void; // Only for trade ships
   isSafeFromPirates(): boolean; // Only for trade ships
   detonationDst(): TileRef; // Only for nukes
+  createdAtTick(): number; // Only for cities
 
   setMoveTarget(cell: TileRef): void;
   moveTarget(): TileRef | null;
@@ -364,6 +366,7 @@ export interface Player {
   gold(): Gold;
   population(): number;
   adjustedPopulation(): number;
+  maxPopulation(): number;
   workers(): number;
   troops(): number;
   targetTroopRatio(): number;

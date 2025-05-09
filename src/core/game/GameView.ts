@@ -79,6 +79,10 @@ export class UnitView {
   troops(): number {
     return this.data.troops;
   }
+  createdAtTick(): number | undefined {
+    return this.data.createdAtTick;
+  }
+
   tile(): TileRef {
     return this.data.pos;
   }
@@ -227,6 +231,9 @@ export class PlayerView {
   }
   adjustedPopulation(): number {
     return this.data.adjustedPopulation;
+  }
+  maxPopulation(): number {
+    return this.data.maxPopulation;
   }
   workers(): number {
     return this.data.workers;

@@ -649,7 +649,7 @@ export class PlayerImpl implements Player {
     for (const city of this.units(UnitType.City)) {
       const created = city.createdAtTick();
       const age = created != null ? this.mg.ticks() - created : Infinity;
-      const ramp = Math.min(age / 600, 1); // 60 seconds at 10 ticks/sec
+      const ramp = Math.min(age / 450, 1); // 45 seconds at 10 ticks/sec
       cityPop += ramp * 500_000;
     }
 

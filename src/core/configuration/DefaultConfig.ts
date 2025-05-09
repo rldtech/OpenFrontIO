@@ -218,8 +218,11 @@ export class DefaultConfig implements Config {
   defensePostRange(): number {
     return 40;
   }
-  defensePostDefenseBonus(): number {
-    return 5;
+  defensePostLossMultiplier(): number {
+    return 6;
+  }
+  defensePostSpeedMultiplier(): number {
+    return 3;
   }
   numPlayerTeams(): number {
     return this._gameConfig.numPlayerTeams ?? 0;
@@ -465,8 +468,8 @@ export class DefaultConfig implements Config {
         UnitType.DefensePost,
       )) {
         if (dp.unit.owner() == defender) {
-          mag *= this.defensePostDefenseBonus();
-          speed *= this.defensePostDefenseBonus();
+          mag *= this.defensePostLossMultiplier();
+          speed *= this.defensePostSpeedMultiplier();
           break;
         }
       }
@@ -506,7 +509,7 @@ export class DefaultConfig implements Config {
       const attackratio = defenderTroops / attackTroops;
       return {
         attackerTroopLoss:
-          mag * 20 +
+          mag * 16 +
           defenderdensity *
             mag *
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
@@ -520,7 +523,7 @@ export class DefaultConfig implements Config {
       };
     } else {
       return {
-        attackerTroopLoss: attackerType == PlayerType.Bot ? mag * 20 : mag * 20,
+        attackerTroopLoss: attackerType == PlayerType.Bot ? mag * 16 : mag * 16,
         defenderTroopLoss: 0,
         tilesPerTickUsed: 31 * speed, // * (10_000 / attackTroops) ** 0.5,
       };

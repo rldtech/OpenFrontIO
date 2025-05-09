@@ -527,7 +527,7 @@ export class PlayerImpl implements Player {
   }
 
   canDonate(recipient: Player): boolean {
-    if (!this.isFriendly(recipient)) {
+    if (!this.isOnSameTeam(recipient)) {
       return false;
     }
     for (const donation of this.sentDonations) {

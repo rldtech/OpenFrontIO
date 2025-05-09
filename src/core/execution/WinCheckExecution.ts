@@ -56,12 +56,19 @@ export class WinCheckExecution implements Execution {
 
   checkWinnerTeam(): void {
     const teamToTiles = new Map<Team, number>();
+    const teamToMembers = new Map<Team, Set<Player>>();
     for (const player of this.mg.players()) {
       teamToTiles.set(
         player.team(),
         (teamToTiles.get(player.team()) ?? 0) + player.numTilesOwned(),
       );
+      teamToMembers.set(
+        player.team(),
+        teamToMembers.get(player.team()) ?? new Set(),
+      );
+      teamToMembers.get(player.team()).add(player);
     }
+    teamToTiles.delete(ColoredTeams.Bot);
     const sorted = Array.from(teamToTiles.entries()).sort(
       (a, b) => b[1] - a[1],
     );
@@ -69,7 +76,16 @@ export class WinCheckExecution implements Execution {
       return;
     }
     console.log(
-      `TEAM LEADERBOARD:\n${sorted.map((t) => `${t[0]}: ${t[1]}`).join("\n")}`,
+      `TEAM LEADERBOARD:\n${sorted
+        .map(
+          (t) =>
+            `${t[0]}: ${t[1]}, players: ${Array.from(
+              teamToMembers.get(t[0]) ?? [],
+            )
+              .map((p) => p.name())
+              .join(", ")}`,
+        )
+        .join("\n")}`,
     );
     const max = sorted[0];
     const numTilesWithoutFallout =

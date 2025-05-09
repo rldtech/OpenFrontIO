@@ -138,6 +138,7 @@ export class PlayerImpl implements Player {
       gold: Number(this._gold),
       population: this.population(),
       adjustedPopulation: this.adjustedPopulation(),
+      maxPopulation: this.maxPopulation(),
       workers: this.workers(),
       troops: this.troops(),
       targetTroopRatio: this.targetTroopRatio(),
@@ -639,6 +640,19 @@ export class PlayerImpl implements Player {
   }
   adjustedPopulation(): number {
     return this.population() + this.boatTroops() + this.attackingTroops();
+  }
+  maxPopulation(): number {
+    let cityPop = 0;
+    for (const city of this.units(UnitType.City)) {
+      const created = city.createdAtTick();
+      const age = created != null ? this.mg.ticks() - created : Infinity;
+      const ramp = Math.min(age / 600, 1); // 60 seconds at 10 ticks/sec
+      cityPop += ramp * 500_000;
+    }
+
+    const base = this.numTilesOwned() * 30 + 50_000 + cityPop;
+
+    return base;
   }
 
   private attackingTroops(): number {

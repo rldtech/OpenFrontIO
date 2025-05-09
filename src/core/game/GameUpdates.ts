@@ -74,6 +74,7 @@ export interface UnitUpdate {
   health?: number;
   constructionType?: UnitType;
   ticksLeftInCooldown?: Tick;
+  createdAtTick?: number;
 }
 
 export interface AttackUpdate {
@@ -100,6 +101,7 @@ export interface PlayerUpdate {
   gold: number;
   population: number;
   adjustedPopulation: number;
+  maxPopulation: number;
   workers: number;
   troops: number;
   targetTroopRatio: number;

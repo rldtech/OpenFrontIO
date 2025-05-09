@@ -29,6 +29,7 @@ export class UnitImpl implements Unit {
   private _detonationDst: TileRef | null = null; // Only for nukes
   private _warshipTarget: Unit | null = null;
   private _cooldownDuration: number | null = null;
+  private _createdAtTick: number;
 
   constructor(
     private _type: UnitType,
@@ -49,6 +50,8 @@ export class UnitImpl implements Unit {
     this._safeFromPiratesCooldown = this.mg
       .config()
       .safeFromPiratesCooldownMax();
+
+    this._createdAtTick = unitsSpecificInfos.createdAtTick;
   }
 
   id() {
@@ -73,6 +76,7 @@ export class UnitImpl implements Unit {
       warshipTargetId: warshipTarget ? warshipTarget.id() : null,
       detonationDst: this.detonationDst(),
       ticksLeftInCooldown: this.ticksLeftInCooldown(this._cooldownDuration),
+      createdAtTick: this._createdAtTick,
     };
   }
 
@@ -232,6 +236,9 @@ export class UnitImpl implements Unit {
 
   setTargetedBySAM(targeted: boolean): void {
     this._targetedBySAM = targeted;
+  }
+  createdAtTick(): number | undefined {
+    return this._createdAtTick;
   }
 
   targetedBySAM(): boolean {

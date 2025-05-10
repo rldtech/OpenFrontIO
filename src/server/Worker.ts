@@ -15,6 +15,7 @@ import { GameManager } from "./GameManager";
 import { gatekeeper, LimiterType } from "./Gatekeeper";
 import { logger } from "./Logger";
 import { initWorkerMetrics } from "./WorkerMetrics";
+import { importJWK, JWK } from "jose"; // Added for JWT public key import
 
 const config = getServerConfigFromServer();
 
@@ -31,6 +32,27 @@ export function startWorker() {
   const app = express();
   const server = http.createServer(app);
   const wss = new WebSocketServer({ server });
+
+  // Fetch public key for JWT verification
+  async function fetchPublicKey(): Promise<CryptoKey> {
+    const jwksUrl = config.env() === GameEnv.Dev
+      ? "http://localhost:8787/.well-known/jwks.json"
+      : "https://api.openfront.io/.well-known/jwks.json";
+    const response = await fetch(jwksUrl);
+    const jwks = await response.json();
+    const jwk: JWK = jwks.keys[0];
+    return await importJWK(jwk, "RS256");
+  }
+
+  // Initialize GameManager with public key
+  let publicKey: CryptoKey;
+  fetchPublicKey().then((key) => {
+    publicKey = key;
+    log.info("Public key fetched for JWT verification");
+  }).catch((error) => {
+    log.error("Failed to fetch public key", { error });
+    process.exit(1); // Exit if public key fetch fails
+  });
 
   const gm = new GameManager(config, log);
 
@@ -103,7 +125,7 @@ export function startWorker() {
         return res.status(400);
       }
 
-      const game = gm.createGame(id, gc);
+      const game = gm.createGame(id, gc, publicKey); // Pass publicKey to GameServer
 
       log.info(
         `Worker ${workerId}: IP ${ipAnonymize(clientIP)} creating game ${game.isPublic() ? "Public" : "Private"} with id ${id}`,

@@ -20,15 +20,16 @@ import "./LangSelector";
 import { LangSelector } from "./LangSelector";
 import { LanguageModal } from "./LanguageModal";
 import { PlayerInfoModal } from "./PlayerInfoModal";
+import { NewsModal } from "./NewsModal";
 import "./PublicLobby";
 import { PublicLobby } from "./PublicLobby";
-import "./RandomNameButton";
-import { RandomNameButton } from "./RandomNameButton";
 import { SinglePlayerModal } from "./SinglePlayerModal";
 import { UserSettingModal } from "./UserSettingModal";
 import "./UsernameInput";
 import { UsernameInput } from "./UsernameInput";
 import { generateCryptoRandomUUID } from "./Utils";
+import "./components/NewsButton";
+import { NewsButton } from "./components/NewsButton";
 import "./components/baseComponents/Button";
 import { OButton } from "./components/baseComponents/Button";
 import "./components/baseComponents/Modal";
@@ -51,7 +52,6 @@ class Client {
   private usernameInput: UsernameInput | null = null;
   private flagInput: FlagInput | null = null;
   private darkModeButton: DarkModeButton | null = null;
-  private randomNameButton: RandomNameButton | null = null;
 
   private joinModal: JoinPrivateLobbyModal;
   private publicLobby: PublicLobby;
@@ -61,6 +61,23 @@ class Client {
   constructor() {}
 
   initialize(): void {
+    const newsModal = document.querySelector("news-modal") as NewsModal;
+    if (!newsModal) {
+      consolex.warn("News modal element not found");
+    } else {
+      consolex.log("News modal element found");
+    }
+    newsModal instanceof NewsModal;
+    const newsButton = document.querySelector("news-button") as NewsButton;
+    if (!newsButton) {
+      consolex.warn("News button element not found");
+    } else {
+      consolex.log("News button element found");
+    }
+
+    // Comment out to show news button.
+    newsButton.hidden = true;
+
     const langSelector = document.querySelector(
       "lang-selector",
     ) as LangSelector;
@@ -84,13 +101,6 @@ class Client {
     ) as DarkModeButton;
     if (!this.darkModeButton) {
       consolex.warn("Dark mode button element not found");
-    }
-
-    this.randomNameButton = document.querySelector(
-      "random-name-button",
-    ) as RandomNameButton;
-    if (!this.randomNameButton) {
-      consolex.warn("Random name button element not found");
     }
 
     const loginDiscordButton = document.getElementById(
@@ -132,6 +142,12 @@ class Client {
         spModal.open();
       }
     });
+
+    // const ctModal = document.querySelector("chat-modal") as ChatModal;
+    // ctModal instanceof ChatModal;
+    // document.getElementById("chat-button").addEventListener("click", () => {
+    //   ctModal.open();
+    // });
 
     const hlpModal = document.querySelector("help-modal") as HelpModal;
     hlpModal instanceof HelpModal;

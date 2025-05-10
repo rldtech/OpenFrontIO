@@ -99,6 +99,8 @@ export abstract class DefaultServerConfig implements ServerConfig {
           GameMapType.Iceland,
           GameMapType.Britannia,
           GameMapType.Asia,
+          GameMapType.FalklandIslands,
+          GameMapType.Baikal,
         ].includes(map)
       ) {
         return Math.random() < 0.3 ? 50 : 25;
@@ -231,9 +233,10 @@ export class DefaultConfig implements Config {
     return !this._gameConfig.disableNPCs;
   }
 
-  disableNukes(): boolean {
-    return this._gameConfig.disableNukes;
+  isUnitDisabled(unitType: UnitType): boolean {
+    return this._gameConfig.disabledUnits?.includes(unitType) ?? false;
   }
+
   bots(): number {
     return this._gameConfig.bots;
   }
@@ -250,12 +253,7 @@ export class DefaultConfig implements Config {
     return 10000 + 150 * Math.pow(dist, 1.1);
   }
   tradeShipSpawnRate(numberOfPorts: number): number {
-    if (numberOfPorts <= 3) return 18;
-    if (numberOfPorts <= 5) return 25;
-    if (numberOfPorts <= 8) return 35;
-    if (numberOfPorts <= 10) return 40;
-    if (numberOfPorts <= 12) return 45;
-    return 50;
+    return Math.round(10 * Math.pow(numberOfPorts, 0.6));
   }
 
   unitInfo(type: UnitType): UnitInfo {

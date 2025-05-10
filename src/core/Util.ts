@@ -39,6 +39,22 @@ export function within(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
+export function base64urlToUuid(base64url: string): string {
+  const base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
+  const bytes = Buffer.from(base64, "base64").toString("hex");
+  return (
+    bytes.substring(0, 8) +
+    "-" +
+    bytes.substring(8, 12) +
+    "-" +
+    bytes.substring(12, 16) +
+    "-" +
+    bytes.substring(16, 20) +
+    "-" +
+    bytes.substring(20, 32)
+  );
+}
+
 export function distSort(
   gm: GameMap,
   target: TileRef,

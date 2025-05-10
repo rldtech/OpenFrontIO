@@ -36,6 +36,8 @@ import {
 } from "./Transport";
 import { createCanvas } from "./Utils";
 import { createRenderer, GameRenderer } from "./graphics/GameRenderer";
+import { isLoggedIn } from "./jwt";
+import { AdminPanelModal } from "./AdminPanelModal";
 
 export interface LobbyConfig {
   serverConfig: ServerConfig;
@@ -215,7 +217,14 @@ export class ClientGameRunner {
     endGame(record);
   }
 
-  public start() {
+  private async isAdmin(): Promise<boolean> {
+    const response = await fetch("/api/env");
+    const { game_env } = await response.json();
+    const payload = isLoggedIn();
+    return game_env === "dev" || (payload && payload.rol && (payload.rol.includes("adm") || payload.rol.includes("mod")));
+  }
+
+  public async start() {
     consolex.log("starting client game");
 
     this.isActive = true;
@@ -258,6 +267,22 @@ export class ClientGameRunner {
       requestAnimationFrame(keepWorkerAlive);
     };
     requestAnimationFrame(keepWorkerAlive);
+
+    // Add admin panel button if user is admin or moddo
+    if (await this.isAdmin()) {
+      const adminButton = document.createElement("button");
+      adminButton.textContent = "Admin Panel";
+      adminButton.style.cssText = `
+        position: fixed; top: 10px; right: 100px; z-index: 50;
+        padding: 10px 20px; background: #0075ff; color: white;
+        border: none; border-radius: 4px; cursor: pointer;
+      `;
+      adminButton.addEventListener("click", () => {
+        const adminModal = document.querySelector("admin-panel-modal") as AdminPanelModal;
+        adminModal.open(this.lobby.gameStartInfo.players, this.lobby.clientID, this.transport);
+      });
+      document.body.appendChild(adminButton);
+    }
 
     const onconnect = () => {
       consolex.log("Connected to game server!");
@@ -306,6 +331,18 @@ export class ClientGameRunner {
           this.worker.sendTurn(message.turn);
           this.turnsSeen++;
         }
+      }
+      if (message.type == "notification") {
+        // displayt ingame notification for kicks or other server messages
+        const notificationDiv = document.createElement("div");
+        notificationDiv.textContent = message.message;
+        notificationDiv.style.cssText = `
+          position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+          background: rgba(0,0,0,0.8); color: white; padding: 10px 20px;
+          border-radius: 4px; z-index: 1000;
+        `;
+        document.body.appendChild(notificationDiv);
+        setTimeout(() => notificationDiv.remove(), 5000);
       }
     };
     this.transport.connect(onconnect, onmessage);

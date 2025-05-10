@@ -402,6 +402,15 @@ export const ClientIntentMessageSchema = z.object({
   intent: IntentSchema,
 });
 
+export const ClientKickPlayerMessageSchema = z.object({
+ type: z.literal("kick_player"),
+ gameID: z.string(),
+ clientID: z.string(),
+ persistentID: z.string(),
+ targetClientID: z.string(),
+ jwtToken: z.string(),
+});
+
 // WARNING: never send this message to clients.
 export const ClientJoinMessageSchema = z.object({
   type: z.literal("join"),
@@ -420,6 +429,7 @@ export const ClientMessageSchema = z.union([
   ClientJoinMessageSchema,
   ClientLogMessageSchema,
   ClientHashSchema,
+  ClientKickPlayerMessageSchema,
 ]);
 
 export const PlayerRecordSchema = z.object({

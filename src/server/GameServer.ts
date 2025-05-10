@@ -25,6 +25,9 @@ import { GameType } from "../core/game/Game";
 import { archive } from "./Archive";
 import { Client } from "./Client";
 import { gatekeeper } from "./Gatekeeper";
+import { jwtVerify } from "jose";
+import { base64urlToUuid } from "./base64"; 
+
 export enum GamePhase {
   Lobby = "LOBBY",
   Active = "ACTIVE",
@@ -66,6 +69,7 @@ export class GameServer {
     public readonly createdAt: number,
     private config: ServerConfig,
     public gameConfig: GameConfig,
+    private publicKey: CryptoKey, // Added for JWT verification
   ) {
     this.log = log_.child({ gameID: id });
   }
@@ -186,6 +190,61 @@ export class GameServer {
           if (clientMsg.type == "winner") {
             this.winner = clientMsg;
             this.allPlayersStats = clientMsg.allPlayersStats;
+          }
+          if (clientMsg.type == "kick_player") {
+            const { gameID, clientID, persistentID, targetClientID, jwtToken } = clientMsg;
+
+            // Validate client identity
+            if (clientID !== client.clientID || persistentID !== client.persistentID) {
+              this.log.warn("Client identity mismatch", { clientID, persistentID });
+              return;
+            }
+
+            // Prevent self-kick
+            if (targetClientID === clientID) {
+              this.log.warn("Cannot kick self", { clientID });
+              return;
+            }
+
+            // Check if target exists
+            if (!this.allClients.has(targetClientID)) {
+              this.log.warn(`Target client ${targetClientID} not found`);
+              return;
+            }
+
+            // Verify JWT
+            try {
+              const { payload } = await jwtVerify(jwtToken, this.publicKey, {
+                issuer: this.config.jwtIss(),
+                audience: this.config.jwtAud(),
+              });
+
+              const subUuid = base64urlToUuid(payload.sub as string);
+              if (subUuid !== persistentID) {
+                this.log.warn("JWT sub does not match client persistentID", { subUuid, persistentID });
+                return;
+              }
+
+              const roles = (payload.rol as string)?.split(",") || [];
+              if (this.config.env() === "dev" || roles.includes("adm") || roles.includes("mod")) {
+                this.kickClient(targetClientID);
+                this.log.info(`Client ${clientID} kicked client ${targetClientID} from game ${gameID}`);
+                
+                const notification = JSON.stringify({
+                  type: "notification",
+                  message: `Player ${targetClientID} has been kicked from the game.`,
+                });
+                this.activeClients.forEach((c) => {
+                  if (c.ws.readyState === WebSocket.OPEN) {
+                    c.ws.send(notification);
+                  }
+                });
+              } else {
+                this.log.warn("Client lacks required roles to kick", { clientID, roles });
+              }
+            } catch (error) {
+              this.log.warn("Invalid JWT for kick action", { error });
+            }
           }
         } catch (error) {
           this.log.info(
@@ -426,7 +485,7 @@ export class GameServer {
       if (now - client.lastPing > 60_000) {
         this.log.info("no pings received, terminating connection", {
           clientID: client.clientID,
-          persistentID: client.persistentID,
+          persistentID: c.persistentID,
         });
         if (client.ws.readyState === WebSocket.OPEN) {
           client.ws.close(1000, "no heartbeats received, closing connection");

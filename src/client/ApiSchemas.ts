@@ -67,18 +67,7 @@ export const DiscordUserSchema = z.object({
   discriminator: z.string(),
   global_name: z.string().nullable(),
   avatar: z.string().nullable(),
-  bot: z.boolean().optional(),
-  system: z.boolean().optional(),
-  mfa_enabled: z.boolean().optional(),
-  banner: z.string().optional().nullable(),
-  accent_color: z.number().optional().nullable(),
   locale: z.string().optional(),
-  verified: z.boolean().optional(),
-  email: z.string().optional().nullable(),
-  flags: z.number().optional(),
-  premium_type: z.number().optional(),
-  public_flags: z.number().optional(),
-  avatar_decoration_data: DiscordAvatarDecorationSchema.optional().nullable(),
 });
 export type DiscordUser = z.infer<typeof DiscordUserSchema>;
 

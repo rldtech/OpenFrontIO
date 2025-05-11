@@ -95,14 +95,36 @@ export class FlagInputModal extends LitElement {
   }
 
   static styles = css`
-    @media (max-width: 768px) {
-      .flag-modal {
-        width: 80vw;
-      }
+    :host {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
 
-      .dropdown-item {
-        width: calc(100% / 3 - 15px);
-      }
+    .flag-modal {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .grid {
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    .flex-col {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .overflow-hidden {
+      overflow: hidden;
+    }
+
+    .overflow-y-auto {
+      overflow-y: auto;
     }
   `;
 
@@ -235,6 +257,7 @@ export class FlagInputModal extends LitElement {
         widthRatio="0.8"
         heightRatio="0.75"
         disableScroll="true"
+        special="true"
       >
         <!-- tab  -->
         <div class="flex gap-2 mb-2">
@@ -364,7 +387,7 @@ ${colorClass}"
                     : null}
 
                   <div
-                    class="grid grid-cols-2 gap-2 w-full max-h-[500px] overflow-y-auto pr-1 mb-2"
+                    class="grid grid-cols-2 gap-2 w-full overflow-y-auto pr-1 mb-2"
                   >
                     ${Object.entries(FlagMap)
                       .filter(([name]) => name !== "frame" && name !== "full")
@@ -507,7 +530,7 @@ mask: url(${src}) center / contain no-repeat;
                     ${translateText("flag_input.apply")}
                   </button>
 
-                  <div class="mt-4 w-full max-h-[500px] overflow-y-auto mb-2">
+                  <div class="mt-4 w-full overflow-y-auto mb-2">
                     <!-- Code input and copy -->
                     <div class="mt-2 w-full space-y-2">
                       ${this.errorMessage

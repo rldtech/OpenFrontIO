@@ -10,6 +10,7 @@ export class OModal extends LitElement {
   @property({ type: Number }) widthRatio?: number;
   @property({ type: Number }) heightRatio?: number;
   @property({ type: Boolean }) disableScroll = false;
+  @property({ type: Boolean }) special = false;
 
   static styles = css`
     .c-modal {
@@ -32,6 +33,16 @@ export class OModal extends LitElement {
       border-radius: 8px;
       min-width: 340px;
       max-width: 860px;
+    }
+
+    .c-modal__wrapper__special {
+      background: #23232382;
+      border-radius: 8px;
+      min-width: 340px;
+      max-width: 860px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
 
     .c-modal__header {
@@ -60,6 +71,16 @@ export class OModal extends LitElement {
       overflow-y: scroll;
       backdrop-filter: blur(8px);
     }
+
+    .c-modal__content__special {
+      position: relative;
+      color: #fff;
+      padding: 1.4rem;
+      flex-grow: 1;
+      max-height: 100%;
+      overflow-y: auto;
+      backdrop-filter: blur(8px);
+    }
   `;
   public open() {
     this.isModalOpen = true;
@@ -78,7 +99,7 @@ export class OModal extends LitElement {
         ? html`
             <aside class="c-modal">
               <div
-                class="c-modal__wrapper"
+                class="c-modal__wrapper${this.special ? "__special" : ""}"
                 style=${`width: ${this.widthRatio ? this.widthRatio * 100 + "vw" : "auto"}; height: ${this.heightRatio ? this.heightRatio * 100 + "vh" : "auto"};`}
               >
                 <header class="c-modal__header">
@@ -88,12 +109,8 @@ export class OModal extends LitElement {
                   <div class="c-modal__close" @click=${this.close}>X</div>
                 </header>
                 <section
-                  class="c-modal__content"
-                  style=${`${
-                    this.heightRatio
-                      ? `height: calc(${this.heightRatio * 100}vh - 4rem);`
-                      : ""
-                  } ${this.disableScroll ? "overflow: hidden;" : ""}`}
+                  class="c-modal__content${this.special ? "__special" : ""}"
+                  style=${`${this.disableScroll ? "overflow: hidden;" : ""}`}
                 >
                   <slot></slot>
                 </section>

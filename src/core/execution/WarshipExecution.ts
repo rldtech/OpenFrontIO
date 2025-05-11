@@ -40,7 +40,7 @@ export class WarshipExecution implements Execution {
       this.active = false;
       return;
     }
-    this.pathfinder = PathFinder.Mini(mg, 5000, false);
+    this.pathfinder = PathFinder.Mini(mg, 5000);
     this._owner = mg.player(this.playerID);
     this.mg = mg;
     this.patrolTile = this.patrolCenterTile;
@@ -119,7 +119,7 @@ export class WarshipExecution implements Execution {
         this.active = false;
         return;
       }
-      this.warship = this._owner.buildUnit(UnitType.Warship, 0, spawn);
+      this.warship = this._owner.buildUnit(UnitType.Warship, spawn, {});
       return;
     }
     if (!this.warship.isActive()) {

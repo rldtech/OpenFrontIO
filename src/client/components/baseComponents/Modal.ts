@@ -7,7 +7,6 @@ export class OModal extends LitElement {
   @state() public isModalOpen = false;
   @property({ type: String }) title = "";
   @property({ type: String }) translationKey = "";
-  @property({ type: Number }) widthRatio?: number;
   @property({ type: Number }) heightRatio?: number;
   @property({ type: Boolean }) disableScroll = false;
   @property({ type: Boolean }) special = false;
@@ -39,7 +38,7 @@ export class OModal extends LitElement {
       background: #23232382;
       border-radius: 8px;
       min-width: 340px;
-      max-width: 860px;
+      max-width: 1000px;
       display: flex;
       flex-direction: column;
       height: 100%;
@@ -100,7 +99,7 @@ export class OModal extends LitElement {
             <aside class="c-modal">
               <div
                 class="c-modal__wrapper${this.special ? "__special" : ""}"
-                style=${`width: ${this.widthRatio ? this.widthRatio * 100 + "vw" : "auto"}; height: ${this.heightRatio ? this.heightRatio * 100 + "vh" : "auto"};`}
+                style=${`height: ${this.heightRatio ? this.heightRatio * 100 + "vh" : "auto"};`}
               >
                 <header class="c-modal__header">
                   ${`${this.translationKey}` === ""

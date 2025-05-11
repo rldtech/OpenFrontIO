@@ -254,7 +254,6 @@ export class FlagInputModal extends LitElement {
         id="flaginputModal"
         title="Flag Input"
         translationKey="flag_input.title"
-        widthRatio="0.8"
         heightRatio="0.75"
         disableScroll="true"
         special="true"
@@ -307,9 +306,9 @@ export class FlagInputModal extends LitElement {
                         this.close();
                       }}
                       class="text-center cursor-pointer border-none bg-none opacity-70 
-                        w-[calc(100%/2-15px)] sm:w-[calc(100%/3-15px)] 
-                        md:w-[calc(100%/4-15px)] lg:w-[calc(100%/5-15px)] 
-                        xl:w-[calc(100%/6-15px)] min-w-[100px]"
+                        w-[calc(100%/2-15px)] sm:w-[calc(100%/4-15px)] 
+                        md:w-[calc(100%/6-15px)] lg:w-[calc(100%/8-15px)] 
+                        xl:w-[calc(100%/10-15px)] min-w-[80px]"
                     >
                       <img
                         class="country-flag w-full h-auto"
@@ -387,7 +386,7 @@ ${colorClass}"
                     : null}
 
                   <div
-                    class="grid grid-cols-2 gap-2 w-full overflow-y-auto pr-1 mb-2"
+                    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 w-full overflow-y-auto pr-1 mb-2"
                   >
                     ${Object.entries(FlagMap)
                       .filter(([name]) => name !== "frame" && name !== "full")

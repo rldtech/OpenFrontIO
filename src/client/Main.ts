@@ -162,7 +162,7 @@ class Client {
     document.getElementById("flag-input_").addEventListener("click", () => {
       flagInputModal.open();
     });
-    
+
     const claims = isLoggedIn();
     if (claims === false) {
       // Not logged in

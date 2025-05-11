@@ -213,22 +213,27 @@ export const ColorShortNames: Record<string, string> = {
   water: "wt", // soft blue breathing animation
 };
 
-export const isDebug_: boolean = true;
-export const isEvan: boolean = false;
-export const isAdmin: boolean = false;
-export const isOg: boolean = false;
-export const isOg100: boolean = false;
-export const isSupporters: boolean = false;
-export const isBetaTester: boolean = false;
-export const isContributors: boolean = false;
-export const isTranslator: boolean = false;
-export const isWellKnownPlayer: boolean = false;
-export const isKnownPlayer: boolean = false;
-export const isSeenplayer: boolean = false;
-export const isLoginPlayer: boolean = false;
+export const userStatus = {
+  // debug
+  isDebug_: true,
 
-//event
-export const ofm_2025_event: boolean = false;
+  // discord
+  isEvan: false,
+  isAdmin: false,
+  isOg: false,
+  isOg100: false,
+  isSupporters: false,
+  isBetaTester: false,
+  isContributors: false,
+  isTranslator: false,
+  isWellKnownPlayer: false,
+  isKnownPlayer: false,
+  isSeenplayer: false,
+  isLoginPlayer: false,
+
+  // event
+  ofm_2025_event: false,
+};
 
 export let MAX_LAYER = 50;
 
@@ -257,48 +262,53 @@ export function checkPermission(): [string[], string[], LockReasonMap, number] {
     }
   };
 
-  if (isEvan || isDebug_) {
+  if (userStatus.isEvan || userStatus.isDebug_) {
     MAX_LAYER = 50;
     return [lockedLayers_, lockedColors_, lockedReasons_, MAX_LAYER];
   }
 
   lock(["admin_evan"], "flag_input.reason.admin_evan");
 
-  if (!isAdmin) {
+  if (!userStatus.isAdmin) {
     lock(["admin_shield", "admin_shield_r"], "flag_input.reason.admin");
   }
 
-  if (isAdmin) {
+  if (userStatus.isAdmin) {
     MAX_LAYER = 45;
-  } else if (isContributors || isSupporters) {
+  } else if (userStatus.isContributors || userStatus.isSupporters) {
     MAX_LAYER = 40;
-  } else if (isOg || isOg100 || isTranslator || isBetaTester) {
+  } else if (
+    userStatus.isOg ||
+    userStatus.isOg100 ||
+    userStatus.isTranslator ||
+    userStatus.isBetaTester
+  ) {
     MAX_LAYER = 35;
-  } else if (isWellKnownPlayer) {
+  } else if (userStatus.isWellKnownPlayer) {
     MAX_LAYER = 20;
-  } else if (isKnownPlayer) {
+  } else if (userStatus.isKnownPlayer) {
     MAX_LAYER = 15;
-  } else if (isSeenplayer) {
+  } else if (userStatus.isSeenplayer) {
     MAX_LAYER = 10;
-  } else if (isLoginPlayer) {
+  } else if (userStatus.isLoginPlayer) {
     MAX_LAYER = 5;
   } else {
     MAX_LAYER = 3;
   }
 
-  if (!isContributors) {
+  if (!userStatus.isContributors) {
     lock(["admin_contributors"], "flag_input.reason.contributors");
   }
 
-  if (!isBetaTester) {
+  if (!userStatus.isBetaTester) {
     lock(["beta_tester", "beta_tester_circle"], "flag_input.reason.beta");
   }
 
-  if (!ofm_2025_event) {
+  if (!userStatus.ofm_2025_event) {
     lock(["ofm_2025"], "flag_input.reason.ofm_2025");
   }
 
-  if (!isSupporters) {
+  if (!userStatus.isSupporters) {
     lock(["rocket_mini", "rocket"], "flag_input.reason.supporters");
     lockColor(
       [
@@ -317,19 +327,19 @@ export function checkPermission(): [string[], string[], LockReasonMap, number] {
     return [lockedLayers_, lockedColors_, lockedReasons_, MAX_LAYER];
   }
 
-  if (!isOg) {
+  if (!userStatus.isOg) {
     lock(["og_plus"], "flag_input.reason.og");
   }
 
-  if (!isOg100) {
+  if (!userStatus.isOg100) {
     lock(["og"], "flag_input.reason.og100");
   }
 
-  if (!isTranslator) {
+  if (!userStatus.isTranslator) {
     lock(["translator"], "flag_input.reason.translator");
   }
 
-  if (!isWellKnownPlayer) {
+  if (!userStatus.isWellKnownPlayer) {
     lock(
       [
         "center_circle",
@@ -366,7 +376,7 @@ export function checkPermission(): [string[], string[], LockReasonMap, number] {
       "flag_input.reason.well_known",
     );
 
-    if (!isKnownPlayer) {
+    if (!userStatus.isKnownPlayer) {
       lock(
         [
           "tricolor_b",
@@ -402,14 +412,14 @@ export function checkPermission(): [string[], string[], LockReasonMap, number] {
         "flag_input.reason.known",
       );
 
-      if (!isSeenplayer) {
+      if (!userStatus.isSeenplayer) {
         lock(
           ["half_l", "half_r", "half_b", "half_t"],
           "flag_input.reason.seen",
         );
         lockColor(["#ffa500", "#00ffff"], "flag_input.reason.seen");
 
-        if (!isLoginPlayer) {
+        if (!userStatus.isLoginPlayer) {
           lock(
             ["triangle_br", "triangle_bl", "triangle_tr", "triangle_tl"],
             "flag_input.reason.login",

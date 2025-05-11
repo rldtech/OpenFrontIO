@@ -112,6 +112,7 @@ export async function createClientGame(
   const config = await getConfig(
     lobbyConfig.gameStartInfo.config,
     userSettings,
+    lobbyConfig.gameRecord != null,
   );
   let gameMap: TerrainMapData | null = null;
 
@@ -170,6 +171,8 @@ export class ClientGameRunner {
   private lastMessageTime: number = 0;
   private connectionCheckInterval: NodeJS.Timeout | null = null;
 
+  private turnsExecuted = 0;
+
   constructor(
     private lobby: LobbyConfig,
     private eventBus: EventBus,
@@ -218,6 +221,14 @@ export class ClientGameRunner {
   public start() {
     consolex.log("starting client game");
 
+    setInterval(() => {
+      if (this.lobby.gameRecord) {
+        if (this.turnsExecuted == this.turnsSeen) {
+          this.transport.endTurn();
+        }
+      }
+    }, 10);
+
     this.isActive = true;
     this.lastMessageTime = Date.now();
     setTimeout(() => {
@@ -242,6 +253,8 @@ export class ClientGameRunner {
         this.stop(true);
         return;
       }
+
+      this.turnsExecuted++;
       gu.updates[GameUpdateType.Hash].forEach((hu: HashUpdate) => {
         this.eventBus.emit(new SendHashEvent(hu.tick, hu.hash));
       });

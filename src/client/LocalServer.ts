@@ -16,7 +16,11 @@ import { LobbyConfig } from "./ClientGameRunner";
 import { getPersistentIDFromCookie } from "./Main";
 
 export class LocalServer {
+  // All turns from the game record on replay.
+  private allTurns: Turn[] = [];
+
   private turns: Turn[] = [];
+
   private intents: Intent[] = [];
   private startedAt: number;
 
@@ -35,7 +39,7 @@ export class LocalServer {
 
   start() {
     this.startedAt = Date.now();
-    if (!this.lobbyConfig.gameRecord) {
+    if (this.lobbyConfig.gameRecord == null) {
       this.endTurnIntervalID = setInterval(
         () => this.endTurn(),
         this.lobbyConfig.serverConfig.turnIntervalMs(),
@@ -43,15 +47,15 @@ export class LocalServer {
     }
     this.clientConnect();
     if (this.lobbyConfig.gameRecord) {
-      this.turns = decompressGameRecord(this.lobbyConfig.gameRecord).turns;
-      console.log(`loaded turns: ${JSON.stringify(this.turns)}`);
+      this.allTurns = decompressGameRecord(this.lobbyConfig.gameRecord).turns;
+      console.log(`loaded turns: ${JSON.stringify(this.allTurns)}`);
     }
     this.clientMessage(
       ServerStartGameMessageSchema.parse({
         type: "start",
         gameID: this.lobbyConfig.gameStartInfo.gameID,
         gameStartInfo: this.lobbyConfig.gameStartInfo,
-        turns: this.turns,
+        turns: [],
       }),
     );
   }
@@ -90,7 +94,7 @@ export class LocalServer {
         return;
       }
       // If we are replaying a game then verify hash.
-      const archivedHash = this.turns[clientMsg.turnNumber].hash;
+      const archivedHash = this.allTurns[clientMsg.turnNumber].hash;
       if (!archivedHash) {
         console.warn(
           `no archived hash found for turn ${clientMsg.turnNumber}, client hash: ${clientMsg.hash}`,
@@ -121,9 +125,12 @@ export class LocalServer {
     }
   }
 
-  private endTurn() {
+  public endTurn() {
     if (this.paused) {
       return;
+    }
+    if (this.allTurns) {
+      this.intents = this.allTurns[this.turns.length].intents;
     }
     const pastTurn: Turn = {
       turnNumber: this.turns.length,

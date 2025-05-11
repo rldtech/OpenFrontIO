@@ -313,6 +313,12 @@ export class Transport {
     this.connect(this.onconnect, this.onmessage);
   }
 
+  public endTurn() {
+    if (this.isLocal) {
+      this.localServer.endTurn();
+    }
+  }
+
   private onSendLogEvent(event: SendLogEvent) {
     this.sendMsg(
       JSON.stringify(

@@ -6,7 +6,7 @@ import { DefaultConfig, DefaultServerConfig } from "./DefaultConfig";
 
 export class DevServerConfig extends DefaultServerConfig {
   r2Bucket(): string {
-    return "openfront-staging";
+    return "openfront-prod";
   }
   adminToken(): string {
     return "WARNING_DEV_ADMIN_KEY_DO_NOT_USE_IN_PRODUCTION";
@@ -44,8 +44,13 @@ export class DevServerConfig extends DefaultServerConfig {
 }
 
 export class DevConfig extends DefaultConfig {
-  constructor(sc: ServerConfig, gc: GameConfig, us: UserSettings) {
-    super(sc, gc, us);
+  constructor(
+    sc: ServerConfig,
+    gc: GameConfig,
+    us: UserSettings,
+    isReplay: boolean,
+  ) {
+    super(sc, gc, us, isReplay);
   }
 
   // numSpawnPhaseTurns(): number {

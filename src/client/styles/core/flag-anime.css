@@ -23,7 +23,7 @@
 }
 
 .flag-color-rainbow {
-  animation: rainbow 4s infinite;
+  animation: rainbow 7s infinite;
 }
 
 @keyframes brightRainbow {
@@ -51,7 +51,7 @@
 }
 
 .flag-color-bright-rainbow {
-  animation: brightRainbow 4s linear infinite;
+  animation: brightRainbow 7s linear infinite;
 }
 
 @keyframes copperGlow {

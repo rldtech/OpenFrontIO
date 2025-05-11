@@ -288,7 +288,7 @@ export class FlagInputModal extends LitElement {
                 @keyup=${this.handleSearch}
               />
               <div
-                class="flex flex-wrap justify-evenly gap-[1rem] overflow-y-auto overflow-x-hidden"
+                class="flex flex-wrap justify-evenly gap-[1rem] overflow-y-auto overflow-x-hidden h-[90%]"
               >
                 ${Countries.filter(
                   (country) =>

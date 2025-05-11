@@ -95,7 +95,12 @@ export class NukeExecution implements Execution {
         this.active = false;
         return;
       }
-      this.pathFinder.computeControlPoints(spawn, this.dst);
+      const maxVertex = this.type == UnitType.MIRVWarhead ? 0 : null;
+      this.pathFinder.computeControlPoints(
+        spawn,
+        this.dst,
+        this.type != UnitType.MIRVWarhead,
+      );
       this.nuke = this.player.buildUnit(this.type, 0, spawn, {
         detonationDst: this.dst,
       });

@@ -48,10 +48,14 @@ export class BezierCurve {
     private x0: number,
     private y0: number,
     private x1: number,
-    private y2: number,
+    private y1: number,
   ) {
+    this.controlPoint0X = x0;
+    this.controlPoint0Y = y0;
+    this.controlPoint1X = x1;
+    this.controlPoint1Y = y1;
     const dx = this.x1 - this.x0;
-    const dy = this.y2 - this.y0;
+    const dy = this.y1 - this.y0;
     const dist = Math.abs(this.x1 - this.x0);
   }
 
@@ -87,7 +91,7 @@ export class BezierCurve {
       Math.pow(1 - this.t, 3) * this.y0 +
       3 * Math.pow(1 - this.t, 2) * this.t * this.controlPoint0Y +
       3 * (1 - this.t) * Math.pow(this.t, 2) * this.controlPoint1Y +
-      Math.pow(this.t, 3) * this.y2;
+      Math.pow(this.t, 3) * this.y1;
     return { x: nextX, y: nextY };
   }
 }

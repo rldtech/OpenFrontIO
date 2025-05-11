@@ -11,7 +11,11 @@ export class ParabolaPathFinder {
   private curve: BezierCurve;
   private distance: number;
 
-  computeControlPoints(orig: TileRef, dst: TileRef) {
+  computeControlPoints(
+    orig: TileRef,
+    dst: TileRef,
+    distanceBasedVertex = true,
+  ) {
     const origX = this.mg.x(orig);
     const origY = this.mg.y(orig);
     const dstX = this.mg.x(dst);
@@ -23,15 +27,10 @@ export class ParabolaPathFinder {
     this.distance = Math.sqrt(dx * dx + dy * dy);
 
     const x0 = origX + (dstX - origX) / 4;
-    const y0 = Math.max(
-      origY + (dstY - origY) / 4 - Math.max(this.distance / 3, 50),
-      0,
-    );
+    const maxVertex = distanceBasedVertex ? Math.max(this.distance / 3, 50) : 0;
+    const y0 = Math.max(origY + (dstY - origY) / 4 - maxVertex, 0);
     const x1 = origX + ((dstX - origX) * 3) / 4;
-    const y1 = Math.max(
-      origY + ((dstY - origY) * 3) / 4 - Math.max(this.distance / 3, 50),
-      0,
-    );
+    const y1 = Math.max(origY + ((dstY - origY) * 3) / 4 - maxVertex, 0);
 
     this.curve.setControlPoint0(x0, y0);
     this.curve.setControlPoint1(x1, y1);

@@ -399,17 +399,6 @@ export class UnitLayer implements Layer {
       trail.push(unit.lastTile());
     }
 
-    // Paint new trail
-    for (const t of trail.slice(-newTrailSize)) {
-      this.paintCell(
-        this.game.x(t),
-        this.game.y(t),
-        rel,
-        this.theme.territoryColor(unit.owner()),
-        150,
-        this.unitTrailContext,
-      );
-    }
     this.drawTrail(
       trail.slice(-newTrailSize),
       this.theme.territoryColor(unit.owner()),

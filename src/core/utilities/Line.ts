@@ -88,6 +88,7 @@ export class BezierCurve {
 
 /**
  *  Use a cumulative distance LUT to approximate the traveled distance
+ *  Useful to compute regular steps based on the curve rather than a t
  */
 export class DistanceBasedBezierCurve extends BezierCurve {
   private totalDistance: number = 0;
@@ -132,7 +133,7 @@ export class DistanceBasedBezierCurve extends BezierCurve {
 
   computeTForDistance(distance: number): number {
     if (this.distanceLUT.length === 0) {
-      this.generateDistanceLUT();
+      this.generateCumulativeDistanceLUT();
     }
     if (distance <= 0) return 0;
     if (distance >= this.distanceLUT[this.distanceLUT.length - 1].distance) {

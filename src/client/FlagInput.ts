@@ -209,7 +209,7 @@ export const ColorShortNames: Record<string, string> = {
   "silver-glow": "svg", // glowing silver animation
   "copper-glow": "cpg", // glowing copper animation
   neon: "nn", // neon green pulse animation
-  glitch: "gl", // fast glitch effect
+  lava: "lf", // lava animation
   water: "wt", // soft blue breathing animation
 };
 
@@ -340,7 +340,7 @@ export function checkPermission(): [string[], string[], LockReasonMap, number] {
         "silver-glow",
         "copper-glow",
         "neon",
-        "glitch",
+        "lava",
         "water",
       ],
       "flag_input.reason.supporters",
@@ -581,7 +581,7 @@ const animationDurations: Record<string, number> = {
   "silver-glow": 3000,
   "gold-glow": 3000,
   neon: 3000,
-  glitch: 600,
+  lava: 6000,
   water: 6200,
 };
 

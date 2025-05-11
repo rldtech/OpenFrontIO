@@ -398,7 +398,7 @@ export function getPermissionSummary(
       "silver-glow",
       "copper-glow",
       "neon",
-      "glitch",
+      "lava",
       "water",
     ]);
   }

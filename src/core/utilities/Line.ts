@@ -91,15 +91,14 @@ export class BezierCurve {
  */
 export class DistanceBasedBezierCurve extends BezierCurve {
   private totalDistance: number = 0;
-  private cumulativeDistanceLUT: Array<{ t: number; distance: number }> = [];
+  private distanceLUT: Array<{ t: number; distance: number }> = [];
   private lastFoundIndex: number = 0; // To keep track of the last found index
 
   increment(distance: number): { x: number; y: number } {
     this.totalDistance += distance;
     const targetDistance = Math.min(
       this.totalDistance,
-      this.cumulativeDistanceLUT[this.cumulativeDistanceLUT.length - 1]
-        ?.distance || 0,
+      this.distanceLUT[this.distanceLUT.length - 1]?.distance || 0,
     );
     const t = this.computeTForDistance(targetDistance);
     if (t >= 1) {
@@ -108,8 +107,12 @@ export class DistanceBasedBezierCurve extends BezierCurve {
     return this.getPointAt(t);
   }
 
+  /**
+   * Generate @p numSteps segments, starting from the beginning of the curve
+   * Each segment size is added in the LUT
+   */
   generateCumulativeDistanceLUT(numSteps: number = 500): void {
-    this.cumulativeDistanceLUT = [];
+    this.distanceLUT = [];
     let cumulativeDistance = 0;
     let prevPoint = this.getPointAt(0);
 
@@ -122,38 +125,34 @@ export class DistanceBasedBezierCurve extends BezierCurve {
       const segmentLength = Math.sqrt(dx * dx + dy * dy);
 
       cumulativeDistance += segmentLength;
-      this.cumulativeDistanceLUT.push({ t, distance: cumulativeDistance });
+      this.distanceLUT.push({ t, distance: cumulativeDistance });
       prevPoint = currentPoint;
     }
   }
 
   computeTForDistance(distance: number): number {
-    if (this.cumulativeDistanceLUT.length === 0) {
-      this.generateCumulativeDistanceLUT();
+    if (this.distanceLUT.length === 0) {
+      this.generateDistanceLUT();
     }
     if (distance <= 0) return 0;
-    if (
-      distance >=
-      this.cumulativeDistanceLUT[this.cumulativeDistanceLUT.length - 1].distance
-    ) {
+    if (distance >= this.distanceLUT[this.distanceLUT.length - 1].distance) {
       return 1;
     }
 
     let lowerIndex = this.lastFoundIndex;
-    let upperIndex = this.cumulativeDistanceLUT.length - 1;
+    let upperIndex = this.distanceLUT.length - 1;
     // Binary search for the closest range
     while (upperIndex - lowerIndex > 1) {
       const midIndex = Math.floor((upperIndex + lowerIndex) / 2);
-      if (this.cumulativeDistanceLUT[midIndex].distance < distance) {
+      if (this.distanceLUT[midIndex].distance < distance) {
         lowerIndex = midIndex;
       } else {
         upperIndex = midIndex;
       }
     }
 
-    // Interpolate between these two points
-    const lower = this.cumulativeDistanceLUT[lowerIndex];
-    const upper = this.cumulativeDistanceLUT[upperIndex];
+    const lower = this.distanceLUT[lowerIndex];
+    const upper = this.distanceLUT[upperIndex];
     this.lastFoundIndex = lowerIndex;
 
     // Linear interpolation of t based on the distance

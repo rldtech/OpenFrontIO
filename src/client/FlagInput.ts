@@ -235,6 +235,28 @@ export const userStatus = {
   ofm_2025_event: false,
 };
 
+export type UserStatus = {
+  // debug
+  isDebug_: boolean;
+
+  // discord
+  isEvan: boolean;
+  isAdmin: boolean;
+  isOg: boolean;
+  isOg100: boolean;
+  isSupporters: boolean;
+  isBetaTester: boolean;
+  isContributors: boolean;
+  isTranslator: boolean;
+  isWellKnownPlayer: boolean;
+  isKnownPlayer: boolean;
+  isSeenplayer: boolean;
+  isLoginPlayer: boolean;
+
+  // event
+  ofm_2025_event: boolean;
+};
+
 export let MAX_LAYER = 50;
 
 type LockReasonMap = Record<string, string>;

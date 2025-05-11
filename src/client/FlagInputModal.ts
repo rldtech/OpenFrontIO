@@ -232,6 +232,9 @@ export class FlagInputModal extends LitElement {
         id="flaginputModal"
         title="Flag Input"
         translationKey="flag_input.title"
+        widthRatio="0.8"
+        heightRatio="0.75"
+        disableScroll="true"
       >
         <!-- tab  -->
         <div class="flex gap-2 mb-2">
@@ -283,7 +286,7 @@ export class FlagInputModal extends LitElement {
                       class="text-center cursor-pointer border-none bg-none opacity-70 
                         w-[calc(100%/2-15px)] sm:w-[calc(100%/3-15px)] 
                         md:w-[calc(100%/4-15px)] lg:w-[calc(100%/5-15px)] 
-                        xl:w-[calc(100%/6-15px)]"
+                        xl:w-[calc(100%/6-15px)] min-w-[100px]"
                     >
                       <img
                         class="country-flag w-full h-auto"
@@ -298,9 +301,7 @@ export class FlagInputModal extends LitElement {
           : html`
               <div class="grid grid-cols-[1fr_2fr] gap-4 p-2 h-full">
                 <!-- left -->
-                <div
-                  class="flex flex-col items-center gap-2 overflow-y-auto max-h-[calc(50vh-4rem)]"
-                >
+                <div class="flex flex-col items-center gap-2 overflow-y-auto">
                   <div class="flex flex-wrap gap-1 mb-2 justify-center">
                     ${this.colorOptions.map((color) => {
                       const isLocked = this.lockedColors.includes(color);
@@ -363,7 +364,7 @@ ${colorClass}"
                     : null}
 
                   <div
-                    class="grid grid-cols-2 gap-2 w-full max-h-[300px] overflow-y-auto pr-1 mb-2"
+                    class="grid grid-cols-2 gap-2 w-full max-h-[500px] overflow-y-auto pr-1 mb-2"
                   >
                     ${Object.entries(FlagMap)
                       .filter(([name]) => name !== "frame" && name !== "full")
@@ -463,9 +464,7 @@ ${colorClass}"
                 </div>
 
                 <!-- right -->
-                <div
-                  class="flex flex-col items-center h-full overflow-hidden max-h-[calc(50vh-4rem)]"
-                >
+                <div class="flex flex-col items-center h-full overflow-hidden">
                   <p class="text-lg font-bold text-white mb-2">
                     ${translateText(`flag_input.preview`)}
                   </p>
@@ -508,7 +507,7 @@ mask: url(${src}) center / contain no-repeat;
                     ${translateText("flag_input.apply")}
                   </button>
 
-                  <div class="mt-4 w-full max-h-[300px] overflow-y-auto mb-2">
+                  <div class="mt-4 w-full max-h-[500px] overflow-y-auto mb-2">
                     <!-- Code input and copy -->
                     <div class="mt-2 w-full space-y-2">
                       ${this.errorMessage

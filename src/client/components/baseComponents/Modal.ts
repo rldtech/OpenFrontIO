@@ -7,6 +7,9 @@ export class OModal extends LitElement {
   @state() public isModalOpen = false;
   @property({ type: String }) title = "";
   @property({ type: String }) translationKey = "";
+  @property({ type: Number }) widthRatio?: number;
+  @property({ type: Number }) heightRatio?: number;
+  @property({ type: Boolean }) disableScroll = false;
 
   static styles = css`
     .c-modal {
@@ -74,14 +77,24 @@ export class OModal extends LitElement {
       ${this.isModalOpen
         ? html`
             <aside class="c-modal">
-              <div class="c-modal__wrapper">
+              <div
+                class="c-modal__wrapper"
+                style=${`width: ${this.widthRatio ? this.widthRatio * 100 + "vw" : "auto"}; height: ${this.heightRatio ? this.heightRatio * 100 + "vh" : "auto"};`}
+              >
                 <header class="c-modal__header">
                   ${`${this.translationKey}` === ""
                     ? `${this.title}`
                     : `${translateText(this.translationKey)}`}
                   <div class="c-modal__close" @click=${this.close}>X</div>
                 </header>
-                <section class="c-modal__content">
+                <section
+                  class="c-modal__content"
+                  style=${`${
+                    this.heightRatio
+                      ? `height: calc(${this.heightRatio * 100}vh - 4rem);`
+                      : ""
+                  } ${this.disableScroll ? "overflow: hidden;" : ""}`}
+                >
                   <slot></slot>
                 </section>
               </div>

@@ -2,8 +2,53 @@ import { consolex } from "../Consolex";
 import { Game } from "../game/Game";
 import { GameMap, TileRef } from "../game/GameMap";
 import { PseudoRandom } from "../PseudoRandom";
+import { BezierCurve } from "../utilities/Line";
 import { AStar, PathFindResultType, TileResult } from "./AStar";
 import { MiniAStar } from "./MiniAStar";
+
+export class ParabolaPathFinder {
+  constructor(private mg: GameMap) {}
+  private curve: BezierCurve;
+  private distance: number;
+
+  computeControlPoints(orig: TileRef, dst: TileRef) {
+    const origX = this.mg.x(orig);
+    const origY = this.mg.y(orig);
+    const dstX = this.mg.x(dst);
+    const dstY = this.mg.y(dst);
+
+    this.curve = new BezierCurve(origX, origY, dstX, dstY);
+    const dx = dstX - origX;
+    const dy = dstY - origY;
+    this.distance = Math.sqrt(dx * dx + dy * dy);
+
+    const x0 = origX + (dstX - origX) / 4;
+    const y0 = Math.max(
+      origY + (dstY - origY) / 4 - Math.max(this.distance / 3, 50),
+      0,
+    );
+    const x1 = origX + ((dstX - origX) * 3) / 4;
+    const y1 = Math.max(
+      origY + ((dstY - origY) * 3) / 4 - Math.max(this.distance / 3, 50),
+      0,
+    );
+
+    this.curve.setControlPoint0(x0, y0);
+    this.curve.setControlPoint1(x1, y1);
+  }
+
+  nextTile(speed: number): TileRef | true {
+    if (!this.curve) {
+      return;
+    }
+    const incr = speed / (this.distance * 2);
+    const nextPoint = this.curve.increment(incr);
+    if (!nextPoint) {
+      return true;
+    }
+    return this.mg.ref(Math.floor(nextPoint.x), Math.floor(nextPoint.y));
+  }
+}
 
 export class AirPathFinder {
   constructor(

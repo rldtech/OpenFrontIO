@@ -382,7 +382,7 @@ export class UnitLayer implements Layer {
 
     let newTrailSize = 1;
     const trail = this.unitToTrail.get(unit);
-    // The nuke can move faster than 1 pixel, draw a line for the trail or else it will be dotted
+    // It can move faster than 1 pixel, draw a line for the trail or else it will be dotted
     if (trail.length >= 1) {
       const currentX = this.game.x(unit.lastTile());
       const currentY = this.game.y(unit.lastTile());

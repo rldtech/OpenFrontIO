@@ -2,35 +2,37 @@ import { consolex } from "../Consolex";
 import { Game } from "../game/Game";
 import { GameMap, TileRef } from "../game/GameMap";
 import { PseudoRandom } from "../PseudoRandom";
-import { BezierCurve } from "../utilities/Line";
+import { DistanceBasedBezierCurve } from "../utilities/Line";
 import { AStar, PathFindResultType, TileResult } from "./AStar";
 import { MiniAStar } from "./MiniAStar";
 
+const parabolaMinHeight = 50;
+
 export class ParabolaPathFinder {
   constructor(private mg: GameMap) {}
-  private curve: BezierCurve;
-  private distance: number;
+  private curve: DistanceBasedBezierCurve;
 
   computeControlPoints(
     orig: TileRef,
     dst: TileRef,
-    distanceBasedVertex = true,
+    distanceBasedHeight = true,
   ) {
     const origX = this.mg.x(orig);
     const origY = this.mg.y(orig);
     const dstX = this.mg.x(dst);
     const dstY = this.mg.y(dst);
-
-    this.curve = new BezierCurve(origX, origY, dstX, dstY);
+    this.curve = new DistanceBasedBezierCurve(origX, origY, dstX, dstY);
     const dx = dstX - origX;
     const dy = dstY - origY;
-    this.distance = Math.sqrt(dx * dx + dy * dy);
-
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const maxHeight = distanceBasedHeight
+      ? Math.max(distance / 3, parabolaMinHeight)
+      : 0;
+    // Use a bezier curve always pointing up
     const x0 = origX + (dstX - origX) / 4;
-    const maxVertex = distanceBasedVertex ? Math.max(this.distance / 3, 50) : 0;
-    const y0 = Math.max(origY + (dstY - origY) / 4 - maxVertex, 0);
+    const y0 = Math.max(origY + (dstY - origY) / 4 - maxHeight, 0);
     const x1 = origX + ((dstX - origX) * 3) / 4;
-    const y1 = Math.max(origY + ((dstY - origY) * 3) / 4 - maxVertex, 0);
+    const y1 = Math.max(origY + ((dstY - origY) * 3) / 4 - maxHeight, 0);
 
     this.curve.setControlPoint0(x0, y0);
     this.curve.setControlPoint1(x1, y1);
@@ -40,8 +42,7 @@ export class ParabolaPathFinder {
     if (!this.curve) {
       return;
     }
-    const incr = speed / (this.distance * 2);
-    const nextPoint = this.curve.increment(incr);
+    const nextPoint = this.curve.increment(speed);
     if (!nextPoint) {
       return true;
     }

@@ -54,12 +54,8 @@ export class BezierCurve {
     this.controlPoint0Y = y0;
     this.controlPoint1X = x1;
     this.controlPoint1Y = y1;
-    const dx = this.x1 - this.x0;
-    const dy = this.y1 - this.y0;
-    const dist = Math.abs(this.x1 - this.x0);
   }
 
-  private t: number = 0;
   private controlPoint0X: number;
   private controlPoint0Y: number;
   private controlPoint1X: number;
@@ -75,23 +71,96 @@ export class BezierCurve {
     this.controlPoint1Y = y;
   }
 
-  increment(incr: number): { x: number; y: number } {
-    // Calculate the next point on the Bézier curve
-    // const incr = speed / (this.distance * 2);
-    this.t = this.t + incr;
-    if (this.t >= 1) {
+  getPointAt(t: number): { x: number; y: number } {
+    const x =
+      Math.pow(1 - t, 3) * this.x0 +
+      3 * Math.pow(1 - t, 2) * t * this.controlPoint0X +
+      3 * (1 - t) * Math.pow(t, 2) * this.controlPoint1X +
+      Math.pow(t, 3) * this.x1;
+    const y =
+      Math.pow(1 - t, 3) * this.y0 +
+      3 * Math.pow(1 - t, 2) * t * this.controlPoint0Y +
+      3 * (1 - t) * Math.pow(t, 2) * this.controlPoint1Y +
+      Math.pow(t, 3) * this.y1;
+    return { x, y };
+  }
+}
+
+/**
+ *  Use a cumulative distance LUT to approximate the traveled distance
+ */
+export class DistanceBasedBezierCurve extends BezierCurve {
+  private totalDistance: number = 0;
+  private cumulativeDistanceLUT: Array<{ t: number; distance: number }> = [];
+  private lastFoundIndex: number = 0; // To keep track of the last found index
+
+  increment(distance: number): { x: number; y: number } {
+    this.totalDistance += distance;
+    const targetDistance = Math.min(
+      this.totalDistance,
+      this.cumulativeDistanceLUT[this.cumulativeDistanceLUT.length - 1]
+        ?.distance || 0,
+    );
+    const t = this.computeTForDistance(targetDistance);
+    if (t >= 1) {
       return null; // end reached
     }
-    const nextX =
-      Math.pow(1 - this.t, 3) * this.x0 +
-      3 * Math.pow(1 - this.t, 2) * this.t * this.controlPoint0X +
-      3 * (1 - this.t) * Math.pow(this.t, 2) * this.controlPoint1X +
-      Math.pow(this.t, 3) * this.x1;
-    const nextY =
-      Math.pow(1 - this.t, 3) * this.y0 +
-      3 * Math.pow(1 - this.t, 2) * this.t * this.controlPoint0Y +
-      3 * (1 - this.t) * Math.pow(this.t, 2) * this.controlPoint1Y +
-      Math.pow(this.t, 3) * this.y1;
-    return { x: nextX, y: nextY };
+    return this.getPointAt(t);
+  }
+
+  generateCumulativeDistanceLUT(numSteps: number = 500): void {
+    this.cumulativeDistanceLUT = [];
+    let cumulativeDistance = 0;
+    let prevPoint = this.getPointAt(0);
+
+    for (let i = 1; i <= numSteps; i++) {
+      const t = i / numSteps;
+      const currentPoint = this.getPointAt(t);
+
+      const dx = currentPoint.x - prevPoint.x;
+      const dy = currentPoint.y - prevPoint.y;
+      const segmentLength = Math.sqrt(dx * dx + dy * dy);
+
+      cumulativeDistance += segmentLength;
+      this.cumulativeDistanceLUT.push({ t, distance: cumulativeDistance });
+      prevPoint = currentPoint;
+    }
+  }
+
+  computeTForDistance(distance: number): number {
+    if (this.cumulativeDistanceLUT.length === 0) {
+      this.generateCumulativeDistanceLUT();
+    }
+    if (distance <= 0) return 0;
+    if (
+      distance >=
+      this.cumulativeDistanceLUT[this.cumulativeDistanceLUT.length - 1].distance
+    ) {
+      return 1;
+    }
+
+    let lowerIndex = this.lastFoundIndex;
+    let upperIndex = this.cumulativeDistanceLUT.length - 1;
+    // Binary search for the closest range
+    while (upperIndex - lowerIndex > 1) {
+      const midIndex = Math.floor((upperIndex + lowerIndex) / 2);
+      if (this.cumulativeDistanceLUT[midIndex].distance < distance) {
+        lowerIndex = midIndex;
+      } else {
+        upperIndex = midIndex;
+      }
+    }
+
+    // Interpolate between these two points
+    const lower = this.cumulativeDistanceLUT[lowerIndex];
+    const upper = this.cumulativeDistanceLUT[upperIndex];
+    this.lastFoundIndex = lowerIndex;
+
+    // Linear interpolation of t based on the distance
+    const t =
+      lower.t +
+      ((distance - lower.distance) * (upper.t - lower.t)) /
+        (upper.distance - lower.distance);
+    return t;
   }
 }

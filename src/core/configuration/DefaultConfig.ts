@@ -525,7 +525,7 @@ export class DefaultConfig implements Config {
       };
     } else {
       return {
-        attackerTroopLoss: attackerType == PlayerType.Bot ? mag * 12 : mag * 12,
+        attackerTroopLoss: attackerType == PlayerType.Bot ? mag * 16 : mag * 16,
         defenderTroopLoss: 0,
         tilesPerTickUsed: 31 * speed, // * (10_000 / attackTroops) ** 0.5,
       };

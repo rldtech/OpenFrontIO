@@ -23,11 +23,8 @@ export class ShellExecution implements Execution {
   }
 
   tick(ticks: number): void {
-    if (this.mg === null || this.pathFinder === null) {
-      throw new Error("Not initialized");
-    }
-    if (this.shell === null) {
-      this.shell = this._owner.buildUnit(UnitType.Shell, 0, this.spawn);
+    if (this.shell == null) {
+      this.shell = this._owner.buildUnit(UnitType.Shell, this.spawn, {});
     }
     if (!this.shell.isActive()) {
       this.active = false;

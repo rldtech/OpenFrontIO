@@ -1,3 +1,5 @@
+import { JWK } from "jose";
+import { z } from "zod";
 import {
   Difficulty,
   Duos,
@@ -24,7 +26,35 @@ import { Config, GameEnv, NukeMagnitude, ServerConfig, Theme } from "./Config";
 import { pastelTheme } from "./PastelTheme";
 import { pastelThemeDark } from "./PastelThemeDark";
 
+const JwksSchema = z.object({
+  keys: z
+    .object({
+      alg: z.literal("EdDSA"),
+      crv: z.literal("Ed25519"),
+      kty: z.literal("OKP"),
+      x: z.string(),
+    })
+    .array()
+    .min(1),
+});
+
 export abstract class DefaultServerConfig implements ServerConfig {
+  private publicKey: JWK;
+  abstract jwtAudience(): string;
+  jwtIssuer(): string {
+    const audience = this.jwtAudience();
+    return audience === "localhost"
+      ? "http://localhost:8787"
+      : `https://api.${audience}`;
+  }
+  async jwkPublicKey(): Promise<JWK> {
+    if (this.publicKey) return this.publicKey;
+    const jwksUrl = this.jwtIssuer() + "/.well-known/jwks.json";
+    const response = await fetch(jwksUrl);
+    const jwks = JwksSchema.parse(await response.json());
+    this.publicKey = jwks.keys[0];
+    return this.publicKey;
+  }
   otelEnabled(): boolean {
     return Boolean(
       this.otelEndpoint() && this.otelUsername() && this.otelPassword(),
@@ -70,7 +100,6 @@ export abstract class DefaultServerConfig implements ServerConfig {
   }
   abstract numWorkers(): number;
   abstract env(): GameEnv;
-  abstract discordRedirectURI(): string;
   turnIntervalMs(): number {
     return 100;
   }
@@ -99,6 +128,8 @@ export abstract class DefaultServerConfig implements ServerConfig {
           GameMapType.Iceland,
           GameMapType.Britannia,
           GameMapType.Asia,
+          GameMapType.FalklandIslands,
+          GameMapType.Baikal,
         ].includes(map)
       ) {
         return Math.random() < 0.3 ? 50 : 25;
@@ -155,8 +186,12 @@ export class DefaultConfig implements Config {
   constructor(
     private _serverConfig: ServerConfig,
     private _gameConfig: GameConfig,
-    private _userSettings: UserSettings | null,
+    private _userSettings: UserSettings,
+    private _isReplay: boolean,
   ) {}
+  isReplay(): boolean {
+    return this._isReplay;
+  }
 
   samHittingChance(): number {
     return 0.8;
@@ -231,9 +266,10 @@ export class DefaultConfig implements Config {
     return !this._gameConfig.disableNPCs;
   }
 
-  disableNukes(): boolean {
-    return this._gameConfig.disableNukes;
+  isUnitDisabled(unitType: UnitType): boolean {
+    return this._gameConfig.disabledUnits?.includes(unitType) ?? false;
   }
+
   bots(): number {
     return this._gameConfig.bots;
   }
@@ -250,12 +286,7 @@ export class DefaultConfig implements Config {
     return 10000 + 150 * Math.pow(dist, 1.1);
   }
   tradeShipSpawnRate(numberOfPorts: number): number {
-    if (numberOfPorts <= 3) return 18;
-    if (numberOfPorts <= 5) return 25;
-    if (numberOfPorts <= 8) return 35;
-    if (numberOfPorts <= 10) return 40;
-    if (numberOfPorts <= 12) return 45;
-    return 50;
+    return Math.round(10 * Math.pow(numberOfPorts, 0.6));
   }
 
   unitInfo(type: UnitType): UnitInfo {

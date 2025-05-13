@@ -35,7 +35,7 @@ import {
   TerraNullius,
   Tick,
   Unit,
-  UnitSpecificInfos,
+  UnitParams,
   UnitType,
 } from "./Game";
 import { GameImpl } from "./GameImpl";
@@ -700,25 +700,29 @@ export class PlayerImpl implements Player {
     );
   }
 
-  buildUnit(
-    type: UnitType,
-    troops: number,
+  buildUnit<T extends UnitType>(
+    type: T,
     spawnTile: TileRef,
-    unitSpecificInfos: UnitSpecificInfos = {},
+    params: UnitParams<T>,
   ): UnitImpl {
+    if (this.mg.config().isUnitDisabled(type)) {
+      throw new Error(
+        `Attempted to build disabled unit ${type} at tile ${spawnTile} by player ${this.name()}`,
+      );
+    }
+
     const cost = this.mg.unitInfo(type).cost(this);
     const b = new UnitImpl(
       type,
       this.mg,
       spawnTile,
-      troops,
       this.mg.nextUnitID(),
       this,
-      unitSpecificInfos,
+      params,
     );
     this._units.push(b);
     this.removeGold(cost);
-    this.removeTroops(troops);
+    this.removeTroops("troops" in params ? params.troops : 0);
     this.mg.addUpdate(b.toUpdate());
     this.mg.addUnit(b);
 
@@ -743,19 +747,8 @@ export class PlayerImpl implements Player {
     targetTile: TileRef,
     validTiles: TileRef[] | null = null,
   ): TileRef | false {
-    // prevent the building of nukes and nuke related buildings
-    if (this.mg.config().disableNukes()) {
-      if (
-        unitType === UnitType.MissileSilo ||
-        unitType === UnitType.MIRV ||
-        unitType === UnitType.AtomBomb ||
-        unitType === UnitType.HydrogenBomb ||
-        unitType === UnitType.SAMLauncher ||
-        unitType === UnitType.SAMMissile ||
-        unitType === UnitType.MIRVWarhead
-      ) {
-        return false;
-      }
+    if (this.mg.config().isUnitDisabled(unitType)) {
+      return false;
     }
 
     const cost = this.mg.unitInfo(unitType).cost(this);

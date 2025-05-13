@@ -43,7 +43,7 @@ export interface LobbyConfig {
   playerName: string;
   clientID: ClientID;
   gameID: GameID;
-  persistentID: string;
+  token: string;
   // GameStartInfo only exists when playing a singleplayer game.
   gameStartInfo?: GameStartInfo;
   // GameRecord exists when replaying an archived game.
@@ -59,7 +59,7 @@ export function joinLobby(
   initRemoteSender(eventBus);
 
   consolex.log(
-    `joinging lobby: gameID: ${lobbyConfig.gameID}, clientID: ${lobbyConfig.clientID}, persistentID: ${lobbyConfig.persistentID.slice(0, 5)}`,
+    `joinging lobby: gameID: ${lobbyConfig.gameID}, clientID: ${lobbyConfig.clientID}`,
   );
 
   const userSettings: UserSettings = new UserSettings();
@@ -82,7 +82,7 @@ export function joinLobby(
     if (message.type === "start") {
       // Trigger prestart for singleplayer games
       onPrestart();
-      consolex.log(`lobby: game started: ${JSON.stringify(message)}`);
+      consolex.log(`lobby: game started: ${JSON.stringify(message, null, 2)}`);
       onJoin();
       // For multiplayer games, GameStartInfo is not known until game starts.
       lobbyConfig.gameStartInfo = message.gameStartInfo;
@@ -115,6 +115,7 @@ export async function createClientGame(
   const config = await getConfig(
     lobbyConfig.gameStartInfo.config,
     userSettings,
+    lobbyConfig.gameRecord != null,
   );
   let gameMap: TerrainMapData | null = null;
 
@@ -248,10 +249,11 @@ export class ClientGameRunner {
           this.lobby.gameStartInfo.gameID,
           this.lobby.clientID,
         );
+        console.error(gu.stack);
         this.stop(true);
         return;
       }
-      if (gu.updates === null) return;
+      this.transport.turnComplete();
       gu.updates[GameUpdateType.Hash].forEach((hu: HashUpdate) => {
         this.eventBus.emit(new SendHashEvent(hu.tick, hu.hash));
       });
@@ -285,7 +287,6 @@ export class ClientGameRunner {
           while (turn.turnNumber - 1 > this.turnsSeen) {
             this.worker.sendTurn({
               turnNumber: this.turnsSeen,
-              gameID: turn.gameID,
               intents: [],
             });
             this.turnsSeen++;

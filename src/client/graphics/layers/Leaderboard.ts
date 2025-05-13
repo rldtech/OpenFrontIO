@@ -147,7 +147,7 @@ export class Leaderboard extends LitElement implements Layer {
       position: fixed;
       top: 10px;
       left: 10px;
-      z-index: 9999;
+      z-index: 9998;
       background-color: rgb(31 41 55 / 0.7);
       padding: 10px;
       padding-top: 0px;
@@ -198,7 +198,7 @@ export class Leaderboard extends LitElement implements Layer {
       position: fixed;
       left: 10px;
       top: 10px;
-      z-index: 9999;
+      z-index: 9998;
       background-color: rgb(31 41 55 / 0.7);
       color: white;
       border: none;

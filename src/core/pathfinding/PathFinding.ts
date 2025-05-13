@@ -40,7 +40,7 @@ export class ParabolaPathFinder {
 
   nextTile(speed: number): TileRef | true {
     if (!this.curve) {
-      return;
+      throw new Error("ParabolaPathFinder not initialized");
     }
     const nextPoint = this.curve.increment(speed);
     if (!nextPoint) {
@@ -72,14 +72,14 @@ export class AirPathFinder {
 
     const ratio = Math.floor(1 + Math.abs(dstY - y) / (Math.abs(dstX - x) + 1));
 
-    if (this.random.chance(ratio) && x != dstX) {
+    if (this.random.chance(ratio) && x !== dstX) {
       if (x < dstX) nextX++;
       else if (x > dstX) nextX--;
     } else {
       if (y < dstY) nextY++;
       else if (y > dstY) nextY--;
     }
-    if (nextX == x && nextY == y) {
+    if (nextX === x && nextY === y) {
       return true;
     }
     return this.mg.ref(nextX, nextY);
@@ -111,12 +111,16 @@ export class PathFinder {
     });
   }
 
-  nextTile(curr: TileRef, dst: TileRef, dist: number = 1): TileResult {
-    if (curr == null) {
+  nextTile(
+    curr: TileRef | null,
+    dst: TileRef | null,
+    dist: number = 1,
+  ): TileResult {
+    if (curr === null) {
       consolex.error("curr is null");
       return { type: PathFindResultType.PathNotFound };
     }
-    if (dst == null) {
+    if (dst === null) {
       consolex.error("dst is null");
       return { type: PathFindResultType.PathNotFound };
     }
@@ -160,7 +164,7 @@ export class PathFinder {
   }
 
   private shouldRecompute(curr: TileRef, dst: TileRef) {
-    if (this.path == null || this.curr == null || this.dst == null) {
+    if (this.path === null || this.curr === null || this.dst === null) {
       return true;
     }
     const dist = this.game.manhattanDist(curr, dst);

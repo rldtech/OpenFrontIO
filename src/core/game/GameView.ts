@@ -57,7 +57,7 @@ export class UnitView {
   }
 
   lastTile(): TileRef {
-    if (this.lastPos.length == 0) {
+    if (this.lastPos.length === 0) {
       return this.data.pos;
     }
     return this.lastPos[0];
@@ -89,7 +89,7 @@ export class UnitView {
     return this.data.isActive;
   }
   hasHealth(): boolean {
-    return this.data.health != undefined;
+    return this.data.health !== undefined;
   }
   health(): number {
     return this.data.health ?? 0;
@@ -98,7 +98,7 @@ export class UnitView {
     return this.data.constructionType;
   }
   dstPortId(): number | undefined {
-    if (this.type() != UnitType.TradeShip) {
+    if (this.type() !== UnitType.TradeShip) {
       throw Error("Must be a trade ship");
     }
     return this.data.dstPortId;
@@ -110,7 +110,7 @@ export class UnitView {
     return this.data.detonationDst;
   }
   warshipTargetId(): number | undefined {
-    if (this.type() != UnitType.Warship) {
+    if (this.type() !== UnitType.Warship) {
       throw Error("Must be a warship");
     }
     return this.data.warshipTargetId;
@@ -132,13 +132,11 @@ export class PlayerView {
     public data: PlayerUpdate,
     public nameData: NameViewData,
   ) {
-    if (data.clientID == game.myClientID()) {
+    if (data.clientID === game.myClientID()) {
       this.anonymousName = this.data.name;
     } else {
-      this.anonymousName = createRandomName(
-        this.data.name,
-        this.data.playerType,
-      );
+      this.anonymousName =
+        createRandomName(this.data.name, this.data.playerType) ?? "";
     }
   }
 
@@ -165,7 +163,7 @@ export class PlayerView {
   units(...types: UnitType[]): UnitView[] {
     return this.game
       .units(...types)
-      .filter((u) => u.owner().smallID() == this.smallID());
+      .filter((u) => u.owner().smallID() === this.smallID());
   }
 
   nameLocation(): NameViewData {
@@ -189,7 +187,7 @@ export class PlayerView {
       : this.data.name;
   }
 
-  clientID(): ClientID {
+  clientID(): ClientID | null {
     return this.data.clientID;
   }
   id(): PlayerID {
@@ -237,11 +235,11 @@ export class PlayerView {
   }
 
   isAlliedWith(other: PlayerView): boolean {
-    return this.data.allies.some((n) => other.smallID() == n);
+    return this.data.allies.some((n) => other.smallID() === n);
   }
 
   isOnSameTeam(other: PlayerView): boolean {
-    return this.data.team != null && this.data.team == other.data.team;
+    return this.data.team !== undefined && this.data.team === other.data.team;
   }
 
   isFriendly(other: PlayerView): boolean {
@@ -249,7 +247,7 @@ export class PlayerView {
   }
 
   isRequestingAllianceWith(other: PlayerView) {
-    return this.data.outgoingAllianceRequests.some((id) => other.id() == id);
+    return this.data.outgoingAllianceRequests.some((id) => other.id() === id);
   }
 
   hasEmbargoAgainst(other: PlayerView): boolean {
@@ -400,7 +398,7 @@ export class GameView implements GameMap {
   }
 
   myPlayer(): PlayerView | null {
-    if (this._myPlayer == null) {
+    if (this._myPlayer === null) {
       this._myPlayer = this.playerByClientID(this._myClientID);
     }
     return this._myPlayer;
@@ -419,7 +417,7 @@ export class GameView implements GameMap {
   }
 
   playerBySmallID(id: number): PlayerView | TerraNullius {
-    if (id == 0) {
+    if (id === 0) {
       return new TerraNulliusImpl();
     }
     const playerId = this.smallIDToID.get(id);
@@ -431,9 +429,10 @@ export class GameView implements GameMap {
 
   playerByClientID(id: ClientID): PlayerView | null {
     const player =
-      Array.from(this._players.values()).filter((p) => p.clientID() == id)[0] ??
-      null;
-    if (player == null) {
+      Array.from(this._players.values()).filter(
+        (p) => p.clientID() === id,
+      )[0] ?? null;
+    if (player === null) {
       return null;
     }
     return player;
@@ -459,7 +458,7 @@ export class GameView implements GameMap {
     return this._config;
   }
   units(...types: UnitType[]): UnitView[] {
-    if (types.length == 0) {
+    if (types.length === 0) {
       return Array.from(this._units.values()).filter((u) => u.isActive());
     }
     return Array.from(this._units.values()).filter(

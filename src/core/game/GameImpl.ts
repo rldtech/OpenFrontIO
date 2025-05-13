@@ -36,7 +36,6 @@ import { StatsImpl } from "./StatsImpl";
 import { assignTeams } from "./TeamAssignment";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
 import { UnitGrid } from "./UnitGrid";
-import { UnitImpl } from "./UnitImpl";
 
 export function createGame(
   humans: PlayerInfo[],
@@ -119,7 +118,7 @@ export class GameImpl implements Game {
   }
 
   private addPlayers() {
-    if (this.config().gameConfig().gameMode != GameMode.Team) {
+    if (this.config().gameConfig().gameMode !== GameMode.Team) {
       this._humans.forEach((p) => this.addPlayer(p));
       this._nations.forEach((n) => this.addPlayer(n.playerInfo));
       return;
@@ -182,7 +181,7 @@ export class GameImpl implements Game {
     });
   }
 
-  units(...types: UnitType[]): UnitImpl[] {
+  units(...types: UnitType[]): Unit[] {
     return Array.from(this._players.values()).flatMap((p) => p.units(...types));
   }
   unitInfo(type: UnitType): UnitInfo {
@@ -619,11 +618,11 @@ export class GameImpl implements Game {
     category: string,
     variables: Record<string, string> = {},
     playerID: PlayerID | null,
-    isFrom: boolean | null = null,
+    isFrom: boolean,
     recipient: string,
   ): void {
-    let id = null;
-    if (playerID != null) {
+    let id: number | null = null;
+    if (playerID !== null) {
       id = this.player(playerID).smallID();
     }
     this.addUpdate({
@@ -632,7 +631,7 @@ export class GameImpl implements Game {
       category: category,
       variables: variables,
       playerID: id,
-      isFrom: isFrom,
+      isFrom,
       recipient: recipient,
     });
   }

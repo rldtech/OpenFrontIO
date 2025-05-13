@@ -43,7 +43,7 @@ export async function createGameRunner(
     (p) =>
       new PlayerInfo(
         p.flag,
-        p.clientID == clientID
+        p.clientID === clientID
           ? sanitize(p.username)
           : fixProfaneUsername(sanitize(p.username)),
         PlayerType.Human,

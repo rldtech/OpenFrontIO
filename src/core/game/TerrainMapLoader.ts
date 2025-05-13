@@ -44,7 +44,7 @@ export async function genTerrainFromBin(data: string): Promise<GameMap> {
   const width = (data.charCodeAt(1) << 8) | data.charCodeAt(0);
   const height = (data.charCodeAt(3) << 8) | data.charCodeAt(2);
 
-  if (data.length != width * height + 4) {
+  if (data.length !== width * height + 4) {
     throw new Error(
       `Invalid data: buffer size ${data.length} incorrect for ${width}x${height} terrain plus 4 bytes for dimensions.`,
     );

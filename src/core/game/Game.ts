@@ -348,10 +348,10 @@ export interface Unit {
   ticksLeftInCooldown(cooldownDuration: number): Tick;
   isCooldown(): boolean;
   setDstPort(dstPort: Unit): void;
-  dstPort(): Unit; // Only for trade ships
+  dstPort(): Unit | null; // Only for trade ships
   setSafeFromPirates(): void; // Only for trade ships
   isSafeFromPirates(): boolean; // Only for trade ships
-  detonationDst(): TileRef; // Only for nukes
+  detonationDst(): TileRef | null; // Only for nukes
 
   setMoveTarget(cell: TileRef | null): void;
   moveTarget(): TileRef | null;
@@ -501,6 +501,7 @@ export interface Player {
 }
 
 export interface Game extends GameMap {
+  expireAlliance(alliance: Alliance);
   // Map & Dimensions
   isOnMap(cell: Cell): boolean;
   width(): number;

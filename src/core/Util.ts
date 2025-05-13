@@ -319,4 +319,4 @@ export const emojiTable: string[][] = [
   ["💰", "⚓", "⛵", "🏡", "🛡️"],
 ];
 // 2d to 1d array
-export const flattenedEmojiTable: string[] = [].concat(...emojiTable);
+export const flattenedEmojiTable: string[] = emojiTable.flat();

@@ -120,6 +120,14 @@ export class TerritoryLayer implements Layer {
       if (!centerTile) {
         continue;
       }
+      let color = this.theme.spawnHighlightColor();
+      if (
+        this.game.myPlayer() != null &&
+        this.game.myPlayer() != human &&
+        this.game.myPlayer().isFriendly(human)
+      ) {
+        color = this.theme.selfColor();
+      }
       for (const tile of this.game.bfs(
         centerTile,
         euclDistFN(centerTile, 9, true),
@@ -127,7 +135,7 @@ export class TerritoryLayer implements Layer {
         if (!this.game.hasOwner(tile)) {
           this.paintHighlightCell(
             new Cell(this.game.x(tile), this.game.y(tile)),
-            this.theme.spawnHighlightColor(),
+            color,
             255,
           );
         }

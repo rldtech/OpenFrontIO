@@ -16,13 +16,13 @@ import { PlayerImpl } from "./PlayerImpl";
 export class UnitImpl implements Unit {
   private _active = true;
   private _health: bigint;
-  private _lastTile: TileRef | null = null;
-  // Currently only warship use it
-  private _target: Unit | null = null;
-  private _moveTarget: TileRef | null = null;
+  private _lastTile: TileRef = null;
+  private _target: Unit = null;
+  private _moveTarget: TileRef = null;
   private _targetedBySAM = false;
-
-  private _constructionType: UnitType | undefined = undefined;
+  private _safeFromPiratesCooldown: number; // Only for trade ships
+  private _lastSetSafeFromPirates: number; // Only for trade ships
+  private _constructionType: UnitType = undefined;
 
   private _cooldownTick: Tick | null = null;
   private _dstPort: Unit | undefined = undefined; // Only for trade ships
@@ -45,6 +45,10 @@ export class UnitImpl implements Unit {
     this._detonationDst = unitsSpecificInfos.detonationDst;
     this._warshipTarget = unitsSpecificInfos.warshipTarget;
     this._cooldownDuration = unitsSpecificInfos.cooldownDuration;
+    this._lastSetSafeFromPirates = unitsSpecificInfos.lastSetSafeFromPirates;
+    this._safeFromPiratesCooldown = this.mg
+      .config()
+      .safeFromPiratesCooldownMax();
   }
 
   id() {
@@ -90,9 +94,9 @@ export class UnitImpl implements Unit {
     if (tile == null) {
       throw new Error("tile cannot be null");
     }
+    this.mg.removeUnit(this);
     this._lastTile = this._tile;
     this._tile = tile;
-    this.mg.removeUnit(this);
     this.mg.addUnit(this);
     this.mg.addUpdate(this.toUpdate());
   }
@@ -147,7 +151,7 @@ export class UnitImpl implements Unit {
     this._active = false;
     this.mg.addUpdate(this.toUpdate());
     this.mg.removeUnit(this);
-    if (displayMessage) {
+    if (displayMessage && this.type() != UnitType.MIRVWarhead) {
       this.mg.displayMessage(
         `Your ${this.type()} was destroyed`,
         MessageType.ERROR,
@@ -236,5 +240,16 @@ export class UnitImpl implements Unit {
 
   targetedBySAM(): boolean {
     return this._targetedBySAM;
+  }
+
+  setSafeFromPirates(): void {
+    this._lastSetSafeFromPirates = this.mg.ticks();
+  }
+
+  isSafeFromPirates(): boolean {
+    return (
+      this.mg.ticks() - this._lastSetSafeFromPirates <
+      this._safeFromPiratesCooldown
+    );
   }
 }

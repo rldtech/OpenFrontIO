@@ -17,6 +17,9 @@ export class UserSettings {
   emojis() {
     return this.get("settings.emojis", true);
   }
+  anonymousNames() {
+    return this.get("settings.anonymousNames", false);
+  }
 
   darkMode() {
     return this.get("settings.darkMode", false);
@@ -42,6 +45,10 @@ export class UserSettings {
 
   toggleEmojis() {
     this.set("settings.emojis", !this.emojis());
+  }
+
+  toggleRandomName() {
+    this.set("settings.anonymousNames", !this.anonymousNames());
   }
 
   toggleDarkMode() {

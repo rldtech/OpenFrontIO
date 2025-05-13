@@ -300,7 +300,7 @@ export class BuildMenu extends LitElement implements Layer {
     if (unit.length === 0) {
       return false;
     }
-    return unit[0].canBuild;
+    return unit[0].canBuild !== false;
   }
 
   private cost(item: BuildItemDisplay): number {

@@ -1,5 +1,6 @@
 import { Config } from "../configuration/Config";
 import { ClientID, GameID, PlayerStats } from "../Schemas";
+import { createRandomName } from "../Util";
 import { WorkerClient } from "../worker/WorkerClient";
 import {
   Cell,
@@ -124,11 +125,22 @@ export class UnitView {
 }
 
 export class PlayerView {
+  public anonymousName: string;
+
   constructor(
     private game: GameView,
     public data: PlayerUpdate,
     public nameData: NameViewData,
-  ) {}
+  ) {
+    if (data.clientID == game.myClientID()) {
+      this.anonymousName = this.data.name;
+    } else {
+      this.anonymousName = createRandomName(
+        this.data.name,
+        this.data.playerType,
+      );
+    }
+  }
 
   async actions(tile: TileRef): Promise<PlayerActions> {
     return this.game.worker.playerInteraction(
@@ -167,19 +179,24 @@ export class PlayerView {
     return this.data.flag;
   }
   name(): string {
-    return this.data.name;
+    return userSettings.anonymousNames() && this.anonymousName !== null
+      ? this.anonymousName
+      : this.data.name;
   }
   displayName(): string {
-    return this.data.displayName;
+    return userSettings.anonymousNames() && this.anonymousName !== null
+      ? this.anonymousName
+      : this.data.name;
   }
-  clientID(): ClientID | null {
+
+  clientID(): ClientID {
     return this.data.clientID;
   }
   id(): PlayerID {
     return this.data.id;
   }
-  team(): Team | undefined {
-    return this.data.team;
+  team(): Team | null {
+    return this.data.team ?? null;
   }
   type(): PlayerType {
     return this.data.playerType;
@@ -241,6 +258,10 @@ export class PlayerView {
 
   profile(): Promise<PlayerProfile> {
     return this.game.worker.playerProfile(this.smallID());
+  }
+
+  bestTransportShipSpawn(targetTile: TileRef): Promise<TileRef | false> {
+    return this.game.worker.transportShipSpawn(this.id(), targetTile);
   }
 
   transitiveTargets(): PlayerView[] {

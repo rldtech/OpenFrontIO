@@ -32,19 +32,16 @@ export class MissileSiloExecution implements Execution {
   }
 
   tick(ticks: number): void {
-    if (this.mg === null || this.player === null) {
-      throw new Error("Not initialized");
-    }
-
-    if (this.silo === null) {
-      if (!this.player.canBuild(UnitType.MissileSilo, this.tile)) {
+    if (this.silo == null) {
+      const spawn = this.player.canBuild(UnitType.MissileSilo, this.tile);
+      if (spawn === false) {
         consolex.warn(
           `player ${this.player} cannot build missile silo at ${this.tile}`,
         );
         this.active = false;
         return;
       }
-      this.silo = this.player.buildUnit(UnitType.MissileSilo, 0, this.tile, {
+      this.silo = this.player.buildUnit(UnitType.MissileSilo, 0, spawn, {
         cooldownDuration: this.mg.config().SiloCooldown(),
       });
 

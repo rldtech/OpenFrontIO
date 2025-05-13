@@ -673,7 +673,7 @@ export class DefaultConfig implements Config {
     const cityGold = cityWorkers / 2000;
     const tileGold = (ruralWorkers ** 0.5 * numTiles ** 0.5) / 600;
 
-    const totalGold = 6 * (cityGold + tileGold) ** 0.8;
+    const totalGold = 8.5 * (cityGold + tileGold) ** 0.7;
 
     return Number.isFinite(totalGold) ? totalGold : 0;
   }

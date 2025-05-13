@@ -511,7 +511,7 @@ export class DefaultConfig implements Config {
       const attackratio = defenderTroops / attackTroops;
       return {
         attackerTroopLoss:
-          mag * 12 +
+          mag * 16 +
           defenderdensity *
             mag *
             (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),

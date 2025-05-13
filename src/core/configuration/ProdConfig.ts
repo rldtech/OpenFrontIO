@@ -6,7 +6,7 @@ export const prodConfig = new (class extends DefaultServerConfig {
     return "openfront-prod";
   }
   numWorkers(): number {
-    return 6;
+    return 20;
   }
   env(): GameEnv {
     return GameEnv.Prod;

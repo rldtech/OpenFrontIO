@@ -220,8 +220,11 @@ export class DefaultConfig implements Config {
   defensePostRange(): number {
     return 40;
   }
-  defensePostDefenseBonus(): number {
-    return 5;
+  defensePostLossMultiplier(): number {
+    return 6;
+  }
+  defensePostSpeedMultiplier(): number {
+    return 3;
   }
   playerTeams(): number | typeof Duos {
     return this._gameConfig.playerTeams ?? 0;
@@ -467,8 +470,8 @@ export class DefaultConfig implements Config {
         UnitType.DefensePost,
       )) {
         if (dp.unit.owner() == defender) {
-          mag *= this.defensePostDefenseBonus();
-          speed *= this.defensePostDefenseBonus();
+          mag *= this.defensePostLossMultiplier();
+          speed *= this.defensePostSpeedMultiplier();
           break;
         }
       }

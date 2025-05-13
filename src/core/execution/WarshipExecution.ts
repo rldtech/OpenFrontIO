@@ -72,6 +72,9 @@ export class WarshipExecution implements Execution {
   }
 
   private shoot() {
+    if (this.mg === null || this.warship === null || this.target === null) {
+      throw new Error("Warship not initialized");
+    }
     const shellAttackRate = this.mg.config().warshipShellAttackRate();
     if (this.mg.ticks() - this.lastShellAttack > shellAttackRate) {
       this.lastShellAttack = this.mg.ticks();
@@ -160,6 +163,7 @@ export class WarshipExecution implements Execution {
           !this.alreadySentShell.has(unit) &&
           (unit.type() !== UnitType.TradeShip ||
             (hasPort &&
+              this.warship !== null &&
               unit.dstPort()?.owner() !== this.warship.owner() &&
               !unit.dstPort()?.owner().isFriendly(this.warship.owner()) &&
               unit.isSafeFromPirates() !== true)),
@@ -213,8 +217,8 @@ export class WarshipExecution implements Execution {
     if (
       this.target === null ||
       !this.target.isActive() ||
-      this.target.owner() == this._owner ||
-      this.target.isSafeFromPirates() == true
+      this.target.owner() === this._owner ||
+      this.target.isSafeFromPirates() === true
     ) {
       // In case another warship captured or destroyed target, or the target escaped into safe waters
       this.target = null;
@@ -268,6 +272,9 @@ export class WarshipExecution implements Execution {
   }
 
   randomTile(): TileRef {
+    if (this.mg === null) {
+      throw new Error("Warship not initialized");
+    }
     let warshipPatrolRange = this.mg.config().warshipPatrolRange();
     const maxAttemptBeforeExpand: number = warshipPatrolRange * 2;
     let attemptCount: number = 0;
@@ -295,5 +302,6 @@ export class WarshipExecution implements Execution {
       }
       return tile;
     }
+    throw new Error("unreachable");
   }
 }

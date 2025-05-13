@@ -293,7 +293,7 @@ export function createRandomName(
   name: string,
   playerType: string,
 ): string | null {
-  let randomName = null;
+  let randomName: string | null = null;
   if (playerType === "HUMAN") {
     const hash = simpleHash(name);
     const prefixIndex = hash % BOT_NAME_PREFIXES.length;

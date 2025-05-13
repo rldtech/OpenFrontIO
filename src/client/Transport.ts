@@ -176,7 +176,7 @@ export class Transport {
     // If gameRecord is not null, we are replaying an archived game.
     // For multiplayer games, GameConfig is not known until game starts.
     this.isLocal =
-      typeof lobbyConfig.gameRecord !== "undefined" ||
+      lobbyConfig.gameRecord !== undefined ||
       lobbyConfig.gameStartInfo?.config.gameType === GameType.Singleplayer;
 
     this.eventBus.on(SendAllianceRequestIntentEvent, (e) =>
@@ -291,7 +291,7 @@ export class Transport {
       while (this.buffer.length > 0) {
         console.log("sending dropped message");
         const msg = this.buffer.pop();
-        if (typeof msg === "undefined") {
+        if (msg === undefined) {
           console.warn("msg is undefined");
           continue;
         }

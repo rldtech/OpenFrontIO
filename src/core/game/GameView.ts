@@ -119,7 +119,7 @@ export class UnitView {
     return this.data.ticksLeftInCooldown;
   }
   isCooldown(): boolean {
-    if (typeof this.data.ticksLeftInCooldown === "undefined") return false;
+    if (this.data.ticksLeftInCooldown === undefined) return false;
     return this.data.ticksLeftInCooldown > 0;
   }
 }
@@ -346,7 +346,7 @@ export class GameView implements GameMap {
     gu.updates[GameUpdateType.Player].forEach((pu) => {
       this.smallIDToID.set(pu.smallID, pu.id);
       const player = this._players.get(pu.id);
-      if (typeof player !== "undefined") {
+      if (player !== undefined) {
         player.data = pu;
         player.nameData = gu.playerNameViewData[pu.id];
       } else {
@@ -362,7 +362,7 @@ export class GameView implements GameMap {
     }
     gu.updates[GameUpdateType.Unit].forEach((update) => {
       let unit = this._units.get(update.id);
-      if (typeof unit !== "undefined") {
+      if (unit !== undefined) {
         unit.update(update);
       } else {
         unit = new UnitView(this, update);
@@ -408,7 +408,7 @@ export class GameView implements GameMap {
 
   player(id: PlayerID): PlayerView {
     const player = this._players.get(id);
-    if (typeof player === "undefined") {
+    if (player === undefined) {
       throw Error(`player id ${id} not found`);
     }
     return player;
@@ -423,7 +423,7 @@ export class GameView implements GameMap {
       return new TerraNulliusImpl();
     }
     const playerId = this.smallIDToID.get(id);
-    if (typeof playerId === "undefined") {
+    if (playerId === undefined) {
       throw new Error(`small id ${id} not found`);
     }
     return this.player(playerId);

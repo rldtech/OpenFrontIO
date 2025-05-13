@@ -26,7 +26,7 @@ export async function loadTerrainMap(
   map: GameMapType,
 ): Promise<TerrainMapData> {
   const cached = loadedMaps.get(map);
-  if (typeof cached !== "undefined") return cached;
+  if (cached !== undefined) return cached;
   const mapFiles = await terrainMapFileLoader.getMapData(map);
 
   const gameMap = await genTerrainFromBin(mapFiles.mapBin);

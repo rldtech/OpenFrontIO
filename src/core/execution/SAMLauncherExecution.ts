@@ -23,7 +23,7 @@ export class SAMLauncherExecution implements Execution {
   private MIRVWarheadSearchRadius = 400;
   private MIRVWarheadProtectionRadius = 50;
 
-  private pseudoRandom: PseudoRandom;
+  private pseudoRandom: PseudoRandom | undefined;
 
   constructor(
     private ownerId: PlayerID,
@@ -115,7 +115,7 @@ export class SAMLauncherExecution implements Execution {
       this.player = this.sam.owner();
     }
 
-    if (this.pseudoRandom === null) {
+    if (this.pseudoRandom === undefined) {
       this.pseudoRandom = new PseudoRandom(this.sam.id());
     }
 

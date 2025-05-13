@@ -109,7 +109,7 @@ export async function createClientGame(
   userSettings: UserSettings,
   terrainLoad: Promise<TerrainMapData> | null,
 ): Promise<ClientGameRunner> {
-  if (typeof lobbyConfig.gameStartInfo === "undefined") {
+  if (lobbyConfig.gameStartInfo === undefined) {
     throw new Error("missing gameStartInfo");
   }
   const config = await getConfig(
@@ -204,7 +204,7 @@ export class ClientGameRunner {
       winner = update.winner as Team;
     }
 
-    if (typeof this.lobby.gameStartInfo === "undefined") {
+    if (this.lobby.gameStartInfo === undefined) {
       throw new Error("missing gameStartInfo");
     }
     const record = createGameRecord(
@@ -239,7 +239,7 @@ export class ClientGameRunner {
     this.renderer.initialize();
     this.input.initialize();
     this.worker.start((gu: GameUpdateViewData | ErrorUpdate) => {
-      if (typeof this.lobby.gameStartInfo === "undefined") {
+      if (this.lobby.gameStartInfo === undefined) {
         throw new Error("missing gameStartInfo");
       }
       if ("errMsg" in gu) {
@@ -296,7 +296,7 @@ export class ClientGameRunner {
         }
       }
       if (message.type === "desync") {
-        if (typeof this.lobby.gameStartInfo === "undefined") {
+        if (this.lobby.gameStartInfo === undefined) {
           throw new Error("missing gameStartInfo");
         }
         showErrorModal(

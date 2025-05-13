@@ -235,7 +235,7 @@ async function fetchLobbies(): Promise<number> {
   lobbyInfos.forEach((l) => {
     if (
       "msUntilStart" in l &&
-      typeof l.msUntilStart !== "undefined" &&
+      l.msUntilStart !== undefined &&
       l.msUntilStart <= 250
     ) {
       publicLobbyIDs.delete(l.gameID);
@@ -244,11 +244,11 @@ async function fetchLobbies(): Promise<number> {
 
     if (
       "gameConfig" in l &&
-      typeof l.gameConfig !== "undefined" &&
+      l.gameConfig !== undefined &&
       "maxPlayers" in l.gameConfig &&
-      typeof l.gameConfig.maxPlayers !== "undefined" &&
+      l.gameConfig.maxPlayers !== undefined &&
       "numClients" in l &&
-      typeof l.numClients !== "undefined" &&
+      l.numClients !== undefined &&
       l.gameConfig.maxPlayers <= l.numClients
     ) {
       publicLobbyIDs.delete(l.gameID);

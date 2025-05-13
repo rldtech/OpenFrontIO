@@ -27,7 +27,7 @@ function save(stats: LocalStatsData) {
 // The user can quit the game anytime so better save the lobby as soon as the
 // game starts.
 export function startGame(id: GameID, lobby: Partial<GameConfig>) {
-  if (typeof localStorage === "undefined") {
+  if (localStorage === undefined) {
     return;
   }
 
@@ -42,7 +42,7 @@ export function startTime() {
 }
 
 export function endGame(gameRecord: GameRecord) {
-  if (typeof localStorage === "undefined") {
+  if (localStorage === undefined) {
     return;
   }
 

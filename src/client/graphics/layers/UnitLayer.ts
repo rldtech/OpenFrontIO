@@ -304,7 +304,7 @@ export class UnitLayer implements Layer {
     // Clear current and previous positions
     this.clearCell(this.game.x(unit.lastTile()), this.game.y(unit.lastTile()));
     const oldTile = this.oldShellTile.get(unit);
-    if (typeof oldTile !== "undefined") {
+    if (oldTile !== undefined) {
       this.clearCell(this.game.x(oldTile), this.game.y(oldTile));
     }
 

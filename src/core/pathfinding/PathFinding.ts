@@ -135,7 +135,7 @@ export class PathFinder {
         return this.nextTile(curr, dst);
       } else {
         const tile = this.path?.shift();
-        if (typeof tile === "undefined") {
+        if (tile === undefined) {
           throw new Error("missing tile");
         }
         return { type: PathFindResultType.NextTile, tile };

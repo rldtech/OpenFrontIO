@@ -488,7 +488,7 @@ export class RadialMenu implements Layer {
     action: () => void,
   ) {
     const menuItem = this.menuItems.get(slot);
-    if (typeof menuItem === "undefined") return;
+    if (menuItem === undefined) return;
     menuItem.action = action;
     menuItem.disabled = false;
     menuItem.color = color;

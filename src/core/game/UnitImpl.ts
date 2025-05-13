@@ -62,7 +62,7 @@ export class UnitImpl implements Unit {
     const dstPort = this.dstPort();
     if (this._lastTile === null) throw new Error("null _lastTile");
     const ticksLeftInCooldown =
-      typeof this._cooldownDuration !== "undefined"
+      this._cooldownDuration !== undefined
         ? this.ticksLeftInCooldown(this._cooldownDuration)
         : undefined;
     return {

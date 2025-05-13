@@ -237,7 +237,6 @@ export function decompressGameRecord(gameRecord: GameRecord) {
     while (lastTurnNum < turn.turnNumber - 1) {
       lastTurnNum++;
       turns.push({
-        gameID: gameRecord.id,
         turnNumber: lastTurnNum,
         intents: [],
       });
@@ -248,7 +247,6 @@ export function decompressGameRecord(gameRecord: GameRecord) {
   const turnLength = turns.length;
   for (let i = turnLength; i < gameRecord.num_turns; i++) {
     turns.push({
-      gameID: gameRecord.id,
       turnNumber: i,
       intents: [],
     });

@@ -140,7 +140,7 @@ export class StructureLayer implements Layer {
     const unitUpdates = updates !== null ? updates[GameUpdateType.Unit] : [];
     for (const u of unitUpdates) {
       const unit = this.game.unit(u.id);
-      if (typeof unit === "undefined") continue;
+      if (unit === undefined) continue;
       this.handleUnitRendering(unit);
     }
   }

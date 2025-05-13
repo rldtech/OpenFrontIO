@@ -202,7 +202,7 @@ export class DefaultConfig implements Config {
   }
 
   cityPopulationIncrease(): number {
-    return 500_000;
+    return 250_000;
   }
 
   falloutDefenseModifier(falloutRatio: number): number {
@@ -374,7 +374,7 @@ export class DefaultConfig implements Config {
                   Math.pow(
                     2,
                     p.unitsIncludingConstruction(UnitType.City).length,
-                  ) * 250_000,
+                  ) * 125_000,
                 ),
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 2 * 10,

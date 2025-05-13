@@ -61,13 +61,13 @@ export abstract class DefaultServerConfig implements ServerConfig {
     );
   }
   otelEndpoint(): string {
-    return process.env.OTEL_ENDPOINT;
+    return process.env.OTEL_ENDPOINT ?? "undefined";
   }
   otelUsername(): string {
-    return process.env.OTEL_USERNAME;
+    return process.env.OTEL_USERNAME ?? "undefined";
   }
   otelPassword(): string {
-    return process.env.OTEL_PASSWORD;
+    return process.env.OTEL_PASSWORD ?? "undefined";
   }
   region(): string {
     if (this.env() === GameEnv.Dev) {
@@ -89,7 +89,7 @@ export abstract class DefaultServerConfig implements ServerConfig {
   }
 
   r2Bucket(): string {
-    return process.env.R2_BUCKET;
+    return process.env.R2_BUCKET ?? "undefined";
   }
 
   adminHeader(): string {
@@ -219,7 +219,7 @@ export class DefaultConfig implements Config {
     return this._serverConfig;
   }
 
-  userSettings(): UserSettings | null {
+  userSettings(): UserSettings {
     return this._userSettings;
   }
 

@@ -19,7 +19,7 @@ import { TestServerConfig } from "./TestServerConfig";
 
 export async function setup(
   mapName: string,
-  _gameConfig: GameConfig = {},
+  _gameConfig: Partial<GameConfig> = {},
   humans: PlayerInfo[] = [],
 ): Promise<Game> {
   // Load the specified map

@@ -329,7 +329,11 @@ export interface Unit {
   troops(): number;
   owner(): Player;
   info(): UnitInfo;
-
+  data: {
+    pathCache?: Map<string, TileRef>;
+    [key: string]: any; 
+  };
+  
   // Location
   tile(): TileRef;
   lastTile(): TileRef;

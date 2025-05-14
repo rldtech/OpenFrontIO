@@ -331,9 +331,9 @@ export interface Unit {
   info(): UnitInfo;
   data: {
     pathCache?: Map<string, TileRef>;
-    [key: string]: any; 
+    [key: string]: any; // Allow other properties like dstPort, lastSetSafeFromPirates
   };
-  
+
   // Location
   tile(): TileRef;
   lastTile(): TileRef;

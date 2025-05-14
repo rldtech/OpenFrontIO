@@ -14,7 +14,7 @@ import { TileRef, TileUpdate } from "./GameMap";
 
 export interface GameUpdateViewData {
   tick: number;
-  updates: GameUpdates | null;
+  updates: GameUpdates;
   packedTileUpdates: BigUint64Array;
   playerNameViewData: Record<number, NameViewData>;
 }

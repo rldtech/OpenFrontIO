@@ -11,7 +11,7 @@ export let cachedSC: ServerConfig | null = null;
 
 export async function getConfig(
   gameConfig: GameConfig,
-  userSettings: UserSettings | null = null,
+  userSettings: UserSettings,
   isReplay: boolean = false,
 ): Promise<Config> {
   const sc = await getServerConfigFromClient();

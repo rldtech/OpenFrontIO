@@ -115,7 +115,7 @@ export async function createClientGame(
   const config = await getConfig(
     lobbyConfig.gameStartInfo.config,
     userSettings,
-    lobbyConfig.gameRecord != null,
+    lobbyConfig.gameRecord !== undefined,
   );
   let gameMap: TerrainMapData | null = null;
 
@@ -366,10 +366,11 @@ export class ClientGameRunner {
       this.myPlayer = myPlayer;
     }
     this.myPlayer.actions(tile).then((actions) => {
+      if (this.myPlayer === null) return;
       const bu = actions.buildableUnits.find(
-        (bu) => bu.type == UnitType.TransportShip,
+        (bu) => bu.type === UnitType.TransportShip,
       );
-      if (bu == null) {
+      if (bu === undefined) {
         console.warn(`no transport ship buildable units`);
         return;
       }
@@ -388,7 +389,8 @@ export class ClientGameRunner {
         this.myPlayer
           .bestTransportShipSpawn(this.gameView.ref(cell.x, cell.y))
           .then((spawn: number | false) => {
-            let spawnCell = null;
+            if (this.myPlayer === null) throw new Error("not initialized");
+            let spawnCell: Cell | null = null;
             if (spawn !== false) {
               spawnCell = new Cell(
                 this.gameView.x(spawn),

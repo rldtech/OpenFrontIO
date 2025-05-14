@@ -31,6 +31,7 @@ const frequency = {
   FaroeIslands: 1,
   FalklandIslands: 1,
   Baikal: 1,
+  LargeWorld: 10,
 };
 
 interface MapWithMode {

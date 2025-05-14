@@ -124,7 +124,6 @@ const GameConfigSchema = z.object({
   infiniteTroops: z.boolean(),
   instantBuild: z.boolean(),
   maxPlayers: z.number().optional(),
-  numPlayerTeams: z.number().optional(),
   disabledUnits: z.array(z.nativeEnum(UnitType)).optional(),
   playerTeams: z.union([z.number().optional(), z.literal(Duos)]),
 });

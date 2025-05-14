@@ -159,13 +159,13 @@ export abstract class DefaultServerConfig implements ServerConfig {
         return Math.random() < 0.5 ? 30 : 15;
       }
       // world belongs with the ~2 mils, but these amounts never made sense so I assume the insanity is intended.
-      if (map == GameMapType.World) {
+      if (map === GameMapType.World) {
         return Math.random() < 0.2 ? 150 : 50;
       }
       // default return for non specified map
       return Math.random() < 0.2 ? 50 : 20;
     };
-    return Math.min(150, numPlayers() * (mode == GameMode.Team ? 2 : 1));
+    return Math.min(150, numPlayers() * (mode === GameMode.Team ? 2 : 1));
   }
 
   workerIndex(gameID: GameID): number {

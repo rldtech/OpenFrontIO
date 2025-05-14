@@ -65,8 +65,9 @@ export const pastelTheme = new (class implements Theme {
   }
 
   territoryColor(player: PlayerView): Colord {
-    if (player.team() !== null) {
-      return this.teamColor(player.team());
+    const team = player.team();
+    if (team !== null) {
+      return this.teamColor(team);
     }
     if (player.info().playerType === PlayerType.Human) {
       return humanColors[simpleHash(player.id()) % humanColors.length];

@@ -197,9 +197,11 @@ class Client {
       "user-setting",
     ) as UserSettingModal;
     settingsModal instanceof UserSettingModal;
-    document.getElementById("settings-button").addEventListener("click", () => {
-      settingsModal.open();
-    });
+    document
+      .getElementById("settings-button")
+      ?.addEventListener("click", () => {
+        settingsModal.open();
+      });
 
     const hostModal = document.querySelector(
       "host-lobby-modal",
@@ -279,7 +281,7 @@ class Client {
           this.flagInput === null || this.flagInput.getCurrentFlag() === "xx"
             ? ""
             : this.flagInput.getCurrentFlag(),
-        playerName: this.usernameInput.getCurrentUsername(),
+        playerName: this.usernameInput?.getCurrentUsername() ?? "",
         token: localStorage.getItem("token") ?? getPersistentIDFromCookie(),
         clientID: lobby.clientID,
         gameStartInfo: lobby.gameStartInfo ?? lobby.gameRecord?.gameStartInfo,
@@ -287,7 +289,7 @@ class Client {
       },
       () => {
         console.log("Closing modals");
-        document.getElementById("settings-button").classList.add("hidden");
+        document.getElementById("settings-button")?.classList.add("hidden");
         [
           "single-player-modal",
           "host-lobby-modal",

@@ -43,7 +43,7 @@ export class LocalServer {
 
   start() {
     this.turnCheckInterval = setInterval(() => {
-      if (this.turnsExecuted == this.turns.length) {
+      if (this.turnsExecuted === this.turns.length) {
         if (
           this.isReplay ||
           Date.now() >

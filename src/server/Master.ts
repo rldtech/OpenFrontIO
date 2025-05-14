@@ -103,7 +103,7 @@ export async function startMaster() {
         setInterval(
           () =>
             fetchLobbies().then((lobbies) => {
-              if (lobbies == 0) {
+              if (lobbies === 0) {
                 scheduleLobbies();
               }
             }),

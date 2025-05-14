@@ -33,7 +33,7 @@ export class BotExecution implements Execution {
   }
 
   tick(ticks: number) {
-    if (ticks % this.attackRate != this.attackTick) return;
+    if (ticks % this.attackRate !== this.attackTick) return;
 
     if (!this.bot.isAlive()) {
       this.active = false;

@@ -59,7 +59,7 @@ export class TradeShipExecution implements Execution {
       return;
     }
 
-    if (this.origOwner != this.tradeShip.owner()) {
+    if (this.origOwner !== this.tradeShip.owner()) {
       // Store as variable in case ship is recaptured by previous owner
       this.wasCaptured = true;
     }

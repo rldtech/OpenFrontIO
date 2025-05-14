@@ -42,13 +42,16 @@ export class EmojiExecution implements Execution {
 
   tick(ticks: number): void {
     const emojiString = flattenedEmojiTable.at(this.emoji);
-
-    if (this.requestor.canSendEmoji(this.recipient)) {
+    if (emojiString === undefined) {
+      consolex.warn(
+        `cannot send emoji ${this.emoji} from ${this.requestor} to ${this.recipient}`,
+      );
+    } else if (this.requestor.canSendEmoji(this.recipient)) {
       this.requestor.sendEmoji(this.recipient, emojiString);
       if (
-        emojiString == "🖕" &&
-        this.recipient != AllPlayers &&
-        this.recipient.type() == PlayerType.FakeHuman
+        emojiString === "🖕" &&
+        this.recipient !== AllPlayers &&
+        this.recipient.type() === PlayerType.FakeHuman
       ) {
         this.recipient.updateRelation(this.requestor, -100);
       }

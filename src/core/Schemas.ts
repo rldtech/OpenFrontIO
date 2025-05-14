@@ -226,11 +226,11 @@ export const SpawnIntentSchema = BaseIntentSchema.extend({
 export const BoatAttackIntentSchema = BaseIntentSchema.extend({
   type: z.literal("boat"),
   targetID: ID.nullable(),
-  troops: z.number().nullable(),
+  troops: z.number(),
   dstX: z.number(),
   dstY: z.number(),
-  srcX: z.number().nullable().optional(),
-  srcY: z.number().nullable().optional(),
+  srcX: z.number().nullable(),
+  srcY: z.number().nullable(),
 });
 
 export const AllianceRequestIntentSchema = BaseIntentSchema.extend({

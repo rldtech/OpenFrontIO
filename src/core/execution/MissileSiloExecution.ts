@@ -32,7 +32,10 @@ export class MissileSiloExecution implements Execution {
   }
 
   tick(ticks: number): void {
-    if (this.silo == null) {
+    if (this.player === null || this.mg === null) {
+      throw new Error("Not initialized");
+    }
+    if (this.silo === null) {
       const spawn = this.player.canBuild(UnitType.MissileSilo, this.tile);
       if (spawn === false) {
         consolex.warn(

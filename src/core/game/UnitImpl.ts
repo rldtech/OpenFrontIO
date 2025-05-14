@@ -16,13 +16,12 @@ import { PlayerImpl } from "./PlayerImpl";
 export class UnitImpl implements Unit {
   private _active = true;
   private _health: bigint;
-  private _lastTile: TileRef = null;
-  private _target: Unit = null;
-  private _moveTarget: TileRef = null;
+  private _lastTile: TileRef;
+  private _moveTarget: TileRef | null = null;
   private _targetedBySAM = false;
   private _safeFromPiratesCooldown: number; // Only for trade ships
   private _lastSetSafeFromPirates: number; // Only for trade ships
-  private _constructionType: UnitType = undefined;
+  private _constructionType: UnitType | undefined;
 
   private _troops: number;
   private _cooldownTick: Tick | null = null;
@@ -45,12 +44,14 @@ export class UnitImpl implements Unit {
       .config()
       .safeFromPiratesCooldownMax();
 
-    this._troops = "troops" in params ? params.troops : 0;
-    this._dstPort = "dstPort" in params ? params.dstPort : null;
+    this._troops = "troops" in params ? (params.troops ?? 0) : 0;
+    this._dstPort = "dstPort" in params ? params.dstPort : undefined;
     this._cooldownDuration =
-      "cooldownDuration" in params ? params.cooldownDuration : null;
+      "cooldownDuration" in params ? params.cooldownDuration : undefined;
     this._lastSetSafeFromPirates =
-      "lastSetSafeFromPirates" in params ? params.lastSetSafeFromPirates : 0;
+      "lastSetSafeFromPirates" in params
+        ? (params.lastSetSafeFromPirates ?? 0)
+        : 0;
   }
 
   id() {
@@ -93,7 +94,7 @@ export class UnitImpl implements Unit {
   }
 
   move(tile: TileRef): void {
-    if (tile == null) {
+    if (tile === null) {
       throw new Error("tile cannot be null");
     }
     this.mg.removeUnit(this);
@@ -112,7 +113,7 @@ export class UnitImpl implements Unit {
     return Number(this._health);
   }
   hasHealth(): boolean {
-    return this.info().maxHealth != undefined;
+    return this.info().maxHealth !== undefined;
   }
   tile(): TileRef {
     return this._tile;
@@ -127,7 +128,7 @@ export class UnitImpl implements Unit {
 
   setOwner(newOwner: Player): void {
     const oldOwner = this._owner;
-    oldOwner._units = oldOwner._units.filter((u) => u != this);
+    oldOwner._units = oldOwner._units.filter((u) => u !== this);
     this._owner = newOwner as PlayerImpl;
     this.mg.addUpdate(this.toUpdate());
     this.mg.displayMessage(
@@ -149,11 +150,11 @@ export class UnitImpl implements Unit {
     if (!this.isActive()) {
       throw new Error(`cannot delete ${this} not active`);
     }
-    this._owner._units = this._owner._units.filter((b) => b != this);
+    this._owner._units = this._owner._units.filter((b) => b !== this);
     this._active = false;
     this.mg.addUpdate(this.toUpdate());
     this.mg.removeUnit(this);
-    if (displayMessage && this.type() != UnitType.MIRVWarhead) {
+    if (displayMessage && this.type() !== UnitType.MIRVWarhead) {
       this.mg.displayMessage(
         `Your ${this.type()} was destroyed`,
         MessageType.ERROR,
@@ -166,14 +167,14 @@ export class UnitImpl implements Unit {
   }
 
   constructionType(): UnitType | null {
-    if (this.type() != UnitType.Construction) {
+    if (this.type() !== UnitType.Construction) {
       throw new Error(`Cannot get construction type on ${this.type()}`);
     }
     return this._constructionType ?? null;
   }
 
   setConstructionType(type: UnitType): void {
-    if (this.type() != UnitType.Construction) {
+    if (this.type() !== UnitType.Construction) {
       throw new Error(`Cannot set construction type on ${this.type()}`);
     }
     this._constructionType = type;

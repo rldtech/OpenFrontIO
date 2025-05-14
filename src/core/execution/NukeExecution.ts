@@ -111,7 +111,7 @@ export class NukeExecution implements Execution {
       this.pathFinder.computeControlPoints(
         spawn,
         this.dst,
-        this.type != UnitType.MIRVWarhead,
+        this.type !== UnitType.MIRVWarhead,
       );
       this.nuke = this.player.buildUnit(this.type, spawn, {
         detonationDst: this.dst,

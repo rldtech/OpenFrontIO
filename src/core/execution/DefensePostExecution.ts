@@ -16,7 +16,7 @@ export class DefensePostExecution implements Execution {
   private post: Unit | null = null;
   private active: boolean = true;
 
-  private target: Unit = null;
+  private target: Unit | null = null;
   private lastShellAttack = 0;
 
   private alreadySentShell = new Set<Unit>();
@@ -37,6 +37,8 @@ export class DefensePostExecution implements Execution {
   }
 
   private shoot() {
+    if (this.post === null) return;
+    if (this.target === null) return;
     const shellAttackRate = this.mg.config().defensePostShellAttackRate();
     if (this.mg.ticks() - this.lastShellAttack > shellAttackRate) {
       this.lastShellAttack = this.mg.ticks();
@@ -76,7 +78,7 @@ export class DefensePostExecution implements Execution {
       this.player = this.post.owner();
     }
 
-    if (this.target != null && !this.target.isActive()) {
+    if (this.target !== null && !this.target.isActive()) {
       this.target = null;
     }
 
@@ -117,7 +119,7 @@ export class DefensePostExecution implements Execution {
         return distA - distB;
       })[0]?.unit ?? null;
 
-    if (this.target == null || !this.target.isActive()) {
+    if (this.target === null || !this.target.isActive()) {
       this.target = null;
       return;
     } else {

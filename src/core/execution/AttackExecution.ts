@@ -283,7 +283,7 @@ export class AttackExecution implements Execution {
       this.border.add(neighbor);
       const numOwnedByMe = this.mg
         .neighbors(neighbor)
-        .filter((t) => this.mg.owner(t) == this._owner).length;
+        .filter((t) => this.mg.owner(t) === this._owner).length;
       let mag = 0;
       switch (this.mg.terrainType(tile)) {
         case TerrainType.Plains:

@@ -111,11 +111,11 @@ export class FakeHumanExecution implements Execution {
   }
 
   tick(ticks: number) {
-    if (ticks % this.attackRate != this.attackTick) return;
+    if (ticks % this.attackRate !== this.attackTick) return;
 
     if (this.mg.inSpawnPhase()) {
       const rl = this.randomLand();
-      if (rl == null) {
+      if (rl === null) {
         consolex.warn(`cannot spawn ${this.nation.playerInfo.name}`);
         return;
       }
@@ -123,11 +123,11 @@ export class FakeHumanExecution implements Execution {
       return;
     }
 
-    if (this.player == null) {
-      this.player = this.mg
-        .players()
-        .find((p) => p.id() == this.nation.playerInfo.id);
-      if (this.player == null) {
+    if (this.player === null) {
+      this.player =
+        this.mg.players().find((p) => p.id() === this.nation.playerInfo.id) ??
+        null;
+      if (this.player === null) {
         return;
       }
     }
@@ -170,6 +170,9 @@ export class FakeHumanExecution implements Execution {
   }
 
   private maybeAttack() {
+    if (this.player === null || this.behavior === null) {
+      throw new Error("not initialized");
+    }
     const enemyborder = Array.from(this.player.borderTiles())
       .flatMap((t) => this.mg.neighbors(t))
       .filter(
@@ -255,6 +258,9 @@ export class FakeHumanExecution implements Execution {
   }
 
   handleEnemies() {
+    if (this.player === null || this.behavior === null) {
+      throw new Error("not initialized");
+    }
     this.behavior.forgetOldEnemies();
     this.behavior.checkIncomingAttacks();
     this.behavior.assistAllies();
@@ -270,7 +276,8 @@ export class FakeHumanExecution implements Execution {
   }
 
   private maybeSendEmoji(enemy: Player) {
-    if (enemy.type() != PlayerType.Human) return;
+    if (this.player === null) throw new Error("not initialized");
+    if (enemy.type() !== PlayerType.Human) return;
     const lastSent = this.lastEmojiSent.get(enemy) ?? -300;
     if (this.mg.ticks() - lastSent <= 300) return;
     this.lastEmojiSent.set(enemy, this.mg.ticks());
@@ -284,11 +291,12 @@ export class FakeHumanExecution implements Execution {
   }
 
   private maybeSendNuke(other: Player) {
+    if (this.player === null) throw new Error("not initialized");
     const silos = this.player.units(UnitType.MissileSilo);
     if (
-      silos.length == 0 ||
+      silos.length === 0 ||
       this.player.gold() < this.cost(UnitType.AtomBomb) ||
-      other.type() == PlayerType.Bot ||
+      other.type() === PlayerType.Bot ||
       this.player.isOnSameTeam(other)
     ) {
       return;
@@ -302,17 +310,17 @@ export class FakeHumanExecution implements Execution {
       UnitType.SAMLauncher,
     );
     const structureTiles = structures.map((u) => u.tile());
-    const randomTiles: TileRef[] = new Array(10);
+    const randomTiles: (TileRef | null)[] = new Array(10);
     for (let i = 0; i < randomTiles.length; i++) {
       randomTiles[i] = this.randTerritoryTile(other);
     }
     const allTiles = randomTiles.concat(structureTiles);
 
-    let bestTile = null;
+    let bestTile: TileRef | null = null;
     let bestValue = 0;
     this.removeOldNukeEvents();
     outer: for (const tile of new Set(allTiles)) {
-      if (tile == null) continue;
+      if (tile === null) continue;
       for (const t of this.mg.bfs(tile, manhattanDistFN(tile, 15))) {
         // Make sure we nuke at least 15 tiles in border
         if (this.mg.owner(t) !== other) {
@@ -321,12 +329,12 @@ export class FakeHumanExecution implements Execution {
       }
       if (!this.player.canBuild(UnitType.AtomBomb, tile)) continue;
       const value = this.nukeTileScore(tile, silos, structures);
-      if (value > bestTile) {
+      if (value > bestValue) {
         bestTile = tile;
         bestValue = value;
       }
     }
-    if (bestTile != null) {
+    if (bestTile !== null) {
       this.sendNuke(bestTile);
     }
   }
@@ -343,6 +351,7 @@ export class FakeHumanExecution implements Execution {
   }
 
   private sendNuke(tile: TileRef) {
+    if (this.player === null) throw new Error("not initialized");
     const tick = this.mg.ticks();
     this.lastNukeSent.push([tick, tile]);
     this.mg.addExecution(
@@ -375,7 +384,9 @@ export class FakeHumanExecution implements Execution {
 
     // Prefer tiles that are closer to a silo
     const siloTiles = silos.map((u) => u.tile());
-    const { x: closestSilo } = closestTwoTiles(this.mg, siloTiles, [tile]);
+    const result = closestTwoTiles(this.mg, siloTiles, [tile]);
+    if (result === null) throw new Error("Missing result");
+    const { x: closestSilo } = result;
     const distanceSquared = this.mg.euclideanDistSquared(tile, closestSilo);
     const distanceToClosestSilo = Math.sqrt(distanceSquared);
     tileValue -= distanceToClosestSilo * 30;
@@ -437,6 +448,7 @@ export class FakeHumanExecution implements Execution {
   }
 
   private maybeSpawnStructure(type: UnitType, maxNum: number) {
+    if (this.player === null) throw new Error("not initialized");
     const units = this.player.units(type);
     if (units.length >= maxNum) {
       return;

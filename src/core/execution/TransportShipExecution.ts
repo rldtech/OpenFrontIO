@@ -39,7 +39,7 @@ export class TransportShipExecution implements Execution {
     private attackerID: PlayerID,
     private targetID: PlayerID | null,
     private ref: TileRef,
-    private troops: number | null,
+    private troops: number,
     private src: TileRef | null,
   ) {}
 
@@ -120,19 +120,19 @@ export class TransportShipExecution implements Execution {
       UnitType.TransportShip,
       this.dst,
     );
-    if (closestTileSrc == false) {
+    if (closestTileSrc === false) {
       consolex.warn(`can't build transport ship`);
       this.active = false;
       return;
     }
 
-    if (this.src == null) {
+    if (this.src === null) {
       // Only update the src if it's not already set
       // because we assume that the src is set to the best spawn tile
       this.src = closestTileSrc;
     } else {
       if (
-        this.mg.owner(this.src) != this.attacker ||
+        this.mg.owner(this.src) !== this.attacker ||
         !this.mg.isShore(this.src)
       ) {
         console.warn(

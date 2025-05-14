@@ -6,7 +6,7 @@ import { PseudoRandom } from "../PseudoRandom";
 export class ShellExecution implements Execution {
   private active = true;
   private pathFinder: AirPathFinder;
-  private shell: Unit;
+  private shell: Unit | undefined;
   private mg: Game;
   private destroyAtTick: number = -1;
 
@@ -23,7 +23,7 @@ export class ShellExecution implements Execution {
   }
 
   tick(ticks: number): void {
-    if (this.shell == null) {
+    if (this.shell === undefined) {
       this.shell = this._owner.buildUnit(UnitType.Shell, this.spawn, {});
     }
     if (!this.shell.isActive()) {
@@ -40,7 +40,7 @@ export class ShellExecution implements Execution {
       return;
     }
 
-    if (this.destroyAtTick == -1 && !this.ownerUnit.isActive()) {
+    if (this.destroyAtTick === -1 && !this.ownerUnit.isActive()) {
       this.destroyAtTick = this.mg.ticks() + this.mg.config().shellLifetime();
     }
 
@@ -61,8 +61,8 @@ export class ShellExecution implements Execution {
   }
 
   private effectOnTarget(): number {
-    const baseDamage: number = this.mg.config().unitInfo(UnitType.Shell).damage;
-    return baseDamage;
+    const { damage } = this.mg.config().unitInfo(UnitType.Shell);
+    return damage ?? 0;
   }
 
   isActive(): boolean {

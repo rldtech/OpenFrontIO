@@ -57,12 +57,12 @@ export class TradeShipExecution implements Execution {
     }
 
     if (this.origOwner != this.tradeShip.owner()) {
-    
+      // Store as variable in case ship is recaptured by previous owner
       this.wasCaptured = true;
     }
 
     // If a player captures another player's port while trading we should delete
-    // the ship
+    // the ship.
     if (this._dstPort.owner().id() == this.srcPort.owner().id()) {
       this.tradeShip.delete(false);
       this.active = false;
@@ -97,18 +97,20 @@ export class TradeShipExecution implements Execution {
     const currentTile = this.tradeShip.tile();
     const dstPort = this._dstPort;
 
- 
+    // Initialize dstPort.data if it doesn't exist
     if (!dstPort.data) {
       dstPort.data = {};
     }
 
-
+    // Check the reverse path cache
     if (dstPort.data.pathCache) {
       const key = `${this.mg.x(currentTile)},${this.mg.y(currentTile)}`;
       const cachedNextTile = dstPort.data.pathCache.get(key);
       if (cachedNextTile) {
-      
-        if (this.mg.isWater(cachedNextTile) && this.mg.isShoreline(cachedNextTile)) {
+        // Use cached direction, skip pathfinding
+        if (this.mg.isWater(cachedNextTile) && manages potential map changes
+          this.mg.isShoreline(cachedNextTile)
+        ) {
           this.tradeShip.setSafeFromPirates();
         }
         this.tradeShip.move(cachedNextTile);
@@ -116,7 +118,7 @@ export class TradeShipExecution implements Execution {
       }
     }
 
-    
+    // Fallback to pathfinder if no cache entry
     const result = this.pathFinder.nextTile(currentTile, dstPort.tile());
 
     switch (result.type) {
@@ -124,18 +126,18 @@ export class TradeShipExecution implements Execution {
         this.complete();
         break;
       case PathFindResultType.Pending:
-        // Fire unit event to rerender
+        // Fire unit event to rerender.
         this.tradeShip.move(this.tradeShip.tile());
         break;
       case PathFindResultType.NextTile:
-        
+        // Initialize pathCache if it doesn’t exist
         if (!dstPort.data.pathCache) {
           dstPort.data.pathCache = new Map<string, TileRef>();
         }
-        
+        // Update cache with the new direction
         const key = `${this.mg.x(currentTile)},${this.mg.y(currentTile)}`;
         dstPort.data.pathCache.set(key, result.tile);
-        
+        // Update safeFromPirates status
         if (this.mg.isWater(result.tile) && this.mg.isShoreline(result.tile)) {
           this.tradeShip.setSafeFromPirates();
         }
@@ -163,7 +165,7 @@ export class TradeShipExecution implements Execution {
     if (this.wasCaptured) {
       this.tradeShip.owner().addGold(gold);
       this.mg.displayMessage(
-        `Received ${renderNumber(gold)} gold from ship captured from ${this.origOwner.displayName()}`,
+        `Received ${renderNumber(gold)} gold from ship captured from ${this.origOwner.display Uname()}`,
         MessageType.SUCCESS,
         this.tradeShip.owner().id(),
       );

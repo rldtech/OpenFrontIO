@@ -34,8 +34,10 @@ jobs:
     # Use different logic based on event type
     name: Deploy to ${{ github.event_name == 'workflow_dispatch' && inputs.target_environment || 'staging' }}
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.target_environment || 'staging' }}
-
+    environment: ${{ inputs.target_domain == 'openfront.io' && 'prod' || '' }}
+    env:
+      DOMAIN: ${{ inputs.target_domain || 'openfront.dev' }}
+      SUBDOMAIN: ${{ github.event_name == 'push' && github.ref_name || inputs.target_subdomain || 'main' }}
     steps:
       - uses: actions/checkout@v4
       - name: Log in to Docker Hub

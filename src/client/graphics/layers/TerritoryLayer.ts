@@ -121,10 +121,11 @@ export class TerritoryLayer implements Layer {
         continue;
       }
       let color = this.theme.spawnHighlightColor();
+      const myPlayer = this.game.myPlayer();
       if (
-        this.game.myPlayer() != null &&
-        this.game.myPlayer() != human &&
-        this.game.myPlayer().isFriendly(human)
+        myPlayer !== null &&
+        myPlayer !== human &&
+        myPlayer.isFriendly(human)
       ) {
         color = this.theme.selfColor();
       }
@@ -276,7 +277,7 @@ export class TerritoryLayer implements Layer {
         const x = this.game.x(tile);
         const y = this.game.y(tile);
         const lightTile =
-          (x % 2 == 0 && y % 2 == 0) || (y % 2 == 1 && x % 2 == 1);
+          (x % 2 === 0 && y % 2 === 0) || (y % 2 === 1 && x % 2 === 1);
         const borderColor = lightTile ? borderColors.light : borderColors.dark;
         this.paintCell(x, y, borderColor, 255);
       } else {

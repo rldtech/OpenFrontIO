@@ -27,7 +27,7 @@ export class SAMLauncherExecution implements Execution {
 
   constructor(
     private ownerId: PlayerID,
-    private tile: TileRef,
+    private tile: TileRef | null,
     private sam: Unit | null = null,
   ) {
     if (sam !== null) {
@@ -97,6 +97,9 @@ export class SAMLauncherExecution implements Execution {
       throw new Error("Not initialized");
     }
     if (this.sam === null) {
+      if (this.tile === null) {
+        throw new Error("tile is null");
+      }
       const spawnTile = this.player.canBuild(UnitType.SAMLauncher, this.tile);
       if (spawnTile === false) {
         consolex.warn("cannot build SAM Launcher");

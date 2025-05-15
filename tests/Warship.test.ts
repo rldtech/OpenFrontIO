@@ -91,13 +91,15 @@ describe("Warship", () => {
     game.executeNextTick();
     expect(player1.units(UnitType.Warship)).toHaveLength(1);
 
+    const dstPort = player1.buildUnit(UnitType.Port, game.ref(coastX, 10), {});
+
     // Cannot buildExec with trade ship as it's not buildable (but
     // we can obviously directly add it to the player)
     const tradeShip = player2.buildUnit(
       UnitType.TradeShip,
       game.ref(coastX + 1, 7),
       {
-        dstPort: null,
+        dstPort,
       },
     );
 
@@ -114,6 +116,8 @@ describe("Warship", () => {
     constructionExecution(game, player1.id(), coastX + 1, 10, UnitType.Warship);
     expect(player1.units(UnitType.Warship)).toHaveLength(1);
 
+    const dstPort = player1.buildUnit(UnitType.Port, game.ref(coastX, 10), {});
+
     player1.units(UnitType.Port)[0].delete();
     // Cannot buildExec with trade ship as it's not buildable (but
     // we can obviously directly add it to the player)
@@ -121,7 +125,7 @@ describe("Warship", () => {
       UnitType.TradeShip,
       game.ref(coastX + 1, 11),
       {
-        dstPort: null,
+        dstPort,
       },
     );
 

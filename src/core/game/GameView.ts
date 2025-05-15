@@ -98,9 +98,6 @@ export class UnitView {
     return this.data.constructionType;
   }
   dstPortId(): number | undefined {
-    if (this.type() !== UnitType.TradeShip) {
-      throw Error("Must be a trade ship");
-    }
     return this.data.dstPortId;
   }
   detonationDst(): TileRef | undefined {

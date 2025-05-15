@@ -50,6 +50,7 @@ export abstract class DefaultServerConfig implements ServerConfig {
   async jwkPublicKey(): Promise<JWK> {
     if (this.publicKey) return this.publicKey;
     const jwksUrl = this.jwtIssuer() + "/.well-known/jwks.json";
+    console.log(`Fetching JWKS from ${jwksUrl}`);
     const response = await fetch(jwksUrl);
     const jwks = JwksSchema.parse(await response.json());
     this.publicKey = jwks.keys[0];
@@ -186,7 +187,7 @@ export class DefaultConfig implements Config {
   constructor(
     private _serverConfig: ServerConfig,
     private _gameConfig: GameConfig,
-    private _userSettings: UserSettings,
+    private _userSettings: UserSettings | null,
     private _isReplay: boolean,
   ) {}
   isReplay(): boolean {
@@ -220,6 +221,9 @@ export class DefaultConfig implements Config {
   }
 
   userSettings(): UserSettings {
+    if (this._userSettings === null) {
+      throw new Error("userSettings is null");
+    }
     return this._userSettings;
   }
 

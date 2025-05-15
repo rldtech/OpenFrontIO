@@ -93,6 +93,7 @@ export class DefensePostExecution implements Execution {
       )
       .filter(
         ({ unit }) =>
+          this.post !== null &&
           unit.owner() !== this.post.owner() &&
           !unit.owner().isFriendly(this.post.owner()) &&
           !this.alreadySentShell.has(unit),

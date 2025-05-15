@@ -762,7 +762,6 @@ export class PlayerImpl implements Player {
       case UnitType.MIRVWarhead:
         return targetTile;
       case UnitType.Port:
-        if (validTiles === null) throw new Error("validTiles is required");
         return this.portSpawn(targetTile, validTiles);
       case UnitType.Warship:
         return this.warshipSpawn(targetTile);
@@ -803,7 +802,7 @@ export class PlayerImpl implements Player {
     return spawns[0].tile();
   }
 
-  portSpawn(tile: TileRef, validTiles: TileRef[]): TileRef | false {
+  portSpawn(tile: TileRef, validTiles: TileRef[] | null): TileRef | false {
     const spawns = Array.from(
       this.mg.bfs(
         tile,

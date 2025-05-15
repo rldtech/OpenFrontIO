@@ -1,4 +1,4 @@
-import { Execution, Game } from "../game/Game";
+import { Execution, Game, UnitType } from "../game/Game";
 import { PseudoRandom } from "../PseudoRandom";
 import { ClientID, GameID, Intent, Turn } from "../Schemas";
 import { simpleHash } from "../Util";
@@ -7,7 +7,7 @@ import { AllianceRequestReplyExecution } from "./alliance/AllianceRequestReplyEx
 import { BreakAllianceExecution } from "./alliance/BreakAllianceExecution";
 import { AttackExecution } from "./AttackExecution";
 import { BotSpawner } from "./BotSpawner";
-import { ConstructionExecution } from "./ConstructionExecution";
+import { BuildExecution } from "./BuildExecution";
 import { DonateGoldExecution } from "./DonateGoldExecution";
 import { DonateTroopsExecution } from "./DonateTroopExecution";
 import { EmbargoExecution } from "./EmbargoExecution";
@@ -20,7 +20,6 @@ import { RetreatExecution } from "./RetreatExecution";
 import { SetTargetTroopRatioExecution } from "./SetTargetTroopRatioExecution";
 import { SpawnExecution } from "./SpawnExecution";
 import { TargetPlayerExecution } from "./TargetPlayerExecution";
-import { TransportShipExecution } from "./TransportShipExecution";
 
 export class Executor {
   // private random = new PseudoRandom(999)
@@ -70,13 +69,11 @@ export class Executor {
         if (intent.srcX != null || intent.srcY != null) {
           src = this.mg.ref(intent.srcX, intent.srcY);
         }
-        return new TransportShipExecution(
-          playerID,
-          intent.targetID,
-          this.mg.ref(intent.dstX, intent.dstY),
-          intent.troops,
-          src,
-        );
+        return new BuildExecution(player, {
+          type: UnitType.TransportShip,
+          targetTile: this.mg.ref(intent.dstX, intent.dstY),
+          troops: intent.troops,
+        });
       case "allianceRequest":
         return new AllianceRequestExecution(playerID, intent.recipient);
       case "allianceRequestReply":
@@ -104,11 +101,7 @@ export class Executor {
       case "embargo":
         return new EmbargoExecution(player, intent.targetID, intent.action);
       case "build_unit":
-        return new ConstructionExecution(
-          playerID,
-          this.mg.ref(intent.x, intent.y),
-          intent.unit,
-        );
+        return BuildExecution.fromIntent(this.mg, intent.unit, player, intent);
       case "quick_chat":
         return new QuickChatExecution(
           playerID,

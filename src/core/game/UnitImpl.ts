@@ -3,6 +3,7 @@ import {
   AllUnitParams,
   MessageType,
   Player,
+  SpawnComp,
   Tick,
   Unit,
   UnitInfo,
@@ -17,7 +18,6 @@ export class UnitImpl implements Unit {
   private _active = true;
   private _health: bigint;
   private _lastTile: TileRef = null;
-  private _target: Unit = null;
   private _moveTarget: TileRef = null;
   private _targetedBySAM = false;
   private _safeFromPiratesCooldown: number; // Only for trade ships
@@ -26,31 +26,42 @@ export class UnitImpl implements Unit {
 
   private _troops: number;
   private _cooldownTick: Tick | null = null;
-  private _dstPort: Unit | null = null; // Only for trade ships
+  private _targetUnit: Unit | null = null; // Only for trade ships
   private _detonationDst: TileRef | null = null; // Only for nukes
-  private _warshipTarget: Unit | null = null;
+  private _ownerUnit: Unit | null = null;
   private _cooldownDuration: number | null = null;
+  private _type: UnitType;
+  private _tile: TileRef;
+
+  public warshipPatrolTile: TileRef | null = null;
+  public transportDstTile: TileRef | null = null;
 
   constructor(
-    private _type: UnitType,
     private mg: GameImpl,
-    private _tile: TileRef,
     private _id: number,
     public _owner: PlayerImpl,
-    params: AllUnitParams = {},
+    params: AllUnitParams & SpawnComp,
   ) {
-    this._lastTile = _tile;
-    this._health = toInt(this.mg.unitInfo(_type).maxHealth ?? 1);
+    this._type = params.type;
+    this._tile = params.spawn;
+    this._lastTile = params.spawn;
+    this._health = toInt(this.mg.unitInfo(params.type).maxHealth ?? 1);
     this._safeFromPiratesCooldown = this.mg
       .config()
       .safeFromPiratesCooldownMax();
 
     this._troops = "troops" in params ? params.troops : 0;
-    this._dstPort = "dstPort" in params ? params.dstPort : null;
+    this._targetUnit = "targetUnit" in params ? params.targetUnit : null;
     this._cooldownDuration =
       "cooldownDuration" in params ? params.cooldownDuration : null;
     this._lastSetSafeFromPirates =
       "lastSetSafeFromPirates" in params ? params.lastSetSafeFromPirates : 0;
+    this.warshipPatrolTile =
+      "warshipPatrolTile" in params ? params.warshipPatrolTile : null;
+    this.transportDstTile =
+      "transportDstTile" in params ? params.transportDstTile : null;
+    this._targetUnit = "targetUnit" in params ? params.targetUnit : null;
+    this._ownerUnit = "ownerUnit" in params ? params.ownerUnit : null;
   }
 
   id() {
@@ -58,8 +69,8 @@ export class UnitImpl implements Unit {
   }
 
   toUpdate(): UnitUpdate {
-    const warshipTarget = this.warshipTarget();
-    const dstPort = this.dstPort();
+    const warshipTarget = this.targetUnit();
+    const dstPort = this.targetUnit();
     return {
       type: GameUpdateType.Unit,
       unitType: this._type,
@@ -182,20 +193,20 @@ export class UnitImpl implements Unit {
     return `Unit:${this._type},owner:${this.owner().name()}`;
   }
 
-  setWarshipTarget(target: Unit) {
-    this._warshipTarget = target;
+  setTargetUnit(target: Unit) {
+    this._targetUnit = target;
   }
 
-  warshipTarget(): Unit {
-    return this._warshipTarget;
+  targetUnit(): Unit {
+    return this._targetUnit;
+  }
+
+  ownerUnit(): Unit {
+    return this._ownerUnit;
   }
 
   detonationDst(): TileRef {
     return this._detonationDst;
-  }
-
-  dstPort(): Unit {
-    return this._dstPort;
   }
 
   // set the cooldown to the current tick or remove it
@@ -221,7 +232,7 @@ export class UnitImpl implements Unit {
   }
 
   setDstPort(dstPort: Unit): void {
-    this._dstPort = dstPort;
+    this._targetUnit = dstPort;
   }
 
   setMoveTarget(moveTarget: TileRef) {

@@ -18,11 +18,9 @@ import { euclDistFN, manhattanDistFN, TileRef } from "../game/GameMap";
 import { PseudoRandom } from "../PseudoRandom";
 import { GameID } from "../Schemas";
 import { calculateBoundingBox, flattenedEmojiTable, simpleHash } from "../Util";
-import { ConstructionExecution } from "./ConstructionExecution";
+import { BuildExecution } from "./BuildExecution";
 import { EmojiExecution } from "./EmojiExecution";
-import { NukeExecution } from "./NukeExecution";
 import { SpawnExecution } from "./SpawnExecution";
-import { TransportShipExecution } from "./TransportShipExecution";
 import { closestTwoTiles } from "./Util";
 import { BotBehavior } from "./utils/BotBehavior";
 
@@ -333,11 +331,20 @@ export class FakeHumanExecution implements Execution {
     }
   }
 
-  private sendNuke(tile: TileRef) {
+  private sendNuke(dst: TileRef) {
     const tick = this.mg.ticks();
-    this.lastNukeSent.push([tick, tile]);
+    this.lastNukeSent.push([tick, dst]);
+    const buildTile = this.player.canBuild(UnitType.AtomBomb, dst);
+    if (buildTile == false) {
+      return;
+    }
+
     this.mg.addExecution(
-      new NukeExecution(UnitType.AtomBomb, this.player.id(), tile),
+      new BuildExecution(this.player, {
+        type: UnitType.AtomBomb,
+        detonationDst: dst,
+        targetTile: buildTile,
+      }),
     );
   }
 
@@ -393,13 +400,11 @@ export class FakeHumanExecution implements Execution {
       return;
     }
     this.mg.addExecution(
-      new TransportShipExecution(
-        this.player.id(),
-        other.id(),
-        closest.y,
-        this.player.troops() / 5,
-        null,
-      ),
+      new BuildExecution(this.player, {
+        type: UnitType.TransportShip,
+        targetTile: closest.y,
+        troops: this.player.troops() / 5,
+      }),
     );
   }
 
@@ -412,7 +417,10 @@ export class FakeHumanExecution implements Execution {
       if (oceanTiles.length > 0) {
         const buildTile = this.random.randElement(oceanTiles);
         this.mg.addExecution(
-          new ConstructionExecution(this.player.id(), buildTile, UnitType.Port),
+          new BuildExecution(this.player, {
+            targetTile: buildTile,
+            type: UnitType.Port,
+          }),
         );
       }
       return;
@@ -424,7 +432,10 @@ export class FakeHumanExecution implements Execution {
     this.maybeSpawnStructure(UnitType.MissileSilo, 1);
   }
 
-  private maybeSpawnStructure(type: UnitType, maxNum: number) {
+  private maybeSpawnStructure(
+    type: UnitType.City | UnitType.MissileSilo | UnitType.Port,
+    maxNum: number,
+  ) {
     const units = this.player.units(type);
     if (units.length >= maxNum) {
       return;
@@ -441,7 +452,10 @@ export class FakeHumanExecution implements Execution {
       return;
     }
     this.mg.addExecution(
-      new ConstructionExecution(this.player.id(), tile, type),
+      new BuildExecution(this.player, {
+        type,
+        targetTile: tile,
+      }),
     );
   }
 
@@ -461,17 +475,17 @@ export class FakeHumanExecution implements Execution {
       if (targetTile == null) {
         return false;
       }
-      const canBuild = this.player.canBuild(UnitType.Warship, targetTile);
-      if (canBuild == false) {
+      const buildTile = this.player.canBuild(UnitType.Warship, targetTile);
+      if (buildTile == false) {
         consolex.warn("cannot spawn destroyer");
         return false;
       }
       this.mg.addExecution(
-        new ConstructionExecution(
-          this.player.id(),
-          targetTile,
-          UnitType.Warship,
-        ),
+        new BuildExecution(this.player, {
+          type: UnitType.Warship,
+          targetTile: targetTile,
+          warshipPatrolTile: targetTile,
+        }),
       );
       return true;
     }
@@ -539,15 +553,12 @@ export class FakeHumanExecution implements Execution {
     }
 
     this.mg.addExecution(
-      new TransportShipExecution(
-        this.player.id(),
-        this.mg.owner(dst).id(),
-        dst,
-        this.player.troops() / 5,
-        null,
-      ),
+      new BuildExecution(this.player, {
+        type: UnitType.TransportShip,
+        targetTile: dst,
+        troops: this.player.troops() / 5,
+      }),
     );
-    return;
   }
 
   randomLand(): TileRef | null {

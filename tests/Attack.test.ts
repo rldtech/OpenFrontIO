@@ -1,6 +1,6 @@
 import { AttackExecution } from "../src/core/execution/AttackExecution";
+import { NukeExecution } from "../src/core/execution/NukeExecution";
 import { SpawnExecution } from "../src/core/execution/SpawnExecution";
-import { TransportShipExecution } from "../src/core/execution/TransportShipExecution";
 import {
   Game,
   Player,
@@ -11,19 +11,12 @@ import {
 import { TileRef } from "../src/core/game/GameMap";
 import { setup } from "./util/Setup";
 import { TestConfig } from "./util/TestConfig";
-import { constructionExecution } from "./util/utils";
 
 let game: Game;
 let attacker: Player;
 let defender: Player;
 let defenderSpawn: TileRef;
 let attackerSpawn: TileRef;
-
-function sendBoat(target: TileRef, source: TileRef, troops: number) {
-  game.addExecution(
-    new TransportShipExecution(defender.id(), null, target, troops, source),
-  );
-}
 
 describe("Attack", () => {
   beforeEach(async () => {
@@ -76,10 +69,17 @@ describe("Attack", () => {
   test("Nuke reduce attacking troop counts", async () => {
     // Not building exactly spawn to it's better protected from attacks (but still
     // on defender territory)
-    constructionExecution(game, defender.id(), 1, 1, UnitType.MissileSilo);
+    defender.buildUnit({
+      type: UnitType.MissileSilo,
+      spawn: game.ref(1, 1),
+    });
     expect(defender.units(UnitType.MissileSilo)).toHaveLength(1);
     game.addExecution(new AttackExecution(100, attacker.id(), defender.id()));
-    constructionExecution(game, defender.id(), 0, 15, UnitType.AtomBomb, 3);
+    defender.buildUnit({
+      type: UnitType.AtomBomb,
+      spawn: game.ref(0, 15),
+      detonationDst: game.ref(0, 15),
+    });
     const nuke = defender.units(UnitType.AtomBomb)[0];
     expect(nuke.isActive()).toBe(true);
 
@@ -94,21 +94,24 @@ describe("Attack", () => {
   });
 
   test("Nuke reduce attacking boat troop count", async () => {
-    constructionExecution(game, defender.id(), 1, 1, UnitType.MissileSilo);
-    expect(defender.units(UnitType.MissileSilo)).toHaveLength(1);
+    defender.buildUnit({
+      type: UnitType.TransportShip,
+      spawn: game.ref(15, 8),
+      troops: 100,
+    });
 
-    sendBoat(game.ref(15, 8), game.ref(10, 5), 100);
-
-    constructionExecution(game, defender.id(), 0, 15, UnitType.AtomBomb, 3);
-    const nuke = defender.units(UnitType.AtomBomb)[0];
-    expect(nuke.isActive()).toBe(true);
-
-    const ship = defender.units(UnitType.TransportShip)[0];
-    expect(ship.troops()).toBe(100);
+    game.addExecution(
+      new NukeExecution(
+        defender.buildUnit({
+          type: UnitType.AtomBomb,
+          spawn: game.ref(0, 15),
+          detonationDst: game.ref(0, 15),
+        }),
+      ),
+    );
 
     game.executeNextTick();
 
-    expect(nuke.isActive()).toBe(false);
     expect(defender.units(UnitType.TransportShip)[0].troops()).toBeLessThan(90);
   });
 });

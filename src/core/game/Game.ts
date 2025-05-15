@@ -549,7 +549,7 @@ export interface Game extends GameMap {
     unitID: number,
     message: string,
     type: MessageType,
-    playerID: PlayerID,
+    playerID: PlayerID | null,
   ): void;
 
   displayChat(

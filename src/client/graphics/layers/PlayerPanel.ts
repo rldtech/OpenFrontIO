@@ -124,7 +124,7 @@ export class PlayerPanel extends LitElement implements Layer {
   private handleEmojiClick(e: Event, myPlayer: PlayerView, other: PlayerView) {
     e.stopPropagation();
     this.emojiTable.showTable((emoji: string) => {
-      if (myPlayer == other) {
+      if (myPlayer === other) {
         this.eventBus.emit(
           new SendEmojiIntentEvent(
             AllPlayers,

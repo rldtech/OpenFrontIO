@@ -187,19 +187,23 @@ export class PlayerInfoModal extends LitElement {
       "og1", // OG100
       "ctr", // Contributor
       "pin", // Ping
+      "dsp", // Development Stream Ping
       "bst", // Server Booster
       "ccr", // Content Creator
       "bet", // Beta Tester
+      "mhr", // Money Haters
       "eas", // Early Access Supporter
       "mod", // Mod
       "sta", // Support Staff
+      "rst", // Retired Staff
       "dca", // DevChatAccess
       "mem", // Member
+      "cor", // Core Contributor
       "act", // Active Contributor
       "ass", // Admin Assistant
       "tra", // Translator
       "trd", // Translator Dev
-      "trh", // Translator Helper
+      "htr", // Head Translator
       "cho", // Chocolate!
     ];
 

@@ -150,13 +150,22 @@ export const roleStyles = {
     badgeBg: "bg-yellow-300/20 border-yellow-300/30",
     priority: 5,
   },
+  rst: {
+    label: "Retired Staff",
+    flagWrapper:
+      "p-[3px] rounded-full bg-gradient-to-r from-[#5964f2] to-[#4451d1] animate-shimmer",
+    nameText: "text-2xl font-bold text-[#b3c2ff] drop-shadow",
+    roleText: "text-[#b3c2ff] font-semibold",
+    badgeBg: "bg-[#5964f2]/20 border-[#5964f2]/30",
+    priority: 6,
+  },
   cho: {
     label: "Chocolate!",
     flagWrapper: "choco-flag-wrapper",
     nameText: "choco-name-text",
     roleText: "choco-role-text",
     badgeBg: "choco-badge-bg",
-    priority: 6,
+    priority: 7,
   },
   act: {
     label: "Active Contributor",
@@ -165,7 +174,16 @@ export const roleStyles = {
     nameText: "text-2xl font-bold text-green-300 drop-shadow",
     roleText: "text-green-300 font-semibold",
     badgeBg: "bg-green-500/20 border-green-400/30",
-    priority: 7,
+    priority: 8,
+  },
+  cor: {
+    label: "Core Contributor",
+    flagWrapper:
+      "p-[3px] rounded-full bg-gradient-to-r from-green-600 to-green-900 animate-shimmer",
+    nameText: "text-2xl font-bold text-green-200 drop-shadow",
+    roleText: "text-green-200 font-semibold",
+    badgeBg: "bg-green-700/20 border-green-400/30",
+    priority: 9,
   },
   ctr: {
     label: "Contributor",
@@ -174,7 +192,7 @@ export const roleStyles = {
     nameText: "text-2xl font-bold text-green-300 drop-shadow",
     roleText: "text-green-300 font-semibold",
     badgeBg: "bg-green-500/20 border-green-300/30",
-    priority: 8,
+    priority: 10,
   },
   trd: {
     label: "Translator Dev",
@@ -183,16 +201,16 @@ export const roleStyles = {
     nameText: "text-2xl font-bold text-purple-300 drop-shadow",
     roleText: "text-purple-300 font-semibold",
     badgeBg: "bg-purple-500/20 border-purple-400/30",
-    priority: 9,
+    priority: 11,
   },
-  trh: {
-    label: "Translator Helper",
+  htr: {
+    label: "Head Translator",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-teal-400 to-teal-600 animate-shimmer",
     nameText: "text-2xl font-bold text-teal-300 drop-shadow",
     roleText: "text-teal-300 font-semibold",
     badgeBg: "bg-teal-500/20 border-teal-400/30",
-    priority: 10,
+    priority: 12,
   },
   tra: {
     label: "Translator",
@@ -201,7 +219,7 @@ export const roleStyles = {
     nameText: "text-2xl font-bold text-blue-300 drop-shadow",
     roleText: "text-blue-300 font-semibold",
     badgeBg: "bg-blue-500/20 border-blue-400/30",
-    priority: 11,
+    priority: 13,
   },
   ccr: {
     label: "Content Creator",
@@ -210,7 +228,7 @@ export const roleStyles = {
     nameText: "text-2xl font-bold text-orange-300 drop-shadow",
     roleText: "text-orange-300 font-semibold",
     badgeBg: "bg-orange-500/20 border-orange-400/30",
-    priority: 12,
+    priority: 14,
   },
   bet: {
     label: "Beta Tester",
@@ -219,7 +237,7 @@ export const roleStyles = {
     nameText: "text-2xl font-bold text-teal-300 drop-shadow",
     roleText: "text-teal-300 font-semibold",
     badgeBg: "bg-teal-500/20 border-teal-400/30",
-    priority: 13,
+    priority: 15,
   },
   dca: {
     label: "Dev Chat Access",
@@ -228,7 +246,7 @@ export const roleStyles = {
     nameText: "text-2xl font-bold text-purple-300 drop-shadow",
     roleText: "text-purple-300 font-semibold",
     badgeBg: "bg-purple-500/20 border-purple-400/30",
-    priority: 14,
+    priority: 16,
   },
   eas: {
     label: "Early Access Supporter",
@@ -237,7 +255,16 @@ export const roleStyles = {
     nameText: "text-2xl font-bold text-yellow-400 drop-shadow",
     roleText: "text-yellow-400 font-semibold",
     badgeBg: "bg-yellow-400/20 border-yellow-300/30",
-    priority: 15,
+    priority: 17,
+  },
+  mhr: {
+    label: "Money Haters",
+    flagWrapper:
+      "p-[3px] rounded-full bg-gradient-to-r from-[#a05cca] to-[#8b4fb6] animate-shimmer",
+    nameText: "text-2xl font-bold text-[#d1b3f9] drop-shadow",
+    roleText: "text-[#d1b3f9] font-semibold",
+    badgeBg: "bg-[#a05cca]/20 border-[#a05cca]/30",
+    priority: 18,
   },
   bst: {
     label: "Server Booster",
@@ -246,7 +273,7 @@ export const roleStyles = {
     nameText: "text-2xl font-bold text-pink-300 drop-shadow",
     roleText: "text-pink-300 font-semibold",
     badgeBg: "bg-pink-500/20 border-pink-400/30",
-    priority: 16,
+    priority: 19,
   },
   og0: {
     label: "OG",
@@ -255,7 +282,7 @@ export const roleStyles = {
     nameText: "text-2xl font-bold text-yellow-300 drop-shadow",
     roleText: "text-yellow-300 font-semibold",
     badgeBg: "bg-yellow-200/20 border-yellow-300/30",
-    priority: 17,
+    priority: 20,
   },
   og1: {
     label: "OG100",
@@ -264,7 +291,7 @@ export const roleStyles = {
     nameText: "text-2xl font-bold text-lime-300 drop-shadow",
     roleText: "text-lime-300 font-semibold",
     badgeBg: "bg-lime-300/20 border-lime-300/30",
-    priority: 18,
+    priority: 21,
   },
   cha: {
     label: "Challenger",
@@ -273,7 +300,7 @@ export const roleStyles = {
     nameText: "text-2xl font-bold text-blue-300 drop-shadow",
     roleText: "text-blue-300 font-semibold",
     badgeBg: "bg-blue-500/20 border-blue-400/30",
-    priority: 19,
+    priority: 22,
   },
   pin: {
     label: "Ping",
@@ -281,7 +308,15 @@ export const roleStyles = {
     nameText: "text-2xl font-bold text-gray-300 drop-shadow",
     roleText: "text-gray-300 font-semibold",
     badgeBg: "bg-gray-400/20 border-gray-300/30",
-    priority: 20,
+    priority: 23,
+  },
+  dsp: {
+    label: "Development Stream Ping",
+    flagWrapper: "p-[3px] rounded-full bg-blue-400",
+    nameText: "text-2xl font-bold text-blue-200 drop-shadow",
+    roleText: "text-blue-200 font-semibold",
+    badgeBg: "bg-blue-400/20 border-blue-200/30",
+    priority: 24,
   },
   bot: {
     label: "Bot",
@@ -289,7 +324,7 @@ export const roleStyles = {
     nameText: "text-2xl font-bold text-gray-300 drop-shadow",
     roleText: "text-gray-300 font-semibold",
     badgeBg: "bg-gray-400/20 border-gray-300/30",
-    priority: 21,
+    priority: 25,
   },
   mem: {
     label: "Member",
@@ -297,7 +332,7 @@ export const roleStyles = {
     nameText: "text-2xl font-bold text-gray-300 drop-shadow",
     roleText: "text-gray-300 font-semibold",
     badgeBg: "bg-gray-400/20 border-gray-300/30",
-    priority: 22,
+    priority: 26,
   },
 } as const satisfies Record<string, RoleStyle>;
 

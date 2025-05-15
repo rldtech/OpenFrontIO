@@ -21,6 +21,7 @@ import {
   BuildableUnit,
   Cell,
   ColoredTeams,
+  Embargo,
   EmojiMessage,
   Gold,
   MessageType,
@@ -35,7 +36,7 @@ import {
   TerraNullius,
   Tick,
   Unit,
-  UnitSpecificInfos,
+  UnitParams,
   UnitType,
 } from "./Game";
 import { GameImpl } from "./GameImpl";
@@ -73,7 +74,7 @@ export class PlayerImpl implements Player {
 
   markedTraitorTick = -1;
 
-  private embargoes: Set<PlayerID> = new Set();
+  private embargoes = new Map<PlayerID, Embargo>();
 
   public _borderTiles: Set<TileRef> = new Set();
 
@@ -142,7 +143,7 @@ export class PlayerImpl implements Player {
       troops: this.troops(),
       targetTroopRatio: this.targetTroopRatio(),
       allies: this.alliances().map((a) => a.other(this).smallID()),
-      embargoes: this.embargoes,
+      embargoes: new Set([...this.embargoes.keys()].map((p) => p.toString())),
       isTraitor: this.isTraitor(),
       targets: this.targets().map((p) => p.smallID()),
       outgoingEmojis: this.outgoingEmojis(),
@@ -582,12 +583,30 @@ export class PlayerImpl implements Player {
     return !embargo && other.id() != this.id();
   }
 
-  addEmbargo(other: PlayerID): void {
-    this.embargoes.add(other);
+  addEmbargo(other: PlayerID, isTemporary: boolean): void {
+    if (this.embargoes.has(other) && !this.embargoes.get(other).isTemporary)
+      return;
+
+    this.embargoes.set(other, {
+      createdAt: this.mg.ticks(),
+      isTemporary: isTemporary,
+      target: other,
+    });
+  }
+
+  getEmbargoes(): Embargo[] {
+    return [...this.embargoes.values()];
   }
 
   stopEmbargo(other: PlayerID): void {
     this.embargoes.delete(other);
+  }
+
+  endTemporaryEmbargo(other: PlayerID): void {
+    if (this.embargoes.has(other) && !this.embargoes.get(other).isTemporary)
+      return;
+
+    this.stopEmbargo(other);
   }
 
   tradingPartners(): Player[] {
@@ -684,30 +703,13 @@ export class PlayerImpl implements Player {
     if (unit.owner() == this) {
       throw new Error(`Cannot capture unit, ${this} already owns ${unit}`);
     }
-    const prev = unit.owner();
-    (prev as PlayerImpl)._units = (prev as PlayerImpl)._units.filter(
-      (u) => u != unit,
-    );
-    (unit as UnitImpl)._owner = this;
-    this._units.push(unit as UnitImpl);
-    this.mg.addUpdate(unit.toUpdate());
-    this.mg.displayMessage(
-      `${unit.type()} captured by ${this.displayName()}`,
-      MessageType.ERROR,
-      prev.id(),
-    );
-    this.mg.displayMessage(
-      `Captured ${unit.type()} from ${prev.displayName()}`,
-      MessageType.SUCCESS,
-      this.id(),
-    );
+    unit.setOwner(this);
   }
 
-  buildUnit(
-    type: UnitType,
-    troops: number,
+  buildUnit<T extends UnitType>(
+    type: T,
     spawnTile: TileRef,
-    unitSpecificInfos: UnitSpecificInfos = {},
+    params: UnitParams<T>,
   ): UnitImpl {
     if (this.mg.config().isUnitDisabled(type)) {
       throw new Error(
@@ -720,14 +722,13 @@ export class PlayerImpl implements Player {
       type,
       this.mg,
       spawnTile,
-      troops,
       this.mg.nextUnitID(),
       this,
-      unitSpecificInfos,
+      params,
     );
     this._units.push(b);
     this.removeGold(cost);
-    this.removeTroops(troops);
+    this.removeTroops("troops" in params ? params.troops : 0);
     this.mg.addUpdate(b.toUpdate());
     this.mg.addUnit(b);
 

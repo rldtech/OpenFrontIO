@@ -676,7 +676,8 @@ export class EventsDisplay extends LitElement implements Layer {
                         : event.unitView
                           ? html`<button
                               @click=${() => {
-                                this.emitGoToUnitEvent(event.unitView);
+                                event.unitView &&
+                                  this.emitGoToUnitEvent(event.unitView);
                               }}
                             >
                               ${this.getEventDescription(event)}

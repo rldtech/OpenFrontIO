@@ -290,7 +290,7 @@ export class PlayerView {
 }
 
 export class GameView implements GameMap {
-  private lastUpdate: GameUpdateViewData;
+  private lastUpdate: GameUpdateViewData | null;
   private smallIDToID = new Map<number, PlayerID>();
   private _players = new Map<PlayerID, PlayerView>();
   private _units = new Map<number, UnitView>();
@@ -310,13 +310,7 @@ export class GameView implements GameMap {
     private _myClientID: ClientID,
     private _gameID: GameID,
   ) {
-    this.lastUpdate = {
-      tick: 0,
-      packedTileUpdates: new BigUint64Array([]),
-      // TODO: make this empty map instead of null?
-      updates: null,
-      playerNameViewData: {},
-    };
+    this.lastUpdate = null;
     this.unitGrid = new UnitGrid(_map);
   }
   isOnEdgeOfMap(ref: TileRef): boolean {
@@ -324,7 +318,7 @@ export class GameView implements GameMap {
   }
 
   public updatesSinceLastTick(): GameUpdates | null {
-    return this.lastUpdate.updates;
+    return this.lastUpdate?.updates ?? null;
   }
 
   public update(gu: GameUpdateViewData) {
@@ -449,10 +443,11 @@ export class GameView implements GameMap {
   }
 
   ticks(): Tick {
+    if (this.lastUpdate === null) return 0;
     return this.lastUpdate.tick;
   }
   inSpawnPhase(): boolean {
-    return this.lastUpdate.tick <= this._config.numSpawnPhaseTurns();
+    return this.ticks() <= this._config.numSpawnPhaseTurns();
   }
   config(): Config {
     return this._config;
@@ -578,8 +573,6 @@ export class GameView implements GameMap {
   focusedPlayer(): PlayerView | null {
     // TODO: renable when performance issues are fixed.
     return this.myPlayer();
-    if (userSettings.focusLocked()) return this.myPlayer();
-    return this._focusedPlayer;
   }
   setFocusedPlayer(player: PlayerView | null): void {
     this._focusedPlayer = player;

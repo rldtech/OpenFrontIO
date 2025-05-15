@@ -83,50 +83,48 @@ export class DefensePostExecution implements Execution {
     }
 
     // TODO: Reconsider how/if defense posts target ships.
-    return;
-
-    const ships = this.mg
-      .nearbyUnits(
-        this.post.tile(),
-        this.mg.config().defensePostTargettingRange(),
-        [UnitType.TransportShip, UnitType.Warship],
-      )
-      .filter(
-        ({ unit }) =>
-          this.post !== null &&
-          unit.owner() !== this.post.owner() &&
-          !unit.owner().isFriendly(this.post.owner()) &&
-          !this.alreadySentShell.has(unit),
-      );
-
-    this.target =
-      ships.sort((a, b) => {
-        const { unit: unitA, distSquared: distA } = a;
-        const { unit: unitB, distSquared: distB } = b;
-
-        // Prioritize TransportShip
-        if (
-          unitA.type() === UnitType.TransportShip &&
-          unitB.type() !== UnitType.TransportShip
-        )
-          return -1;
-        if (
-          unitA.type() !== UnitType.TransportShip &&
-          unitB.type() === UnitType.TransportShip
-        )
-          return 1;
-
-        // If both are the same type, sort by distance (lower `distSquared` means closer)
-        return distA - distB;
-      })[0]?.unit ?? null;
-
-    if (this.target === null || !this.target.isActive()) {
-      this.target = null;
-      return;
-    } else {
-      this.shoot();
-      return;
-    }
+    // const ships = this.mg
+    //   .nearbyUnits(
+    //     this.post.tile(),
+    //     this.mg.config().defensePostTargettingRange(),
+    //     [UnitType.TransportShip, UnitType.Warship],
+    //   )
+    //   .filter(
+    //     ({ unit }) =>
+    //       this.post !== null &&
+    //       unit.owner() !== this.post.owner() &&
+    //       !unit.owner().isFriendly(this.post.owner()) &&
+    //       !this.alreadySentShell.has(unit),
+    //   );
+    //
+    // this.target =
+    //   ships.sort((a, b) => {
+    //     const { unit: unitA, distSquared: distA } = a;
+    //     const { unit: unitB, distSquared: distB } = b;
+    //
+    //     // Prioritize TransportShip
+    //     if (
+    //       unitA.type() === UnitType.TransportShip &&
+    //       unitB.type() !== UnitType.TransportShip
+    //     )
+    //       return -1;
+    //     if (
+    //       unitA.type() !== UnitType.TransportShip &&
+    //       unitB.type() === UnitType.TransportShip
+    //     )
+    //       return 1;
+    //
+    //     // If both are the same type, sort by distance (lower `distSquared` means closer)
+    //     return distA - distB;
+    //   })[0]?.unit ?? null;
+    //
+    // if (this.target === null || !this.target.isActive()) {
+    //   this.target = null;
+    //   return;
+    // } else {
+    //   this.shoot();
+    //   return;
+    // }
   }
 
   isActive(): boolean {

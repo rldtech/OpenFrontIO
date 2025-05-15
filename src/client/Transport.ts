@@ -524,8 +524,7 @@ export class Transport {
   }
 
   private onSendWinnerEvent(event: SendWinnerEvent) {
-    if (this.socket === null) return;
-    if (this.isLocal || this.socket.readyState === WebSocket.OPEN) {
+    if (this.isLocal || this.socket?.readyState === WebSocket.OPEN) {
       const msg = {
         type: "winner",
         winner: event.winner,
@@ -536,7 +535,7 @@ export class Transport {
     } else {
       console.log(
         "WebSocket is not open. Current state:",
-        this.socket.readyState,
+        this.socket?.readyState,
       );
       console.log("attempting reconnect");
     }
@@ -579,8 +578,7 @@ export class Transport {
   }
 
   private sendIntent(intent: Intent) {
-    if (this.socket === null) return;
-    if (this.isLocal || this.socket.readyState === WebSocket.OPEN) {
+    if (this.isLocal || this.socket?.readyState === WebSocket.OPEN) {
       const msg = {
         type: "intent",
         intent: intent,
@@ -589,7 +587,7 @@ export class Transport {
     } else {
       console.log(
         "WebSocket is not open. Current state:",
-        this.socket.readyState,
+        this.socket?.readyState,
       );
       console.log("attempting reconnect");
     }

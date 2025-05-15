@@ -289,12 +289,12 @@ export class RadialMenu implements Layer {
     if (myPlayer === null || !myPlayer.isAlive()) return;
     const tile = this.g.ref(this.clickedCell.x, this.clickedCell.y);
     if (this.originalTileOwner.isPlayer()) {
-      if (this.g.owner(tile) != this.originalTileOwner) {
+      if (this.g.owner(tile) !== this.originalTileOwner) {
         this.closeMenu();
         return;
       }
     } else {
-      if (this.g.owner(tile).isPlayer() || this.g.owner(tile) == myPlayer) {
+      if (this.g.owner(tile).isPlayer() || this.g.owner(tile) === myPlayer) {
         this.closeMenu();
         return;
       }
@@ -392,7 +392,7 @@ export class RadialMenu implements Layer {
       });
     }
     if (
-      actions.buildableUnits.find((bu) => bu.type == UnitType.TransportShip)
+      actions.buildableUnits.find((bu) => bu.type === UnitType.TransportShip)
         ?.canBuild
     ) {
       this.activateMenuElement(Slot.Boat, "#3f6ab1", boatIcon, () => {
@@ -404,6 +404,7 @@ export class RadialMenu implements Layer {
             spawnTile = new Cell(this.g.x(spawn), this.g.y(spawn));
           }
 
+          if (this.clickedCell === null) return;
           this.eventBus.emit(
             new SendBoatAttackIntentEvent(
               this.g.owner(tile).id(),

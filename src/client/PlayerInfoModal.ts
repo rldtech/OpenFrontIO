@@ -1,6 +1,6 @@
 import { html, LitElement } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
-import { TokenPayload, UserMeResponse } from "./ApiSchemas";
+import { TokenPayload, UserMeResponse } from "../core/ApiSchemas";
 import {
   achievementsData,
   RankStyle,

@@ -332,7 +332,7 @@ export class RadialMenu implements Layer {
       event.x,
       event.y,
     );
-    if (!this.g.isValidCoord(this.clickedCell.x, clickedCell.y)) {
+    if (!this.g.isValidCoord(this.clickedCell.x, this.clickedCell.y)) {
       return;
     }
     const tile = this.g.ref(this.clickedCell.x, this.clickedCell.y);

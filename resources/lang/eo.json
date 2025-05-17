@@ -1,8 +1,18 @@
 {
+  "lang": {
+    "en": "Esperanto",
+    "native": "Esperanto",
+    "svg": "eo",
+    "lang_code": "eo"
+  },
   "main": {
+    "title": "OpenFront (ALFA)",
     "join_discord": "Kunigu la Discord-servilon !",
-    "create_lobby": "Krei salonon",
-    "join_lobby": "Kunigi salonon",
+    "login_discord": "Ensaluti kun Diskordo",
+    "logged_in": "Ensalutinta!",
+    "log_out": "Elsaluti",
+    "create_lobby": "Krei Ludejon",
+    "join_lobby": "Kunigi Ludejon",
     "single_player": "Sola Ludanto",
     "instructions": "Instrukcioj",
     "how_to_play": "Kiel ludi",
@@ -15,6 +25,7 @@
     "action_alt_view": "Alternativa vido (tereno/lando)",
     "action_attack_altclick": "Ataki (kiam la maldekstra klako estas formi por malfermi la menuon)",
     "action_build": "Malfermi la konstruan menuon",
+    "action_emote": "Malfermi miensimbolan menuon",
     "action_center": "Recentrigi la kameraon sur la ludanto",
     "action_zoom": "Zomi",
     "action_move_camera": "Moviĝi kameraon",
@@ -25,8 +36,8 @@
     "ui_leaderboard_desc": "Afiŝas la plej bonajn ludantojn kun iliaj nomoj, la % de la poseda teritorio kaj la oro.",
     "ui_control": "Kontrolpanelo",
     "ui_control_desc": "La kontrolpanelo enhavas la sekvajn elementojn:",
-    "ui_pop": "Pop - La nombro de trupunoj ke vi havas, via maksimuma populacio kaj la procento kun kiu vi ricevas ilin.",
-    "ui_gold": "La kvanto da oro ke vi havas kaj la procento kun kiu vi ricevas ilin.",
+    "ui_pop": "Pop - La nombro de trupunoj kiujn vi havas, via maksimuma populacio kaj la procento kun kiu vi ricevas ilin.",
+    "ui_gold": "La kvanto da oro kiun vi havas kaj la procento kun kiu vi ricevas ilin.",
     "ui_troops_workers": "Trupoj kaj Laboristoj - La nombro da soldatoj kaj laboristoj asignitaj. Trupoj kutimas ataki aŭ defendi. Laboristoj kutimas generi oron. Vi povas ĝustigi la nombron da trupoj kaj laboristoj uzante la glitilon.",
     "ui_attack_ratio": "Ataka kvociento - La nombro da uzaj soldatoj kiam vi atakas. Vi povas ĝustigi la atakan kvocienton uzante la glitilon. Havi pli da atakaj trupoj ol la defendaj trupoj malpliigos la perdojn dum atako, dum havi malpli multe pliigos la damaĝon ricevitajn de viaj atakaj trupoj. La efiko ne superas rilatumon de 2:1.",
     "ui_options": "Opcioj",
@@ -77,8 +88,7 @@
     "icon_crown": "Krono - Ĉi tiu ludanto estas numero 1 en la ranglisto",
     "icon_traitor": "Krucitaj glavoj - Perfida. Ĉi tiu ludanto atakis aliancanon.",
     "icon_ally": "Manpremo - Aliancano. Ĉi tiu ludanto estas via aliancano.",
-    "info_enemy_panel": "Malamiko informpanelo",
-    "action_emote": "Malfermi miensimbolan menuon"
+    "info_enemy_panel": "Malamiko informpanelo"
   },
   "single_modal": {
     "title": "Sola Ludanto",
@@ -91,9 +101,11 @@
     "infinite_gold": "Senfina oro",
     "infinite_troops": "Senfinaj trupoj",
     "disable_nukes": "Malŝalti nukleajn armilojn",
+    "enables_title": "Ebligi Agordojn",
     "start": "Komenci la ludon"
   },
   "map": {
+    "map": "Karto",
     "world": "Mondo",
     "europe": "Eŭropo",
     "mena": "Mezoriento kaj Nordafriko",
@@ -110,25 +122,35 @@
     "random": "Hazarda",
     "iceland": "Islando",
     "pangaea": "Pangeo",
-    "map": "Karto",
-    "betweentwoseas": "Inter du maroj",
     "japan": "Japanio kaj najbaroj",
-    "knownworld": "Konata Mondo"
+    "betweentwoseas": "Inter du maroj",
+    "knownworld": "Konata Mondo",
+    "faroeislands": "Ferooj",
+    "deglaciatedantarctica": "Malglacia Antarkto",
+    "europeclassic": "Eŭropo (klasika)",
+    "falklandislands": "Falklandoj",
+    "baikal": "Bajkalo"
+  },
+  "map_categories": {
+    "continental": "Kontinenta",
+    "regional": "Regiona",
+    "fantasy": "Alia"
   },
   "private_lobby": {
-    "title": "Aliĝi al privata salono",
-    "enter_id": "Enigu la salonan ID",
+    "title": "Aliĝi al privata ludejo",
+    "enter_id": "Enigu la ludejan ID-on",
     "player": "Ludanto",
     "players": "Ludantoj",
-    "join_lobby": "Aliĝi al la salono",
-    "checking": "Kontrolado de la salono...",
-    "not_found": "Salono ne trovita. Bonvolu kontroli la ID kaj reprovi.",
-    "error": "Eraro okazis. Bonvolu reprovi.",
+    "join_lobby": "Aliĝi al la ludejo",
+    "checking": "Kontrolado de la ludejo...",
+    "not_found": "Ludejo ne trovita. Bonvolu kontroli la ID kaj reprovi.",
+    "error": "Eraro okazis. Bonvolu provi denove.",
     "joined_waiting": "Sukcese aliĝis! Atendante la komencon de la ludo..."
   },
   "public_lobby": {
     "join": "Kunigi la baldaŭan ludon",
-    "waiting": "atendante ludantoj"
+    "waiting": "atendante ludantoj",
+    "teams": "{num} teamoj"
   },
   "username": {
     "enter_username": "Enigu vian uzantnomon",
@@ -138,7 +160,9 @@
     "invalid_chars": "La uzantnomo povas enhavi nur literojn, ciferojn, spacojn, substrekojn kaj [krampojn]."
   },
   "host_modal": {
-    "title": "Privata Salono",
+    "title": "Privata Ludejo",
+    "mode": "Reĝimo",
+    "team_count": "Nombro de teamoj",
     "options_title": "Opcioj",
     "bots": "Robotoj :",
     "bots_disabled": "Malŝaltita",
@@ -146,35 +170,154 @@
     "instant_build": "Tujkonstruaĵo",
     "infinite_gold": "Senfina oro",
     "infinite_troops": "Senfinaj trupoj",
-    "disable_nukes": "Malŝalti nukleajn armilojn",
+    "enables_title": "Ebligi Agordojn",
     "player": "Ludanto",
     "players": "Ludantoj",
     "waiting": "Atendante ludantojn...",
-    "start": "Komenci la ludon",
-    "mode": "Reĝimo"
-  },
-  "difficulty": {
-    "Relaxed": "Senstreĉa",
-    "Balanced": "Ekvilibriga",
-    "Intense": "Intensa",
-    "Impossible": "Neebla",
-    "difficulty": "Malfacileco"
+    "start": "Komenci la ludon"
   },
   "game_starting_modal": {
     "title": "Ludo komenciĝas...",
-    "desc": "Preparante por komenci la salonon. Bonvolu atendi."
+    "desc": "Preparante por komenci la ludejon. Bonvolu atendi."
   },
-  "lang": {
-    "en": "Esperanto",
-    "native": "Esperanto",
-    "svg": "eo",
-    "lang_code": "eo"
+  "difficulty": {
+    "difficulty": "Malfacileco",
+    "Relaxed": "Senstreĉa",
+    "Balanced": "Ekvilibriga",
+    "Intense": "Intensa",
+    "Impossible": "Neebla"
   },
   "game_mode": {
-    "ffa": "Senpaga por ĉiuj",
+    "ffa": "Ĉiu por si",
     "teams": "Teamoj"
   },
   "select_lang": {
     "title": "Elekti lingvon"
+  },
+  "unit_type": {
+    "city": "Urbo",
+    "defense_post": "Defenda Posteno",
+    "port": "Haveno",
+    "warship": "Militŝipo",
+    "missile_silo": "Misila Silo",
+    "sam_launcher": "SAM-lanĉilo",
+    "atom_bomb": "Atombombo",
+    "hydrogen_bomb": "Hidrogenbombo",
+    "mirv": "MIRV"
+  },
+  "user_setting": {
+    "title": "Uzantparametroj",
+    "tab_basic": "Bazaj parametroj",
+    "tab_keybinds": "Fulmoklavoj",
+    "dark_mode_label": "🌙 Malhela Modo",
+    "dark_mode_desc": "Baskuli la retpaĝa aspekto inter hela kaj malhela temo",
+    "emojis_label": "😊 Emoĝioj",
+    "emojis_desc": "Montri/Maski la emoĝiojn en la ludo",
+    "anonymous_names_label": "🥷 Maskitaj Nomoj",
+    "anonymous_names_desc": "Kaŝi verajn uzantnomojn kun hazardaj sur via ekrano.",
+    "left_click_label": "🖱️Maldekstra alklako por malfermi menuon",
+    "left_click_desc": "Kiam aktiviga, maldekstra alklako malfermas menuon kaj glava atakbutono. Kiam malaktiviga, maldekstra alklako atakas direkten.",
+    "attack_ratio_label": "⚔️ Atakkvociento",
+    "attack_ratio_desc": "Kian procenton de viaj trupoj sendi en atako (1–100%)",
+    "troop_ratio_label": "🪖🛠️ Trupoj kaj Laboristoj kvociento",
+    "troop_ratio_desc": "Alĝustigu la ekvilibron inter soldatoj (por batalo) kaj laboristoj (por orproduktado) (1–100%)",
+    "easter_writing_speed_label": "Rapidskriba multiganto",
+    "easter_writing_speed_desc": "Alĝustigu kiom rapide vi ŝajnigas kodi (x1–x100)",
+    "easter_bug_count_label": "Nombro da cimoj",
+    "easter_bug_count_desc": "Kiom da cimoj vi bonfartas (0–1000, emocie)",
+    "view_options": "Vidi opciojn",
+    "toggle_view": "Baskuli vido",
+    "toggle_view_desc": "Alterna vido (tereno/landoj)",
+    "zoom_controls": "Zomaj kontroloj",
+    "zoom_out": "Malzomi",
+    "zoom_out_desc": "Malzomi la mapon",
+    "zoom_in": "Zomi",
+    "zoom_in_desc": "Zomi en la mapon",
+    "camera_movement": "Fotila movado",
+    "center_camera": "Centriĝi la fotilon",
+    "center_camera_desc": "Centriĝi la fotilon sur la ludanto",
+    "move_up": "Movi Fotilon Supren",
+    "move_up_desc": "Movi la fotilon supren",
+    "move_left": "Movi Fotilon Maldekstren",
+    "move_left_desc": "Movi la fotilon maldekstren",
+    "move_down": "Movi Fotilon Malsupren",
+    "move_down_desc": "Movi la fotilon malsupren",
+    "move_right": "Movi Fotilon Dekstren",
+    "move_right_desc": "Movi la fotilon dekstren",
+    "reset": "Rekomencigi",
+    "unbind": "Senligi"
+  },
+  "chat": {
+    "title": "Rapida Babilejo",
+    "to": "Sendita al {user}: {msg}",
+    "from": "De {user}: {msg}",
+    "category": "Kategorio",
+    "phrase": "Frazo",
+    "player": "Ludanto",
+    "send": "Sendi",
+    "search": "Serĉu ludanton...",
+    "build": "Konstruu vian mesaĝon...",
+    "cat": {
+      "help": "Helpo",
+      "attack": "Atako",
+      "defend": "Defendo",
+      "greet": "Salutoj",
+      "misc": "Diversaĵoj",
+      "warnings": "Avertoj"
+    },
+    "help": {
+      "troops": "Bonvolu doni al mi soldatojn!",
+      "gold": "Bonvolu doni al mi oron!",
+      "no_attack": "Bonvolu ne ataki min!",
+      "sorry_attack": "Pardonu, mi ne intencis ataki.",
+      "alliance": "Alianco?",
+      "help_defend": "Helpu min defendi kontraŭ [P1]!",
+      "team_up": "Ni kuniĝu kontraŭ [P1]!"
+    },
+    "attack": {
+      "attack": "Ataku [P1]!",
+      "mirv": "Lanĉu MIRV-on ĉe [P1]!",
+      "focus": "Fokusu fajron sur [P1]!",
+      "finish": "Ni finigu [P1]!"
+    },
+    "defend": {
+      "defend": "Defendu [P1]!",
+      "dont_attack": "Ne ataku [P1]!",
+      "ally": "[P1] estas mia aliancano!"
+    },
+    "greet": {
+      "hello": "Saluton!",
+      "good_luck": "Bonŝancon!",
+      "have_fun": "Amuziĝu!",
+      "gg": "GG!",
+      "nice_to_meet": "Plaĉas renkonti vin!",
+      "well_played": "Bone ludita!",
+      "hi_again": "Saluton denove!",
+      "bye": "Ĝis la revido!",
+      "thanks": "Dankon!",
+      "oops": "Ups, misa butono!",
+      "trust_me": "Vi povas fini min. Promeso!",
+      "trust_broken": "Mi fidis vin..."
+    },
+    "misc": {
+      "go": "Eku ni!",
+      "strategy": "Bona strategio!",
+      "fun": "Ĉi tiu ludo estas amuza!",
+      "pr": "Kiam mia tirpeto finfine estos kunfandita...?"
+    },
+    "warnings": {
+      "strong": "[P1] estas forta.",
+      "weak": "[P1] estas malforta.",
+      "mirv_soon": "[P1] povas lanĉi MIRV-on baldaŭ!",
+      "number1_warning": "La #1 ludanto baldaŭ venkos krom se ni kunigos teamon!",
+      "stalemate": "Ni faru pacon. Ĉi tio estas malpluirado, ni ambaŭ malvenkos.",
+      "has_allies": "[P1] havas multe da aliancanoj.",
+      "no_allies": "[P1] ne havas aliancanojn.",
+      "betrayed": "[P1] perfidis sian aliancanon!",
+      "getting_big": "[P1] kreskas tro rapide!",
+      "danger_base": "[P1] estas senprotekta!",
+      "saving_for_mirv": "[P1] ŝparas por lanĉi MIRV-on.",
+      "mirv_ready": "[P1] havas sufiĉe da oro por lanĉi MIRV-on!"
+    }
   }
 }

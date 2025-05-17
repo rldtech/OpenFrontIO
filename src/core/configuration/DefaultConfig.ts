@@ -1,5 +1,8 @@
+import { JWK } from "jose";
+import { z } from "zod";
 import {
   Difficulty,
+  Duos,
   Game,
   GameMapType,
   GameMode,
@@ -23,94 +26,149 @@ import { Config, GameEnv, NukeMagnitude, ServerConfig, Theme } from "./Config";
 import { pastelTheme } from "./PastelTheme";
 import { pastelThemeDark } from "./PastelThemeDark";
 
+const JwksSchema = z.object({
+  keys: z
+    .object({
+      alg: z.literal("EdDSA"),
+      crv: z.literal("Ed25519"),
+      kty: z.literal("OKP"),
+      x: z.string(),
+    })
+    .array()
+    .min(1),
+});
+
 export abstract class DefaultServerConfig implements ServerConfig {
+  private publicKey: JWK;
+  abstract jwtAudience(): string;
+  jwtIssuer(): string {
+    const audience = this.jwtAudience();
+    return audience === "localhost"
+      ? "http://localhost:8787"
+      : `https://api.${audience}`;
+  }
+  async jwkPublicKey(): Promise<JWK> {
+    if (this.publicKey) return this.publicKey;
+    const jwksUrl = this.jwtIssuer() + "/.well-known/jwks.json";
+    console.log(`Fetching JWKS from ${jwksUrl}`);
+    const response = await fetch(jwksUrl);
+    const jwks = JwksSchema.parse(await response.json());
+    this.publicKey = jwks.keys[0];
+    return this.publicKey;
+  }
+  otelEnabled(): boolean {
+    return Boolean(
+      this.otelEndpoint() && this.otelUsername() && this.otelPassword(),
+    );
+  }
+  otelEndpoint(): string {
+    return process.env.OTEL_ENDPOINT ?? "undefined";
+  }
+  otelUsername(): string {
+    return process.env.OTEL_USERNAME ?? "undefined";
+  }
+  otelPassword(): string {
+    return process.env.OTEL_PASSWORD ?? "undefined";
+  }
   region(): string {
-    if (this.env() == GameEnv.Dev) {
+    if (this.env() === GameEnv.Dev) {
       return "dev";
     }
-    return process.env.REGION;
+    return process.env.REGION ?? "undefined";
   }
   gitCommit(): string {
-    return process.env.GIT_COMMIT;
+    return process.env.GIT_COMMIT ?? "undefined";
   }
   r2Endpoint(): string {
     return `https://${process.env.CF_ACCOUNT_ID}.r2.cloudflarestorage.com`;
   }
   r2AccessKey(): string {
-    return process.env.R2_ACCESS_KEY;
+    return process.env.R2_ACCESS_KEY ?? "undefined";
   }
   r2SecretKey(): string {
-    return process.env.R2_SECRET_KEY;
+    return process.env.R2_SECRET_KEY ?? "undefined";
   }
-  abstract r2Bucket(): string;
+
+  r2Bucket(): string {
+    return process.env.R2_BUCKET ?? "undefined";
+  }
+
   adminHeader(): string {
     return "x-admin-key";
   }
   adminToken(): string {
-    return process.env.ADMIN_TOKEN;
+    return process.env.ADMIN_TOKEN ?? "undefined";
   }
   abstract numWorkers(): number;
   abstract env(): GameEnv;
-  abstract discordRedirectURI(): string;
   turnIntervalMs(): number {
     return 100;
   }
   gameCreationRate(): number {
     return 60 * 1000;
   }
-  lobbyMaxPlayers(map: GameMapType): number {
-    // Maps with ~4 mil pixels
-    if (
-      [
-        GameMapType.GatewayToTheAtlantic,
-        GameMapType.SouthAmerica,
-        GameMapType.NorthAmerica,
-        GameMapType.Africa,
-        GameMapType.Europe,
-      ].includes(map)
-    ) {
-      return Math.random() < 0.2 ? 100 : 50;
-    }
-    // Maps with ~2.5 - ~3.5 mil pixels
-    if (
-      [
-        GameMapType.Australia,
-        GameMapType.Iceland,
-        GameMapType.Britannia,
-        GameMapType.Asia,
-      ].includes(map)
-    ) {
-      return Math.random() < 0.3 ? 50 : 25;
-    }
-    // Maps with ~2 mil pixels
-    if (
-      [
-        GameMapType.Mena,
-        GameMapType.Mars,
-        GameMapType.Oceania,
-        GameMapType.Japan, // Japan at this level because its 2/3 water
-        GameMapType.FaroeIslands,
-      ].includes(map)
-    ) {
-      return Math.random() < 0.3 ? 50 : 25;
-    }
-    // Maps smaller than ~2 mil pixels
-    if (
-      [
-        GameMapType.BetweenTwoSeas,
-        GameMapType.BlackSea,
-        GameMapType.Pangaea,
-      ].includes(map)
-    ) {
-      return Math.random() < 0.5 ? 30 : 15;
-    }
-    // world belongs with the ~2 mils, but these amounts never made sense so I assume the insanity is intended.
-    if (map == GameMapType.World) {
-      return Math.random() < 0.2 ? 150 : 50;
-    }
-    // default return for non specified map
-    return Math.random() < 0.2 ? 50 : 20;
+
+  lobbyMaxPlayers(map: GameMapType, mode: GameMode): number {
+    const numPlayers = () => {
+      // Maps with ~4 mil pixels
+      if (
+        [
+          GameMapType.GatewayToTheAtlantic,
+          GameMapType.SouthAmerica,
+          GameMapType.NorthAmerica,
+          GameMapType.Africa,
+          GameMapType.Europe,
+        ].includes(map)
+      ) {
+        return Math.random() < 0.2 ? 100 : 50;
+      }
+      // Maps with ~2.5 - ~3.5 mil pixels
+      if (
+        [
+          GameMapType.Australia,
+          GameMapType.Iceland,
+          GameMapType.Britannia,
+          GameMapType.Asia,
+          GameMapType.FalklandIslands,
+          GameMapType.Baikal,
+        ].includes(map)
+      ) {
+        return Math.random() < 0.3 ? 50 : 25;
+      }
+      // Maps with ~2 mil pixels
+      if (
+        [
+          GameMapType.Mena,
+          GameMapType.Mars,
+          GameMapType.Oceania,
+          GameMapType.Japan, // Japan at this level because its 2/3 water
+          GameMapType.FaroeIslands,
+          GameMapType.DeglaciatedAntarctica,
+          GameMapType.EuropeClassic,
+        ].includes(map)
+      ) {
+        return Math.random() < 0.3 ? 50 : 25;
+      }
+      // Maps smaller than ~2 mil pixels
+      if (
+        [
+          GameMapType.BetweenTwoSeas,
+          GameMapType.BlackSea,
+          GameMapType.Pangaea,
+        ].includes(map)
+      ) {
+        return Math.random() < 0.5 ? 30 : 15;
+      }
+      // world belongs with the ~2 mils, but these amounts never made sense so I assume the insanity is intended.
+      if (map === GameMapType.World) {
+        return Math.random() < 0.2 ? 150 : 50;
+      }
+      // default return for non specified map
+      return Math.random() < 0.2 ? 50 : 20;
+    };
+    return Math.min(150, numPlayers() * (mode === GameMode.Team ? 2 : 1));
   }
+
   workerIndex(gameID: GameID): number {
     return simpleHash(gameID) % this.numWorkers();
   }
@@ -129,8 +187,12 @@ export class DefaultConfig implements Config {
   constructor(
     private _serverConfig: ServerConfig,
     private _gameConfig: GameConfig,
-    private _userSettings: UserSettings,
+    private _userSettings: UserSettings | null,
+    private _isReplay: boolean,
   ) {}
+  isReplay(): boolean {
+    return this._isReplay;
+  }
 
   samHittingChance(): number {
     return 0.8;
@@ -144,7 +206,7 @@ export class DefaultConfig implements Config {
     return 0.5;
   }
   traitorDuration(): number {
-    return 15 * 10; // 15 seconds
+    return 30 * 10; // 30 seconds
   }
   spawnImmunityDuration(): Tick {
     return 5 * 10;
@@ -158,7 +220,10 @@ export class DefaultConfig implements Config {
     return this._serverConfig;
   }
 
-  userSettings(): UserSettings | null {
+  userSettings(): UserSettings {
+    if (this._userSettings === null) {
+      throw new Error("userSettings is null");
+    }
     return this._userSettings;
   }
 
@@ -197,15 +262,18 @@ export class DefaultConfig implements Config {
   defensePostDefenseBonus(): number {
     return 5;
   }
-  numPlayerTeams(): number {
-    return this._gameConfig.numPlayerTeams ?? 0;
+  playerTeams(): number | typeof Duos {
+    return this._gameConfig.playerTeams ?? 0;
   }
+
   spawnNPCs(): boolean {
     return !this._gameConfig.disableNPCs;
   }
-  disableNukes(): boolean {
-    return this._gameConfig.disableNukes;
+
+  isUnitDisabled(unitType: UnitType): boolean {
+    return this._gameConfig.disabledUnits?.includes(unitType) ?? false;
   }
+
   bots(): number {
     return this._gameConfig.bots;
   }
@@ -222,12 +290,7 @@ export class DefaultConfig implements Config {
     return 10000 + 150 * Math.pow(dist, 1.1);
   }
   tradeShipSpawnRate(numberOfPorts: number): number {
-    if (numberOfPorts <= 3) return 18;
-    if (numberOfPorts <= 5) return 25;
-    if (numberOfPorts <= 8) return 35;
-    if (numberOfPorts <= 10) return 40;
-    if (numberOfPorts <= 12) return 45;
-    return 50;
+    return Math.round(10 * Math.pow(numberOfPorts, 0.6));
   }
 
   unitInfo(type: UnitType): UnitInfo {
@@ -240,7 +303,7 @@ export class DefaultConfig implements Config {
       case UnitType.Warship:
         return {
           cost: (p: Player) =>
-            p.type() == PlayerType.Human && this.infiniteGold()
+            p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
                   1_000_000,
@@ -264,7 +327,7 @@ export class DefaultConfig implements Config {
       case UnitType.Port:
         return {
           cost: (p: Player) =>
-            p.type() == PlayerType.Human && this.infiniteGold()
+            p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
                   1_000_000,
@@ -279,19 +342,21 @@ export class DefaultConfig implements Config {
       case UnitType.AtomBomb:
         return {
           cost: (p: Player) =>
-            p.type() == PlayerType.Human && this.infiniteGold() ? 0 : 750_000,
+            p.type() === PlayerType.Human && this.infiniteGold() ? 0 : 750_000,
           territoryBound: false,
         };
       case UnitType.HydrogenBomb:
         return {
           cost: (p: Player) =>
-            p.type() == PlayerType.Human && this.infiniteGold() ? 0 : 5_000_000,
+            p.type() === PlayerType.Human && this.infiniteGold()
+              ? 0
+              : 5_000_000,
           territoryBound: false,
         };
       case UnitType.MIRV:
         return {
           cost: (p: Player) =>
-            p.type() == PlayerType.Human && this.infiniteGold()
+            p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : 25_000_000,
           territoryBound: false,
@@ -309,14 +374,16 @@ export class DefaultConfig implements Config {
       case UnitType.MissileSilo:
         return {
           cost: (p: Player) =>
-            p.type() == PlayerType.Human && this.infiniteGold() ? 0 : 1_000_000,
+            p.type() === PlayerType.Human && this.infiniteGold()
+              ? 0
+              : 1_000_000,
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 10 * 10,
         };
       case UnitType.DefensePost:
         return {
           cost: (p: Player) =>
-            p.type() == PlayerType.Human && this.infiniteGold()
+            p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
                   250_000,
@@ -330,7 +397,7 @@ export class DefaultConfig implements Config {
       case UnitType.SAMLauncher:
         return {
           cost: (p: Player) =>
-            p.type() == PlayerType.Human && this.infiniteGold()
+            p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
                   3_000_000,
@@ -344,7 +411,7 @@ export class DefaultConfig implements Config {
       case UnitType.City:
         return {
           cost: (p: Player) =>
-            p.type() == PlayerType.Human && this.infiniteGold()
+            p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
                   1_000_000,
@@ -389,23 +456,27 @@ export class DefaultConfig implements Config {
   allianceDuration(): Tick {
     return 600 * 10; // 10 minutes.
   }
+  temporaryEmbargoDuration(): Tick {
+    return 300 * 10; // 5 minutes.
+  }
+
   percentageTilesOwnedToWin(): number {
-    if (this._gameConfig.gameMode == GameMode.Team) {
+    if (this._gameConfig.gameMode === GameMode.Team) {
       return 95;
     }
     return 80;
   }
   boatMaxNumber(): number {
-    return 9;
+    return 3;
   }
   numSpawnPhaseTurns(): number {
-    return this._gameConfig.gameType == GameType.Singleplayer ? 100 : 300;
+    return this._gameConfig.gameType === GameType.Singleplayer ? 100 : 300;
   }
   numBots(): number {
     return this.bots();
   }
   theme(): Theme {
-    return this.userSettings().darkMode() ? pastelThemeDark : pastelTheme;
+    return this.userSettings()?.darkMode() ? pastelThemeDark : pastelTheme;
   }
 
   attackLogic(
@@ -444,7 +515,7 @@ export class DefaultConfig implements Config {
         gm.config().defensePostRange(),
         UnitType.DefensePost,
       )) {
-        if (dp.unit.owner() == defender) {
+        if (dp.unit.owner() === defender) {
           mag *= this.defensePostDefenseBonus();
           speed *= this.defensePostDefenseBonus();
           break;
@@ -460,14 +531,14 @@ export class DefaultConfig implements Config {
 
     if (attacker.isPlayer() && defender.isPlayer()) {
       if (
-        attacker.type() == PlayerType.Human &&
-        defender.type() == PlayerType.Bot
+        attacker.type() === PlayerType.Human &&
+        defender.type() === PlayerType.Bot
       ) {
         mag *= 0.8;
       }
       if (
-        attacker.type() == PlayerType.FakeHuman &&
-        defender.type() == PlayerType.Bot
+        attacker.type() === PlayerType.FakeHuman &&
+        defender.type() === PlayerType.Bot
       ) {
         mag *= 0.8;
       }
@@ -484,30 +555,23 @@ export class DefaultConfig implements Config {
     }
 
     if (defender.isPlayer()) {
-      const ratio = within(
-        Math.pow(defender.troops() / attackTroops, 0.4),
-        0.1,
-        10,
-      );
-      const speedRatio = within(
-        defender.troops() / (5 * attackTroops),
-        0.1,
-        10,
-      );
-
       return {
         attackerTroopLoss:
-          ratio *
+          within(defender.troops() / attackTroops, 0.6, 2) *
           mag *
+          0.8 *
           largeLossModifier *
           (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
-        defenderTroopLoss: defender.population() / defender.numTilesOwned(),
-        tilesPerTickUsed: Math.floor(speedRatio * speed * largeSpeedMalus),
+        defenderTroopLoss: defender.troops() / defender.numTilesOwned(),
+        tilesPerTickUsed:
+          within(defender.troops() / (5 * attackTroops), 0.2, 1.5) *
+          speed *
+          largeSpeedMalus,
       };
     } else {
       return {
         attackerTroopLoss:
-          attacker.type() == PlayerType.Bot ? mag / 10 : mag / 5,
+          attacker.type() === PlayerType.Bot ? mag / 10 : mag / 5,
         defenderTroopLoss: 0,
         tilesPerTickUsed: within(
           (2000 * Math.max(10, speed)) / attackTroops,
@@ -552,7 +616,7 @@ export class DefaultConfig implements Config {
   }
 
   attackAmount(attacker: Player, defender: Player | TerraNullius) {
-    if (attacker.type() == PlayerType.Bot) {
+    if (attacker.type() === PlayerType.Bot) {
       return attacker.troops() / 20;
     } else {
       return attacker.troops() / 5;
@@ -560,10 +624,10 @@ export class DefaultConfig implements Config {
   }
 
   startManpower(playerInfo: PlayerInfo): number {
-    if (playerInfo.playerType == PlayerType.Bot) {
+    if (playerInfo.playerType === PlayerType.Bot) {
       return 10_000;
     }
-    if (playerInfo.playerType == PlayerType.FakeHuman) {
+    if (playerInfo.playerType === PlayerType.FakeHuman) {
       switch (this._gameConfig.difficulty) {
         case Difficulty.Easy:
           return 2_500 * (playerInfo?.nation?.strength ?? 1);
@@ -580,16 +644,16 @@ export class DefaultConfig implements Config {
 
   maxPopulation(player: Player | PlayerView): number {
     const maxPop =
-      player.type() == PlayerType.Human && this.infiniteTroops()
+      player.type() === PlayerType.Human && this.infiniteTroops()
         ? 1_000_000_000
         : 2 * (Math.pow(player.numTilesOwned(), 0.6) * 1000 + 50000) +
           player.units(UnitType.City).length * this.cityPopulationIncrease();
 
-    if (player.type() == PlayerType.Bot) {
+    if (player.type() === PlayerType.Bot) {
       return maxPop / 2;
     }
 
-    if (player.type() == PlayerType.Human) {
+    if (player.type() === PlayerType.Human) {
       return maxPop;
     }
 
@@ -613,11 +677,11 @@ export class DefaultConfig implements Config {
     const ratio = 1 - player.population() / max;
     toAdd *= ratio;
 
-    if (player.type() == PlayerType.Bot) {
+    if (player.type() === PlayerType.Bot) {
       toAdd *= 0.7;
     }
 
-    if (player.type() == PlayerType.FakeHuman) {
+    if (player.type() === PlayerType.FakeHuman) {
       switch (this._gameConfig.difficulty) {
         case Difficulty.Easy:
           toAdd *= 0.9;
@@ -638,8 +702,7 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): number {
-    const ratio = Math.pow(player.workers() / player.population(), 1.3);
-    return Math.floor(Math.sqrt(player.workers()) * ratio * 5);
+    return Math.sqrt(player.workers() * player.numTilesOwned()) / 200;
   }
 
   troopAdjustmentRate(player: Player): number {
@@ -666,6 +729,7 @@ export class DefaultConfig implements Config {
       case UnitType.HydrogenBomb:
         return { inner: 80, outer: 100 };
     }
+    throw new Error(`Unknown nuke type: ${unitType}`);
   }
 
   defaultNukeSpeed(): number {
@@ -678,7 +742,8 @@ export class DefaultConfig implements Config {
   }
 
   structureMinDist(): number {
-    return 18;
+    // TODO: Increase this to ~15 once upgradable structures are implemented.
+    return 1;
   }
 
   shellLifetime(): number {

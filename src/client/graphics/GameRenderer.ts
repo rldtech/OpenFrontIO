@@ -29,6 +29,7 @@ import { TopBar } from "./layers/TopBar";
 import { UILayer } from "./layers/UILayer";
 import { UnitLayer } from "./layers/UnitLayer";
 import { WinModal } from "./layers/WinModal";
+import { SoundManager } from "../../core/SoundManager";
 
 export function createRenderer(
   canvas: HTMLCanvasElement,
@@ -37,8 +38,14 @@ export function createRenderer(
   clientID: ClientID,
 ): GameRenderer {
   const transformHandler = new TransformHandler(game, eventBus, canvas);
-
   const uiState = { attackRatio: 20 };
+  const soundManager = new SoundManager();
+
+  
+  Promise.all([
+    soundManager.loadSound('click', 'resources/sounds/click1.mp3'),
+  ]).catch((e) => console.error('Failed to load sounds:', e));
+
 
   //hide when the game renders
   const startingModal = document.querySelector(
@@ -160,7 +167,7 @@ export function createRenderer(
   }
   multiTabModal.game = game;
 
-  const layers: Layer[] = [
+   const layers: Layer[] = [
     new TerrainLayer(game, transformHandler),
     new TerritoryLayer(game, eventBus),
     new StructureLayer(game, eventBus),
@@ -170,17 +177,19 @@ export function createRenderer(
     eventsDisplay,
     chatDisplay,
     buildMenu,
-    new RadialMenu(
-      eventBus,
-      game,
-      transformHandler,
-      clientID,
-      emojiTable as EmojiTable,
-      buildMenu,
-      uiState,
-      playerInfo,
-      playerPanel,
-    ),
+    radialMenu,
+    new SpawnTimer(game, transformHandler),
+    leaderboard,
+    controlPanel,
+    playerInfo,
+    winModel,
+    optionsMenu,
+    teamStats,
+    topBar,
+    playerPanel,
+    multiTabModal,
+  ];
+
     new SpawnTimer(game, transformHandler),
     leaderboard,
     controlPanel,

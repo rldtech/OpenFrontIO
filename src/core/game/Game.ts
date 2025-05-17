@@ -198,7 +198,7 @@ export const nukeTypes = [
   UnitType.HydrogenBomb,
   UnitType.MIRVWarhead,
   UnitType.MIRV,
-] as UnitType[];
+] as const satisfies UnitType[];
 
 export type NukeType = (typeof nukeTypes)[number];
 

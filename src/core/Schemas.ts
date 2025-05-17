@@ -174,17 +174,74 @@ const ID = z
   .regex(/^[a-zA-Z0-9]+$/)
   .length(8);
 
-const NukesEnum = z.enum([
-  "Atom Bomb",
-  "Hydrogen Bomb",
-  "MIRV",
-  "MIRV Warhead",
+// TODO: where to put these?
+// z.literal(UnitType.SAMMissile),
+// z.literal(UnitType.Shell),
+
+export const BombUnitSchema = z.union([
+  z.literal(UnitType.AtomBomb),
+  z.literal(UnitType.HydrogenBomb),
+  z.literal(UnitType.MIRV),
+  z.literal(UnitType.MIRVWarhead),
+]);
+export type NukeType = z.infer<typeof BombUnitSchema>;
+
+export const BoatUnitSchema = z.union([
+  z.literal(UnitType.TradeShip),
+  z.literal(UnitType.TransportShip),
+]);
+export type BoatType = z.infer<typeof BoatUnitSchema>;
+
+export const OtherUnitSchema = z.union([
+  z.literal(UnitType.City),
+  z.literal(UnitType.DefensePost),
+  z.literal(UnitType.Port),
+  z.literal(UnitType.Warship),
+  z.literal(UnitType.MissileSilo),
+  z.literal(UnitType.SAMLauncher),
 ]);
 
-const NukeStatsSchema = z.record(NukesEnum, z.number());
+export const LAUNCHED_INDEX = 0;
+export const LANDED_INDEX = 1;
+export const INTERCEPTED_INDEX = 2;
+export const LaunchedLandedInterceptedSchema = z.tuple([
+  z.number().nonnegative(), // launched
+  z.number().nonnegative(), // landed
+  z.number().nonnegative(), // intercepted
+]);
+
+export const BuiltLostDestroyedCapturedSchema = z.tuple([
+  z.number().nonnegative(), // built
+  z.number().nonnegative(), // lost
+  z.number().nonnegative(), // destroyed
+  z.number().nonnegative(), // captured
+]);
+
+export const SentArrivedDestroyedSchema = z.tuple([
+  z.number().nonnegative(), // sent
+  z.number().nonnegative(), // arrived
+  z.number().nonnegative(), // destroyed
+]);
+
+export const IncomingOutgoingCancelledSchema = z.tuple([
+  z.number().nonnegative(), // incoming
+  z.number().nonnegative(), // outgoing
+  z.number().nonnegative(), // cancelled
+]);
+
+export const WorkersTradeWarSchema = z.tuple([
+  z.number().nonnegative(), // workers
+  z.number().nonnegative(), // trade
+  z.number().nonnegative(), // war
+]);
 
 export const PlayerStatsSchema = z.object({
-  sentNukes: z.record(ID, NukeStatsSchema),
+  betrayals: z.number().nonnegative(),
+  boats: z.record(BoatUnitSchema, SentArrivedDestroyedSchema),
+  bombs: z.record(BombUnitSchema, LaunchedLandedInterceptedSchema),
+  units: z.record(OtherUnitSchema, BuiltLostDestroyedCapturedSchema),
+  attacks: IncomingOutgoingCancelledSchema,
+  gold: WorkersTradeWarSchema,
 });
 
 export const AllPlayersStatsSchema = z.record(ID, PlayerStatsSchema);

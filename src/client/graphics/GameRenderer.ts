@@ -42,7 +42,7 @@ export function createRenderer(
   const soundManager = new SoundManager();
 
   Promise.all([
-    soundManager.loadSound("click", "/resources/sounds/click1.mp3"),
+    soundManager.loadSound("click", "../../../resources/sounds/click1.mp3"),
   ]).catch((e) => console.error("Failed to load sounds:", e));
 
   //hide when the game renders

@@ -9,6 +9,7 @@ import {
 import { TileRef } from "../game/GameMap";
 import { AirPathFinder } from "../pathfinding/PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
+import { NukeType } from "../Schemas";
 
 export class SAMMissileExecution implements Execution {
   private active = true;
@@ -59,6 +60,13 @@ export class SAMMissileExecution implements Execution {
         this.target.tile(),
       );
       if (result === true) {
+        this.mg
+          .stats()
+          .bombIntercept(
+            this.target.owner().id(),
+            this._owner.id(),
+            this.target.type() as NukeType,
+          );
         this.mg.displayMessage(
           `Missile intercepted ${this.target.type()}`,
           MessageType.SUCCESS,

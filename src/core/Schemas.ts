@@ -200,6 +200,7 @@ export const OtherUnitSchema = z.union([
   z.literal(UnitType.MissileSilo),
   z.literal(UnitType.SAMLauncher),
 ]);
+export type OtherUnit = z.infer<typeof OtherUnitSchema>;
 
 export const LAUNCHED_INDEX = 0;
 export const LANDED_INDEX = 1;
@@ -210,6 +211,10 @@ export const LaunchedLandedInterceptedSchema = z.tuple([
   z.number().nonnegative(), // intercepted
 ]);
 
+export const BUILT_INDEX = 0;
+export const LOST_INDEX = 1;
+export const DESTROYED_INDEX = 2; // WARNING - OVERLAPS BELOW
+export const CAPTURED_INDEX = 3;
 export const BuiltLostDestroyedCapturedSchema = z.tuple([
   z.number().nonnegative(), // built
   z.number().nonnegative(), // lost
@@ -217,18 +222,27 @@ export const BuiltLostDestroyedCapturedSchema = z.tuple([
   z.number().nonnegative(), // captured
 ]);
 
+export const SENT_INDEX = 0;
+export const ARRIVED_INDEX = 1;
+// export const DESTROYED_INDEX = 2; // WARNING - OVERLAPS ABOVE
 export const SentArrivedDestroyedSchema = z.tuple([
   z.number().nonnegative(), // sent
   z.number().nonnegative(), // arrived
   z.number().nonnegative(), // destroyed
 ]);
 
+export const INCOMING_INDEX = 0;
+export const OUTGOING_INDEX = 0;
+export const CANCELLED_INDEX = 0;
 export const IncomingOutgoingCancelledSchema = z.tuple([
   z.number().nonnegative(), // incoming
   z.number().nonnegative(), // outgoing
   z.number().nonnegative(), // cancelled
 ]);
 
+export const WORK_INDEX = 0;
+export const TRADE_INDEX = 1;
+export const WAR_INDEX = 2;
 export const WorkersTradeWarSchema = z.tuple([
   z.number().nonnegative(), // workers
   z.number().nonnegative(), // trade
@@ -236,12 +250,12 @@ export const WorkersTradeWarSchema = z.tuple([
 ]);
 
 export const PlayerStatsSchema = z.object({
+  attacks: IncomingOutgoingCancelledSchema,
   betrayals: z.number().nonnegative(),
   boats: z.record(BoatUnitSchema, SentArrivedDestroyedSchema),
   bombs: z.record(BombUnitSchema, LaunchedLandedInterceptedSchema),
-  units: z.record(OtherUnitSchema, BuiltLostDestroyedCapturedSchema),
-  attacks: IncomingOutgoingCancelledSchema,
   gold: WorkersTradeWarSchema,
+  units: z.record(OtherUnitSchema, BuiltLostDestroyedCapturedSchema),
 });
 
 export const AllPlayersStatsSchema = z.record(ID, PlayerStatsSchema);

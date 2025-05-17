@@ -1,5 +1,4 @@
 import {
-  AllPlayersStats,
   ATTACK_INDEX_CANCELLED,
   ATTACK_INDEX_INCOMING,
   ATTACK_INDEX_OUTGOING,
@@ -13,14 +12,15 @@ import {
   GOLD_INDEX_TRADE,
   GOLD_INDEX_WAR,
   GOLD_INDEX_WORK,
+  NukeType,
   OTHER_INDEX_BUILT,
   OTHER_INDEX_CAPTURED,
   OTHER_INDEX_DESTROYED,
   OTHER_INDEX_LOST,
   OtherUnit,
-  PlayerStats,
-} from "../Schemas";
-import { NukeType, PlayerID, UnitType } from "./Game";
+} from "../AnalyticsSchemas";
+import { AllPlayersStats, PlayerStats } from "../Schemas";
+import { PlayerID, UnitType } from "./Game";
 import { Stats } from "./Stats";
 
 export class StatsImpl implements Stats {

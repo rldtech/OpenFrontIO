@@ -1,9 +1,9 @@
+import { NukeType } from "../AnalyticsSchemas";
 import { consolex } from "../Consolex";
 import {
   Execution,
   Game,
   MessageType,
-  NukeType,
   Player,
   PlayerID,
   TerraNullius,

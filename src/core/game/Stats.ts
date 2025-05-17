@@ -1,5 +1,11 @@
-import { AllPlayersStats, BoatType, OtherUnit, PlayerStats } from "../Schemas";
-import { NukeType, PlayerID } from "./Game";
+import {
+  AllPlayersStats,
+  BoatType,
+  NukeType,
+  OtherUnit,
+  PlayerStats,
+} from "../Schemas";
+import { PlayerID } from "./Game";
 
 export interface Stats {
   getPlayerStats(player: PlayerID): PlayerStats;

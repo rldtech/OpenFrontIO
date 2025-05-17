@@ -193,15 +193,6 @@ export type UnitParams<T extends UnitType> = UnitParamsMap[T];
 
 export type AllUnitParams = UnitParamsMap[keyof UnitParamsMap];
 
-export const nukeTypes = [
-  UnitType.AtomBomb,
-  UnitType.HydrogenBomb,
-  UnitType.MIRVWarhead,
-  UnitType.MIRV,
-] as const satisfies UnitType[];
-
-export type NukeType = (typeof nukeTypes)[number];
-
 export enum Relation {
   Hostile = 0,
   Distrustful = 1,

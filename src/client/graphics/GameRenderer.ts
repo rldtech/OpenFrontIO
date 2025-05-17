@@ -30,7 +30,6 @@ import { TopBar } from "./layers/TopBar";
 import { UILayer } from "./layers/UILayer";
 import { UnitLayer } from "./layers/UnitLayer";
 import { WinModal } from "./layers/WinModal";
-
 export function createRenderer(
   canvas: HTMLCanvasElement,
   game: GameView,

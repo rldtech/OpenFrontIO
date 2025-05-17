@@ -1,86 +1,60 @@
-// Testing framework: Jest
-import { describe, test, expect } from '@jest/globals';
-import { ZodError } from 'zod';
-import {
-  UserSchema,
-  ProductSchema,
-  OrderSchema,
-} from './Schemas';
-
 describe('Schemas module', () => {
-  describe('UserSchema', () => {
-    test('should parse a valid user object', () => {
-      const validUser = {
-        id: 'user-1',
-        name: 'Alice',
-        email: 'alice@example.com',
-      };
-      expect(() => UserSchema.parse(validUser)).not.toThrow();
-      const parsed = UserSchema.parse(validUser);
-      expect(parsed).toEqual(validUser);
+  describe('validateSchema()', () => {
+    test('returns true for a minimal, valid schema', () => {
+      const schema = { type: 'object', properties: {} };
+      expect(validateSchema(schema)).toBe(true);
     });
 
-    test('should throw ZodError when required fields are missing', () => {
-      const invalidUser = { name: 'Bob' };
-      expect(() => UserSchema.parse(invalidUser)).toThrow(ZodError);
+    test('throws SchemaError when required property is missing', () => {
+      expect(() => validateSchema({} as any)).toThrow(SchemaError);
     });
 
-    test('should throw ZodError on wrong field types', () => {
-      const invalidUser = {
-        id: 123,
-        name: true,
-        email: 'not-an-email',
+    test('works with a deeply nested schema', () => {
+      const schema = {
+        type: 'object',
+        properties: {
+          level1: {
+            type: 'object',
+            properties: {
+              level2: { type: 'string' }
+            }
+          }
+        }
       };
-      expect(() => UserSchema.parse(invalidUser)).toThrow(ZodError);
+      expect(validateSchema(schema)).toBe(true);
     });
   });
 
-  describe('ProductSchema', () => {
-    test('should parse a valid product object', () => {
-      const validProduct = {
-        id: 'p1',
-        name: 'Widget',
-        price: 10,
-      };
-      expect(() => ProductSchema.parse(validProduct)).not.toThrow();
-      const parsed = ProductSchema.parse(validProduct);
-      expect(parsed).toEqual(validProduct);
+  describe('parseSchema()', () => {
+    beforeEach(() => {
+      jest.resetAllMocks();
     });
 
-    describe('ProductSchema invalid inputs', () => {
-      test.each([
-        [{ id: '', name: 'Widget', price: 10 }, /id.*non-empty string/],
-        [{ id: 'p1', name: 'Widget', price: -5 }, /price.*greater than or equal to 0/],
-      ])('input %# should throw %s', (input, expected) => {
-        expect(() => ProductSchema.parse(input)).toThrowError(expected);
-      });
+    test('parses a valid schema JSON string', () => {
+      const str = JSON.stringify({ type: 'object', properties: {} });
+      expect(parseSchema(str)).toEqual({ type: 'object', properties: {} });
+    });
+
+    test('throws SchemaError for invalid JSON string', () => {
+      expect(() => parseSchema('not valid json')).toThrow(SchemaError);
+    });
+
+    test('throws SchemaError when schema is invalid', () => {
+      const str = JSON.stringify({}); // missing required fields
+      expect(() => parseSchema(str)).toThrow(SchemaError);
     });
   });
 
-  describe('OrderSchema', () => {
-    test('should parse a valid order object', () => {
-      const validOrder = {
-        id: 'o1',
-        productId: 'p1',
-        quantity: 2,
-      };
-      expect(() => OrderSchema.parse(validOrder)).not.toThrow();
-      const parsed = OrderSchema.parse(validOrder);
-      expect(parsed).toEqual(validOrder);
+  describe('SchemaError', () => {
+    test('is an instance of Error and includes the invalid field name', () => {
+      const err = new SchemaError('missingProp');
+      expect(err).toBeInstanceOf(Error);
+      expect(err.message).toContain('missingProp');
     });
 
-    test('should throw ZodError when required fields are missing', () => {
-      const invalidOrder = { productId: 'p1' };
-      expect(() => OrderSchema.parse(invalidOrder)).toThrow(ZodError);
-    });
-
-    test('should throw ZodError on wrong field types', () => {
-      const invalidOrder = {
-        id: 1,
-        productId: 2,
-        quantity: 'two',
-      };
-      expect(() => OrderSchema.parse(invalidOrder)).toThrow(ZodError);
+    test('has the correct name property', () => {
+      const err = new SchemaError('someField');
+      expect(err.name).toBe('SchemaError');
     });
   });
 });

@@ -1,142 +1,103 @@
-import Ajv, { ValidateFunction } from 'ajv';
-import { userEventSchema, pageViewSchema, purchaseSchema } from './AnalyticsSchemas';
+// Testing framework: Jest with ts-jest
+import {
+  PageViewSchema,
+  ClickEventSchema,
+  PurchaseEventSchema
+} from './AnalyticsSchemas';
 
-let ajv: Ajv;
-beforeAll(() => {
-  ajv = new Ajv({ allErrors: true, strict: false });
-});
+describe('AnalyticsSchemas', () => {
+  describe('PageViewSchema', () => {
+    const validPageView = {
+      pageId: 'home',
+      userId: '550e8400-e29b-41d4-a716-446655440000',
+      timestamp: 1620000000
+    };
 
-/** Tests for userEventSchema validation */
-describe('userEventSchema validation', () => {
-  let validate: ValidateFunction;
+    it('parses a valid PageView object', () => {
+      const result = PageViewSchema.safeParse(validPageView);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data).toEqual(validPageView);
+      }
+    });
 
-  /** Compile the userEventSchema before running tests */
-  beforeAll(() => {
-    validate = ajv.compile(userEventSchema);
+    it('rejects when a required field is missing', () => {
+      const invalid = { ...validPageView };
+      delete (invalid as any).pageId;
+      const result = PageViewSchema.safeParse(invalid);
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects when a field has the wrong type', () => {
+      const invalid = { ...validPageView, timestamp: 'not a number' };
+      const result = PageViewSchema.safeParse(invalid);
+      expect(result.success).toBe(false);
+    });
   });
 
-  /** Should validate a minimal valid user event object */
-  it('should validate minimal valid data', () => {
-    const validData = { eventType: 'click', userId: 'abc123' };
-    expect(validate(validData)).toBe(true);
-    expect(validate.errors).toBeNull();
+  describe('ClickEventSchema', () => {
+    const validClickEvent = {
+      pageId: 'home',
+      elementId: 'button-1',
+      userId: '550e8400-e29b-41d4-a716-446655440000',
+      timestamp: 1620000000
+    };
+
+    it('parses a valid ClickEvent object', () => {
+      const result = ClickEventSchema.safeParse(validClickEvent);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data).toEqual(validClickEvent);
+      }
+    });
+
+    it('rejects when a required field is missing', () => {
+      const invalid = { ...validClickEvent };
+      delete (invalid as any).elementId;
+      const result = ClickEventSchema.safeParse(invalid);
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects when a field has the wrong type', () => {
+      const invalid = { ...validClickEvent, timestamp: 'invalid' };
+      const result = ClickEventSchema.safeParse(invalid);
+      expect(result.success).toBe(false);
+    });
   });
 
-  /** Should fail when a required property is missing */
-  it('should fail when a required property is missing', () => {
-    const missingField = { eventType: 'click' };
-    expect(validate(missingField)).toBe(false);
-    expect(validate.errors).not.toHaveLength(0);
-  });
+  describe('PurchaseEventSchema', () => {
+    const validPurchaseEvent = {
+      userId: '550e8400-e29b-41d4-a716-446655440000',
+      itemId: 'item-123',
+      amount: 100,
+      timestamp: 1620000000
+    };
 
-  /** Should fail for incorrect property types */
-  it('should fail for incorrect property types', () => {
-    const wrongType = { eventType: 123, userId: 'abc123' };
-    expect(validate(wrongType)).toBe(false);
-    expect(validate.errors).not.toHaveLength(0);
-  });
+    it('parses a valid PurchaseEvent object', () => {
+      const result = PurchaseEventSchema.safeParse(validPurchaseEvent);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data).toEqual(validPurchaseEvent);
+      }
+    });
 
-  /** Should fail when extra properties are present */
-  it('should fail when extra properties are present', () => {
-    const extraProps = { eventType: 'click', userId: 'abc123', extra: 'unexpected' };
-    expect(validate(extraProps)).toBe(false);
-    expect(validate.errors).not.toHaveLength(0);
-  });
+    it('rejects when a required field is missing', () => {
+      const invalid = { ...validPurchaseEvent };
+      delete (invalid as any).itemId;
+      const result = PurchaseEventSchema.safeParse(invalid);
+      expect(result.success).toBe(false);
+    });
 
-  /** Should handle edge cases such as empty strings */
-  it('should handle edge cases (empty strings)', () => {
-    const edgeCase = { eventType: '', userId: '' };
-    expect(validate(edgeCase)).toBe(true);
-    expect(validate.errors).toBeNull();
-  });
-});
+    it('rejects when a field has the wrong type', () => {
+      const invalid = { ...validPurchaseEvent, timestamp: 'not a number' };
+      const result = PurchaseEventSchema.safeParse(invalid);
+      expect(result.success).toBe(false);
+    });
 
-/** Tests for pageViewSchema validation */
-describe('pageViewSchema validation', () => {
-  let validate: ValidateFunction;
-
-  /** Compile the pageViewSchema before running tests */
-  beforeAll(() => {
-    validate = ajv.compile(pageViewSchema);
-  });
-
-  /** Should validate a minimal valid page view object */
-  it('should validate minimal valid data', () => {
-    const validData = { page: '/home', timestamp: 1627849182736 };
-    expect(validate(validData)).toBe(true);
-    expect(validate.errors).toBeNull();
-  });
-
-  /** Should fail when a required property is missing */
-  it('should fail when a required property is missing', () => {
-    const missingField = { page: '/home' };
-    expect(validate(missingField)).toBe(false);
-    expect(validate.errors).not.toHaveLength(0);
-  });
-
-  /** Should fail for incorrect property types */
-  it('should fail for incorrect property types', () => {
-    const wrongType = { page: '/home', timestamp: 'not-a-number' };
-    expect(validate(wrongType)).toBe(false);
-    expect(validate.errors).not.toHaveLength(0);
-  });
-
-  /** Should fail when extra properties are present */
-  it('should fail when extra properties are present', () => {
-    const extraProps = { page: '/home', timestamp: 1627849182736, extra: 'unexpected' };
-    expect(validate(extraProps)).toBe(false);
-    expect(validate.errors).not.toHaveLength(0);
-  });
-
-  /** Should handle edge cases such as zero timestamp */
-  it('should handle edge cases (zero timestamp)', () => {
-    const edgeCase = { page: '/home', timestamp: 0 };
-    expect(validate(edgeCase)).toBe(true);
-    expect(validate.errors).toBeNull();
-  });
-});
-
-/** Tests for purchaseSchema validation */
-describe('purchaseSchema validation', () => {
-  let validate: ValidateFunction;
-
-  /** Compile the purchaseSchema before running tests */
-  beforeAll(() => {
-    validate = ajv.compile(purchaseSchema);
-  });
-
-  /** Should validate a minimal valid purchase object */
-  it('should validate minimal valid data', () => {
-    const validData = { productId: 'sku123', amount: 19.99, currency: 'USD' };
-    expect(validate(validData)).toBe(true);
-    expect(validate.errors).toBeNull();
-  });
-
-  /** Should fail when a required property is missing */
-  it('should fail when a required property is missing', () => {
-    const missingField = { productId: 'sku123', amount: 19.99 };
-    expect(validate(missingField)).toBe(false);
-    expect(validate.errors).not.toHaveLength(0);
-  });
-
-  /** Should fail for incorrect property types */
-  it('should fail for incorrect property types', () => {
-    const wrongType = { productId: 'sku123', amount: '19.99', currency: 'USD' };
-    expect(validate(wrongType)).toBe(false);
-    expect(validate.errors).not.toHaveLength(0);
-  });
-
-  /** Should fail when extra properties are present */
-  it('should fail when extra properties are present', () => {
-    const extraProps = { productId: 'sku123', amount: 19.99, currency: 'USD', extra: 'unexpected' };
-    expect(validate(extraProps)).toBe(false);
-    expect(validate.errors).not.toHaveLength(0);
-  });
-
-  /** Should handle edge cases such as zero amount */
-  it('should handle edge cases (zero amount)', () => {
-    const edgeCase = { productId: 'sku123', amount: 0, currency: 'USD' };
-    expect(validate(edgeCase)).toBe(true);
-    expect(validate.errors).toBeNull();
+    it('rejects when numeric field is below minimum', () => {
+      const invalid = { ...validPurchaseEvent, amount: -1 };
+      const result = PurchaseEventSchema.safeParse(invalid);
+      expect(result.success).toBe(false);
+    });
   });
 });

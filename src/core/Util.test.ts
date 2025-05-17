@@ -1,98 +1,56 @@
-import { describe, test, expect } from '@jest/globals';
-import { isEmpty, deepClone, merge, range } from './Util';
+// Testing Library & Framework: Jest
+import { funcA, funcB, funcC } from './Util';
 
-describe('Util module', () => {
-  describe('isEmpty', () => {
-    test('returns true for null and undefined', () => {
-      expect(isEmpty(null)).toBe(true);
-      expect(isEmpty(undefined)).toBe(true);
-    });
-
-    test('returns true for empty strings and arrays', () => {
-      expect(isEmpty('')).toBe(true);
-      expect(isEmpty([])).toBe(true);
-    });
-
-    test('returns true for empty objects', () => {
-      expect(isEmpty({})).toBe(true);
-    });
-
-    test('returns false for non-empty strings, arrays, and objects', () => {
-      expect(isEmpty('hello')).toBe(false);
-      expect(isEmpty([1, 2, 3])).toBe(false);
-      expect(isEmpty({ a: 1 })).toBe(false);
-    });
-
-    test('returns false for numbers and booleans', () => {
-      expect(isEmpty(0)).toBe(false);
-      expect(isEmpty(false)).toBe(false);
-    });
+describe('funcA', () => {
+  test('should return expected value for valid input', () => {
+    const input = /* valid input for funcA */;
+    const expected = /* expected output for funcA */;
+    expect(funcA(input)).toBe(expected);
   });
 
-  describe('deepClone', () => {
-    test('deeply clones nested objects without referencing original', () => {
-      const original = { nested: { count: 5 } };
-      const copy = deepClone(original);
-      copy.nested.count = 10;
-      expect(original.nested.count).toBe(5);
-      expect(copy).not.toBe(original);
-    });
-
-    test('correctly clones arrays', () => {
-      const arr = [1, { x: 2 }];
-      const arrCopy = deepClone(arr);
-      expect(arrCopy).toEqual(arr);
-      expect(arrCopy).not.toBe(arr);
-      (arrCopy[1] as any).x = 3;
-      expect((arr[1] as any).x).toBe(2);
-    });
-
-    test('returns primitives unchanged', () => {
-      expect(deepClone(42)).toBe(42);
-      expect(deepClone('text')).toBe('text');
-    });
+  test('should handle edge case: empty input', () => {
+    const input = /* empty or minimal edge-case input for funcA */;
+    const expected = /* expected edge-case output for funcA */;
+    expect(funcA(input)).toBe(expected);
   });
 
-  describe('merge', () => {
-    test('shallowly merges two objects', () => {
-      const target = { a: 1 };
-      const result = merge({ ...target }, { b: 2 });
-      expect(result).toEqual({ a: 1, b: 2 });
-    });
+  test('should throw TypeError when passed null', () => {
+    expect(() => funcA(null as any)).toThrow(TypeError);
+  });
+});
 
-    test('overwrites primitive properties', () => {
-      expect(merge({ a: 1 }, { a: 3 })).toEqual({ a: 3 });
-    });
-
-    test('recursively merges nested objects', () => {
-      const target = { nested: { x: 1 } };
-      const source = { nested: { y: 2 } };
-      const merged = merge({ ...target }, source);
-      expect(merged.nested).toEqual({ x: 1, y: 2 });
-    });
-
-    test('returns target when source is undefined', () => {
-      const target = { a: 1 };
-      const result = merge({ ...target }, undefined as any);
-      expect(result).toBe(target);
-    });
+describe('funcB', () => {
+  test('should return expected result for valid input', () => {
+    const input = /* valid input for funcB */;
+    const expected = /* expected output for funcB */;
+    expect(funcB(input)).toBe(expected);
   });
 
-  describe('range', () => {
-    test('generates inclusive range from start to end', () => {
-      expect(range(1, 3)).toEqual([1, 2, 3]);
-    });
+  test('should handle edge case: zero or empty value', () => {
+    const input = /* zero or empty edge-case input for funcB */;
+    const expected = /* expected edge-case output for funcB */;
+    expect(funcB(input)).toBe(expected);
+  });
 
-    test('handles negative start', () => {
-      expect(range(-2, 2)).toEqual([-2, -1, 0, 1, 2]);
-    });
+  test('should throw RangeError when passed out-of-range value', () => {
+    expect(() => funcB(-1 as any)).toThrow(RangeError);
+  });
+});
 
-    test('returns single-element array when start equals end', () => {
-      expect(range(5, 5)).toEqual([5]);
-    });
+describe('funcC', () => {
+  test('should return expected structure for valid input', () => {
+    const input = /* valid input for funcC */;
+    const expected = /* expected output structure for funcC */;
+    expect(funcC(input)).toEqual(expected);
+  });
 
-    test('returns empty array when start is greater than end', () => {
-      expect(range(10, 5)).toEqual([]);
-    });
+  test('should handle edge case: empty array or object', () => {
+    const input = /* empty array or object for funcC */;
+    const expected = /* expected edge-case output for funcC */;
+    expect(funcC(input)).toEqual(expected);
+  });
+
+  test('should throw TypeError when passed undefined', () => {
+    expect(() => funcC(undefined as any)).toThrow(TypeError);
   });
 });

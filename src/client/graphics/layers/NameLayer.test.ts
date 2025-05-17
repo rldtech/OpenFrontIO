@@ -1,73 +1,67 @@
-/*
- Unit tests for NameLayer.ts
- Testing framework: Jest
-*/
-import NameLayer from './NameLayer';
+import NameLayer from "./NameLayer";
 
-let mockCtx: Partial<CanvasRenderingContext2D>;
+describe("NameLayer", () => {
+  let layer: NameLayer;
 
-beforeEach(() => {
-  mockCtx = {
-    measureText: jest.fn().mockReturnValue({ width: 100 }),
-    fillText: jest.fn(),
-  };
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
-describe('NameLayer – Initialization and getters', () => {
-  it('initializes with the provided name and font settings', () => {
-    const layer = new NameLayer('Alice', { fontSize: 16, fontFamily: 'Arial' });
-    expect(layer.getName()).toBe('Alice');
-    expect(layer.getFont()).toEqual({ fontSize: 16, fontFamily: 'Arial' });
-  });
-});
-
-describe('NameLayer – Bounds calculation', () => {
-  it('calculates width and height based on measureText', () => {
-    const layer = new NameLayer('Bob', { fontSize: 12, fontFamily: 'Times' });
-    const bounds = layer.getBounds(mockCtx as CanvasRenderingContext2D);
-    expect(mockCtx.measureText).toHaveBeenCalledWith('Bob');
-    expect(bounds.width).toBe(100);
-    expect(bounds.height).toBeGreaterThan(0);
-  });
-});
-
-describe('NameLayer – Rendering', () => {
-  it('renders text at the set position', () => {
-    const layer = new NameLayer('Eve', { fontSize: 14, fontFamily: 'Verdana' });
-    layer.setPosition(10, 20);
-    layer.render(mockCtx as CanvasRenderingContext2D);
-    expect(mockCtx.fillText).toHaveBeenCalledWith('Eve', 10, 20);
-  });
-});
-
-describe('NameLayer – Name updates', () => {
-  it('updates the name and recalculates bounds', () => {
-    const layer = new NameLayer('Old', { fontSize: 10, fontFamily: 'Helvetica' });
-    layer.updateName('NewName');
-    expect(layer.getName()).toBe('NewName');
-    expect(mockCtx.measureText).toHaveBeenCalledWith('NewName');
-  });
-});
-
-describe('NameLayer – Edge cases', () => {
-  it('handles empty name string gracefully', () => {
-    const layer = new NameLayer('', { fontSize: 8, fontFamily: 'Courier' });
-    expect(layer.getName()).toBe('');
-    const bounds = layer.getBounds(mockCtx as CanvasRenderingContext2D);
-    expect(bounds.width).toBe(0);
+  beforeEach(() => {
+    layer = new NameLayer();
   });
 
-  it('throws TypeError when name is not a string', () => {
-    // @ts-ignore
-    expect(() => new NameLayer(null, { fontSize: 8, fontFamily: 'Courier' }))
-      .toThrow(TypeError);
+  it("should initialize with default name as empty string", () => {
+    expect(layer.getName()).toBe("");
   });
-});
 
-afterAll(() => {
-  // Global cleanup (if needed)
+  it("should initialize with provided initialName", () => {
+    const initial = "Alice";
+    layer = new NameLayer({ initialName: initial });
+    expect(layer.getName()).toBe(initial);
+  });
+
+  it("should setName to valid string within maxLength", () => {
+    const name = "Bob";
+    layer.setName(name);
+    expect(layer.getName()).toBe(name);
+  });
+
+  it("should allow setting name exactly at maxLength", () => {
+    const max = 10;
+    const longName = "a".repeat(max);
+    layer = new NameLayer({ maxLength: max });
+    layer.setName(longName);
+    expect(layer.getName()).toBe(longName);
+  });
+
+  it("should throw TypeError when setName is called with non-string", () => {
+    // @ts-ignore: Testing invalid type
+    expect(() => layer.setName(123)).toThrow(TypeError);
+    // @ts-ignore: Testing invalid type
+    expect(() => layer.setName(123)).toThrow("Name must be a string");
+  });
+
+  it("should throw Error when setName exceeds maxLength", () => {
+    const max = 5;
+    layer = new NameLayer({ maxLength: max });
+    const tooLong = "a".repeat(max + 1);
+    expect(() => layer.setName(tooLong)).toThrow(Error);
+    expect(() => layer.setName(tooLong)).toThrow(`Name exceeds maximum length of ${max}`);
+  });
+
+  it("should clearName and reset name to empty string", () => {
+    layer.setName("Charlie");
+    layer.clearName();
+    expect(layer.getName()).toBe("");
+  });
+
+  it("should render name using CanvasRenderingContext2D.fillText", () => {
+    const mockContext = { fillText: jest.fn() } as unknown as CanvasRenderingContext2D;
+    layer.setName("Dana");
+    layer.render(mockContext);
+    expect(mockContext.fillText).toHaveBeenCalledWith("Dana", 0, 0);
+  });
+
+  it("should render empty name when no name is set", () => {
+    const mockContext = { fillText: jest.fn() } as unknown as CanvasRenderingContext2D;
+    layer.render(mockContext);
+    expect(mockContext.fillText).toHaveBeenCalledWith("", 0, 0);
+  });
 });

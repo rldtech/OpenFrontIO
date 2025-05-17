@@ -162,12 +162,12 @@ class Client {
     const TerritoryModal = document.querySelector(
       "territory-patterns-input",
     ) as territoryPatternsModal;
+    const tpButton = document.getElementById("territory-patterns-input_");
     TerritoryModal instanceof territoryPatternsModal;
-    document
-      .getElementById("territory-patterns-input_")
-      .addEventListener("click", () => {
-        TerritoryModal.open();
-      });
+    if (tpButton === null) throw new Error("Missing territory-patterns-input_");
+    tpButton.addEventListener("click", () => {
+      TerritoryModal.open();
+    });
 
     const claims = isLoggedIn();
     if (claims === false) {
@@ -288,7 +288,7 @@ class Client {
       {
         gameID: lobby.gameID,
         serverConfig: config,
-        pattern: localStorage.getItem("territoryPattern"),
+        pattern: localStorage.getItem("territoryPattern") ?? "",
         flag:
           this.flagInput === null || this.flagInput.getCurrentFlag() === "xx"
             ? ""

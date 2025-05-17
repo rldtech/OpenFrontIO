@@ -174,7 +174,7 @@ export class PlayerView {
     return this.data.flag;
   }
 
-  pattern(): string {
+  pattern(): string | undefined | null {
     return this.data.pattern;
   }
 

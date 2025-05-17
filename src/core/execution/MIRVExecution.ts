@@ -58,11 +58,7 @@ export class MirvExecution implements Execution {
 
     this.mg
       .stats()
-      .increaseNukeCount(
-        this.player.id(),
-        this.targetPlayer.id(),
-        UnitType.MIRV,
-      );
+      .bombLaunch(this.player.id(), this.targetPlayer.id(), UnitType.MIRV);
   }
 
   tick(ticks: number): void {
@@ -91,6 +87,9 @@ export class MirvExecution implements Execution {
 
     const result = this.pathFinder.nextTile(this.speed);
     if (result === true) {
+      this.mg
+        .stats()
+        .bombLand(this.player.id(), this.targetPlayer.id(), UnitType.MIRV);
       this.separate();
       this.active = false;
       return;

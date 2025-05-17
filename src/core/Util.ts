@@ -4,7 +4,6 @@ import twemoji from "twemoji";
 import { Cell, Team, Unit } from "./game/Game";
 import { GameMap, TileRef } from "./game/GameMap";
 import {
-  AllPlayersStats,
   ClientID,
   GameID,
   GameRecord,
@@ -194,7 +193,6 @@ export function createGameRecord(
   end: number,
   winner: ClientID | Team | null,
   winnerType: "player" | "team" | null,
-  allPlayersStats: AllPlayersStats,
 ): GameRecord {
   const record: GameRecord = {
     id: id,
@@ -206,7 +204,6 @@ export function createGameRecord(
     date: new Date().toISOString().split("T")[0],
     num_turns: 0,
     turns: [],
-    allPlayersStats,
     version: "v0.0.1",
     winner,
     winnerType,

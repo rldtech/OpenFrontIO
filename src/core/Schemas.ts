@@ -451,6 +451,7 @@ export const PlayerRecordSchema = z.object({
   username: SafeString,
   ip: SafeString.nullable(), // WARNING: PII
   persistentID: PersistentIdSchema, // WARNING: PII
+  stats: PlayerStatsSchema,
 });
 
 export const GameRecordSchema = z.object({
@@ -465,7 +466,6 @@ export const GameRecordSchema = z.object({
   turns: z.array(TurnSchema),
   winner: z.union([ID, SafeString]).nullable().optional(),
   winnerType: z.enum(["player", "team"]).nullable().optional(),
-  allPlayersStats: z.record(ID, PlayerStatsSchema),
   version: z.enum(["v0.0.1"]),
   gitCommit: z.string().nullable().optional(),
 });

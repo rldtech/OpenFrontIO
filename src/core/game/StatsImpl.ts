@@ -1,23 +1,24 @@
 import {
   AllPlayersStats,
-  ARRIVED_INDEX,
+  ATTACK_INDEX_CANCELLED,
+  ATTACK_INDEX_INCOMING,
+  ATTACK_INDEX_OUTGOING,
+  BOAT_INDEX_ARRIVED,
+  BOAT_INDEX_DESTROYED,
+  BOAT_INDEX_SENT,
   BoatType,
-  BUILT_INDEX,
-  CANCELLED_INDEX,
-  CAPTURED_INDEX,
-  DESTROYED_INDEX,
-  INCOMING_INDEX,
-  INTERCEPTED_INDEX,
-  LANDED_INDEX,
-  LAUNCHED_INDEX,
-  LOST_INDEX,
+  BOMB_INDEX_INTERCEPTED,
+  BOMB_INDEX_LANDED,
+  BOMB_INDEX_LAUNCHED,
+  GOLD_INDEX_TRADE,
+  GOLD_INDEX_WAR,
+  GOLD_INDEX_WORK,
+  OTHER_INDEX_BUILT,
+  OTHER_INDEX_CAPTURED,
+  OTHER_INDEX_DESTROYED,
+  OTHER_INDEX_LOST,
   OtherUnit,
-  OUTGOING_INDEX,
   PlayerStats,
-  SENT_INDEX,
-  TRADE_INDEX,
-  WAR_INDEX,
-  WORK_INDEX,
 } from "../Schemas";
 import { NukeType, PlayerID, UnitType } from "./Game";
 import { Stats } from "./Stats";
@@ -63,16 +64,16 @@ export class StatsImpl implements Stats {
   attack(outgoing: PlayerID, incoming: PlayerID, troops: number): void {
     const o = this.getPlayerStats(outgoing);
     const i = this.getPlayerStats(incoming);
-    o.attacks[OUTGOING_INDEX] += troops;
-    i.attacks[INCOMING_INDEX] += troops;
+    o.attacks[ATTACK_INDEX_OUTGOING] += troops;
+    i.attacks[ATTACK_INDEX_INCOMING] += troops;
   }
 
   attackCancel(outgoing: PlayerID, incoming: PlayerID, troops: number): void {
     const o = this.getPlayerStats(outgoing);
     const i = this.getPlayerStats(incoming);
-    o.attacks[CANCELLED_INDEX] += troops;
-    o.attacks[OUTGOING_INDEX] -= troops;
-    i.attacks[INCOMING_INDEX] -= troops;
+    o.attacks[ATTACK_INDEX_CANCELLED] += troops;
+    o.attacks[ATTACK_INDEX_OUTGOING] -= troops;
+    i.attacks[ATTACK_INDEX_INCOMING] -= troops;
   }
 
   betray(player: PlayerID): void {
@@ -83,84 +84,84 @@ export class StatsImpl implements Stats {
     const data = this.getPlayerStats(player);
     const boats = data.boats[type];
     if (boats === undefined) throw new Error();
-    boats[SENT_INDEX]++;
+    boats[BOAT_INDEX_SENT]++;
   }
 
   boatArrive(player: PlayerID, type: BoatType): void {
     const data = this.getPlayerStats(player);
     const boats = data.boats[type];
     if (boats === undefined) throw new Error();
-    boats[ARRIVED_INDEX]++;
+    boats[BOAT_INDEX_ARRIVED]++;
   }
 
   boatDestroy(player: PlayerID, type: BoatType): void {
     const data = this.getPlayerStats(player);
     const boats = data.boats[type];
     if (boats === undefined) throw new Error();
-    boats[DESTROYED_INDEX]++;
+    boats[BOAT_INDEX_DESTROYED]++;
   }
 
   bombLaunch(player: PlayerID, type: NukeType): void {
     const data = this.getPlayerStats(player);
     const bomb = data.bombs[type];
     if (bomb === undefined) throw new Error();
-    bomb[LAUNCHED_INDEX]++;
+    bomb[BOMB_INDEX_LAUNCHED]++;
   }
 
   bombLand(player: PlayerID, type: NukeType): void {
     const data = this.getPlayerStats(player);
     const bomb = data.bombs[type];
     if (bomb === undefined) throw new Error();
-    bomb[LANDED_INDEX]++;
+    bomb[BOMB_INDEX_LANDED]++;
   }
 
   bombIntercept(player: PlayerID, type: NukeType): void {
     const data = this.getPlayerStats(player);
     const bomb = data.bombs[type];
     if (bomb === undefined) throw new Error();
-    bomb[INTERCEPTED_INDEX]++;
+    bomb[BOMB_INDEX_INTERCEPTED]++;
   }
 
   goldWork(player: PlayerID, gold: number): void {
     const data = this.getPlayerStats(player);
-    data.gold[WORK_INDEX] += gold;
+    data.gold[GOLD_INDEX_WORK] += gold;
   }
 
   goldTrade(player: PlayerID, gold: number): void {
     const data = this.getPlayerStats(player);
-    data.gold[TRADE_INDEX] += gold;
+    data.gold[GOLD_INDEX_TRADE] += gold;
   }
 
   goldWar(player: PlayerID, gold: number): void {
     const data = this.getPlayerStats(player);
-    data.gold[WAR_INDEX] += gold;
+    data.gold[GOLD_INDEX_WAR] += gold;
   }
 
   unitBuild(player: PlayerID, type: OtherUnit): void {
     const data = this.getPlayerStats(player);
     const unit = data.units[type];
     if (unit === undefined) throw new Error();
-    unit[BUILT_INDEX]++;
+    unit[OTHER_INDEX_BUILT]++;
   }
 
   unitLose(player: PlayerID, type: OtherUnit): void {
     const data = this.getPlayerStats(player);
     const unit = data.units[type];
     if (unit === undefined) throw new Error();
-    unit[LOST_INDEX]++;
+    unit[OTHER_INDEX_LOST]++;
   }
 
   unitDestroy(player: PlayerID, type: OtherUnit): void {
     const data = this.getPlayerStats(player);
     const unit = data.units[type];
     if (unit === undefined) throw new Error();
-    unit[DESTROYED_INDEX]++;
+    unit[OTHER_INDEX_DESTROYED]++;
   }
 
   unitCapture(player: PlayerID, type: OtherUnit): void {
     const data = this.getPlayerStats(player);
     const unit = data.units[type];
     if (unit === undefined) throw new Error();
-    unit[CAPTURED_INDEX]++;
+    unit[OTHER_INDEX_CAPTURED]++;
   }
 }

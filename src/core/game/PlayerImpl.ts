@@ -80,7 +80,7 @@ export class PlayerImpl implements Player {
   public _units: Unit[] = [];
   public _tiles: Set<TileRef> = new Set();
 
-  private _pattern: string | undefined;
+  private _pattern: string | undefined | null;
   private _flag: string | undefined;
   private _name: string;
   private _displayName: string;
@@ -179,7 +179,7 @@ export class PlayerImpl implements Player {
     return this._smallID;
   }
 
-  pattern(): string | undefined {
+  pattern(): string | undefined | null {
     return this._pattern;
   }
 

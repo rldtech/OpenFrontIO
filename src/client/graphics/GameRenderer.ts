@@ -40,9 +40,9 @@ export function createRenderer(
   const uiState = { attackRatio: 20 };
   const soundManager = new SoundManager();
 
-  Promise.all([
-    soundManager.loadSound("click", "../../../resources/sounds/click1.mp3"),
-  ]).catch((e) => console.error("Failed to load sounds:", e));
+  Promise.all([soundManager.loadSound("click", "/sounds/click1.mp3")]).catch(
+    (e) => console.error("Failed to load sounds:", e),
+  );
 
   //hide when the game renders
   const startingModal = document.querySelector(

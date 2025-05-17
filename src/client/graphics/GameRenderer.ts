@@ -41,11 +41,9 @@ export function createRenderer(
   const uiState = { attackRatio: 20 };
   const soundManager = new SoundManager();
 
-  
   Promise.all([
     soundManager.loadSound('click', 'resources/sounds/click1.mp3'),
   ]).catch((e) => console.error('Failed to load sounds:', e));
-
 
   //hide when the game renders
   const startingModal = document.querySelector(
@@ -69,6 +67,7 @@ export function createRenderer(
   }
   buildMenu.game = game;
   buildMenu.eventBus = eventBus;
+  buildMenu.soundManager = soundManager; // Pass SoundManager
 
   const leaderboard = document.querySelector("leader-board") as Leaderboard;
   if (!emojiTable || !(leaderboard instanceof Leaderboard)) {
@@ -94,6 +93,7 @@ export function createRenderer(
   controlPanel.eventBus = eventBus;
   controlPanel.uiState = uiState;
   controlPanel.game = game;
+  controlPanel.soundManager = soundManager; // Pass SoundManager
 
   const eventsDisplay = document.querySelector(
     "events-display",
@@ -137,6 +137,7 @@ export function createRenderer(
   }
   optionsMenu.eventBus = eventBus;
   optionsMenu.game = game;
+  optionsMenu.soundManager = soundManager; // Pass SoundManager
 
   const topBar = document.querySelector("top-bar") as TopBar;
   if (!(topBar instanceof TopBar)) {
@@ -151,6 +152,7 @@ export function createRenderer(
   playerPanel.g = game;
   playerPanel.eventBus = eventBus;
   playerPanel.emojiTable = emojiTable;
+  playerPanel.soundManager = soundManager; // Pass SoundManager
 
   const chatModal = document.querySelector("chat-modal") as ChatModal;
   if (!(chatModal instanceof ChatModal)) {
@@ -158,6 +160,7 @@ export function createRenderer(
   }
   chatModal.g = game;
   chatModal.eventBus = eventBus;
+  chatModal.soundManager = soundManager; // Pass SoundManager
 
   const multiTabModal = document.querySelector(
     "multi-tab-modal",
@@ -166,8 +169,22 @@ export function createRenderer(
     console.error("multi-tab modal not found");
   }
   multiTabModal.game = game;
+  multiTabModal.soundManager = soundManager; // Pass SoundManager
 
-   const layers: Layer[] = [
+  const radialMenu = new RadialMenu(
+    eventBus,
+    game,
+    transformHandler,
+    clientID,
+    emojiTable as EmojiTable,
+    buildMenu,
+    uiState,
+    playerInfo,
+    playerPanel,
+    soundManager // Pass SoundManager
+  );
+
+  const layers: Layer[] = [
     new TerrainLayer(game, transformHandler),
     new TerritoryLayer(game, eventBus),
     new StructureLayer(game, eventBus),
@@ -177,19 +194,7 @@ export function createRenderer(
     eventsDisplay,
     chatDisplay,
     buildMenu,
-    radialMenu,
-    new SpawnTimer(game, transformHandler),
-    leaderboard,
-    controlPanel,
-    playerInfo,
-    winModel,
-    optionsMenu,
-    teamStats,
-    topBar,
-    playerPanel,
-    multiTabModal,
-  ];
-
+    radialMenu, // Use instantiated radialMenu
     new SpawnTimer(game, transformHandler),
     leaderboard,
     controlPanel,
@@ -209,6 +214,7 @@ export function createRenderer(
     transformHandler,
     uiState,
     layers,
+    soundManager // Pass SoundManager
   );
 }
 
@@ -222,6 +228,7 @@ export class GameRenderer {
     public transformHandler: TransformHandler,
     public uiState: UIState,
     private layers: Layer[],
+    private soundManager: SoundManager // Add SoundManager
   ) {
     const context = canvas.getContext("2d");
     if (context === null) throw new Error("2d context not supported");

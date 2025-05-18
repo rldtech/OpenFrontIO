@@ -41,8 +41,10 @@ export function createRenderer(
   const soundManager = new SoundManager();
 
   Promise.all([
-    soundManager.loadSound('click', '/sounds/click1.mp3'),
-  ]).catch((e) => console.error('Failed to load sounds:', e));
+    soundManager.loadSound("click", "/sounds/click1.mp3"),
+    soundManager.loadSound("alarm", "/sounds/alarm.mp3"),
+    soundManager.loadSound("mirv", "/sounds/mirv.mp3"),
+  ]).catch((e) => console.error("Failed to load sounds:", e));
 
   //hide when the game renders
   const startingModal = document.querySelector(
@@ -187,7 +189,7 @@ export function createRenderer(
     new TerrainLayer(game, transformHandler),
     new TerritoryLayer(game, eventBus),
     new StructureLayer(game, eventBus),
-    new UnitLayer(game, eventBus, clientID, transformHandler),
+    new UnitLayer(game, eventBus, clientID, transformHandler, soundManager),
     new UILayer(game, eventBus, clientID, transformHandler),
     new NameLayer(game, transformHandler, clientID),
     eventsDisplay,

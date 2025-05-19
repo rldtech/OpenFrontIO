@@ -163,7 +163,7 @@ app.get(
 async function fetchLobbies(): Promise<number> {
   const fetchPromises = [];
 
-  for (const gameID of publicLobbyIDs) {
+  for (const gameID of new Set(publicLobbyIDs)) {
     const controller = new AbortController();
     setTimeout(() => controller.abort(), 5000); // 5 second timeout
     const port = config.workerPort(gameID);
@@ -178,6 +178,7 @@ async function fetchLobbies(): Promise<number> {
       .catch((error) => {
         log.error(`Error fetching game ${gameID}:`, error);
         // Return null or a placeholder if fetch fails
+        publicLobbyIDs.delete(gameID);
         return null;
       });
 

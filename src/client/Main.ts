@@ -160,11 +160,14 @@ class Client {
     });
 
     const TerritoryModal = document.querySelector(
-      "territory-patterns-input",
+      "territory-patterns-modal",
     ) as territoryPatternsModal;
-    const tpButton = document.getElementById("territory-patterns-input_");
+    const tpButton = document.getElementById(
+      "territory-patterns-input-preview-button",
+    );
     TerritoryModal instanceof territoryPatternsModal;
-    if (tpButton === null) throw new Error("Missing territory-patterns-input_");
+    if (tpButton === null)
+      throw new Error("territory-patterns-input-preview-button");
     tpButton.addEventListener("click", () => {
       TerritoryModal.open();
     });

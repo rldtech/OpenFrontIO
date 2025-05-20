@@ -4,14 +4,15 @@ import territory_patterns from "../../resources/territory_patterns.json";
 import "./components/Difficulties";
 import "./components/Maps";
 
-@customElement("territory-patterns-input")
+@customElement("territory-patterns-modal")
 export class territoryPatternsModal extends LitElement {
   @query("o-modal") private modalEl!: HTMLElement & {
     open: () => void;
     close: () => void;
   };
 
-  @query("#territory-patterns-input_") private previewButton!: HTMLElement;
+  @query("#territory-patterns-input-preview-button")
+  private previewButton!: HTMLElement;
 
   @state() private selectedPattern =
     localStorage.getItem("territoryPattern") || "";

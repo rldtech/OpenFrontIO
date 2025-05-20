@@ -447,7 +447,7 @@ export class SinglePlayerModal extends LitElement {
                   flagInput.getCurrentFlag() === "xx"
                     ? ""
                     : flagInput.getCurrentFlag(),
-                pattern: localStorage.getItem("territoryPattern"),
+                pattern: localStorage.getItem("territoryPattern") ?? null,
               },
             ],
             config: {

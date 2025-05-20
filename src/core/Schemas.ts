@@ -374,7 +374,7 @@ export const PlayerSchema = z.object({
   clientID: ID,
   username: SafeString,
   flag: SafeString.optional(),
-  pattern: SafeString.optional(),
+  pattern: SafeString.nullable().optional(),
 });
 
 export const GameStartInfoSchema = z.object({

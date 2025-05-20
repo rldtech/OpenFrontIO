@@ -98,8 +98,8 @@ export const translateText = (
 export class TerritoryPatternStorage {
   private static readonly KEY = "territoryPattern";
 
-  static getSelectedPattern(): string {
-    return localStorage.getItem(TerritoryPatternStorage.KEY) || "";
+  static getSelectedPattern(): string | undefined {
+    return localStorage.getItem(TerritoryPatternStorage.KEY) ?? undefined;
   }
 
   static setSelectedPattern(patternKey: string): void {

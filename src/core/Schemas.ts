@@ -374,7 +374,7 @@ export const PlayerSchema = z.object({
   clientID: ID,
   username: SafeString,
   flag: SafeString.optional(),
-  pattern: SafeString.nullable().optional(),
+  pattern: SafeString.nullable(),
 });
 
 export const GameStartInfoSchema = z.object({
@@ -446,7 +446,7 @@ export const ClientJoinMessageSchema = z.object({
   lastTurn: z.number(), // The last turn the client saw.
   username: SafeString,
   flag: SafeString.nullable(),
-  pattern: SafeString.nullable().optional(),
+  pattern: SafeString.nullable(),
 });
 
 export const ClientMessageSchema = z.union([

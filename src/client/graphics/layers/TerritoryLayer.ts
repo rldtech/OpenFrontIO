@@ -1,6 +1,5 @@
 import { PriorityQueue } from "@datastructures-js/priority-queue";
 import { Colord } from "colord";
-import territory_patterns from "../../../../resources/territory_patterns.json";
 import { Theme } from "../../../core/configuration/Config";
 import { EventBus } from "../../../core/EventBus";
 import { Cell, PlayerType, UnitType } from "../../../core/game/Game";
@@ -9,6 +8,7 @@ import { GameUpdateType } from "../../../core/game/GameUpdates";
 import { GameView, PlayerView } from "../../../core/game/GameView";
 import { PseudoRandom } from "../../../core/PseudoRandom";
 import { AlternateViewEvent, DragEvent } from "../../InputHandler";
+import { territoryPatterns } from "../../TerritoryPatterns";
 import { Layer } from "./Layer";
 
 export class TerritoryLayer implements Layer {
@@ -299,7 +299,7 @@ export class TerritoryLayer implements Layer {
         const x = this.game.x(tile);
         const y = this.game.y(tile);
         const baseColor = this.theme.territoryColor(owner);
-        const patternConfig = territory_patterns.patterns[patternName];
+        const patternConfig = territoryPatterns.patterns[patternName];
 
         const { tileWidth, tileHeight, scale, pattern } = patternConfig;
 

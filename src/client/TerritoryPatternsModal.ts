@@ -1,8 +1,8 @@
 import { LitElement, html, render } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
-import territory_patterns from "../../resources/territory_patterns.json";
 import "./components/Difficulties";
 import "./components/Maps";
+import { territoryPatterns } from "./TerritoryPatterns";
 import { TerritoryPatternStorage } from "./Utils";
 
 @customElement("territory-patterns-modal")
@@ -78,29 +78,27 @@ export class territoryPatternsModal extends LitElement {
           class="flex flex-wrap gap-4 p-2"
           style="justify-content: center; align-items: flex-start;"
         >
-          ${Object.entries(territory_patterns.patterns).map(
-            ([key, pattern]) => {
-              const isLocked = this.isPatternLocked(key);
-              const reason = this.lockedReasons[key] || "Locked";
+          ${Object.entries(territoryPatterns.patterns).map(([key, pattern]) => {
+            const isLocked = this.isPatternLocked(key);
+            const reason = this.lockedReasons[key] || "Locked";
 
-              return html`
-                <button
-                  class="border p-2 rounded-lg shadow text-black dark:text-white text-left
+            return html`
+              <button
+                class="border p-2 rounded-lg shadow text-black dark:text-white text-left
                   ${this.selectedPattern === key
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"}
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"}
                   ${isLocked ? "opacity-50 cursor-not-allowed" : ""}"
-                  style="flex: 0 1 calc(25% - 1rem); max-width: calc(25% - 1rem);"
-                  @click=${() => !isLocked && this.selectPattern(key)}
-                  @mouseenter=${(e: MouseEvent) =>
-                    this.handleMouseEnter(key, e)}
-                  @mousemove=${(e: MouseEvent) => this.handleMouseMove(e)}
-                  @mouseleave=${() => this.handleMouseLeave()}
-                >
-                  <div class="text-sm font-bold mb-1">${key}</div>
-                  <div
-                    class="preview-container"
-                    style="
+                style="flex: 0 1 calc(25% - 1rem); max-width: calc(25% - 1rem);"
+                @click=${() => !isLocked && this.selectPattern(key)}
+                @mouseenter=${(e: MouseEvent) => this.handleMouseEnter(key, e)}
+                @mousemove=${(e: MouseEvent) => this.handleMouseMove(e)}
+                @mouseleave=${() => this.handleMouseLeave()}
+              >
+                <div class="text-sm font-bold mb-1">${key}</div>
+                <div
+                  class="preview-container"
+                  style="
                       width: 100%;
                       aspect-ratio: 1;
                       display: flex;
@@ -110,17 +108,17 @@ export class territoryPatternsModal extends LitElement {
                       border-radius: 8px;
                       overflow: hidden;
                     "
-                  >
-                    ${(() => {
-                      const cellCountX = pattern.tileWidth;
-                      const cellCountY = pattern.tileHeight;
-                      const cellSize = Math.floor(
-                        this.buttonWidth / Math.max(cellCountX, cellCountY),
-                      );
+                >
+                  ${(() => {
+                    const cellCountX = pattern.tileWidth;
+                    const cellCountY = pattern.tileHeight;
+                    const cellSize = Math.floor(
+                      this.buttonWidth / Math.max(cellCountX, cellCountY),
+                    );
 
-                      return html`
-                        <div
-                          style="
+                    return html`
+                      <div
+                        style="
                             display: grid;
                             grid-template-columns: repeat(${cellCountX}, ${cellSize}px);
                             grid-template-rows: repeat(${cellCountY}, ${cellSize}px);
@@ -128,30 +126,29 @@ export class territoryPatternsModal extends LitElement {
                             padding: 2px;
                             border-radius: 4px;
                           "
-                        >
-                          ${pattern.pattern.flat().map(
-                            (cell) => html`
-                              <div
-                                style="
+                      >
+                        ${pattern.pattern.flat().map(
+                          (cell) => html`
+                            <div
+                              style="
                                   background-color: ${cell === 1
-                                  ? "#000"
-                                  : "transparent"};
+                                ? "#000"
+                                : "transparent"};
                                   border: 1px solid rgba(0, 0, 0, 0.1);
                                   width: ${cellSize}px;
                                   height: ${cellSize}px;
                                   border-radius: 1px;
                                 "
-                              ></div>
-                            `,
-                          )}
-                        </div>
-                      `;
-                    })()}
-                  </div>
-                </button>
-              `;
-            },
-          )}
+                            ></div>
+                          `,
+                        )}
+                      </div>
+                    `;
+                  })()}
+                </div>
+              </button>
+            `;
+          })}
         </div>
       </o-modal>
     `;
@@ -175,7 +172,7 @@ export class territoryPatternsModal extends LitElement {
   private updatePreview() {
     if (!this.previewButton || !this.selectedPattern) return;
 
-    const pattern = territory_patterns.patterns[this.selectedPattern];
+    const pattern = territoryPatterns.patterns[this.selectedPattern];
     if (!pattern) return;
 
     const fixedHeight = 48;

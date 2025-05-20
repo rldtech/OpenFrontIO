@@ -3,6 +3,7 @@ import { customElement, query, state } from "lit/decorators.js";
 import territory_patterns from "../../resources/territory_patterns.json";
 import "./components/Difficulties";
 import "./components/Maps";
+import { TerritoryPatternStorage } from "./Utils";
 
 @customElement("territory-patterns-modal")
 export class territoryPatternsModal extends LitElement {
@@ -15,7 +16,7 @@ export class territoryPatternsModal extends LitElement {
   private previewButton!: HTMLElement;
 
   @state() private selectedPattern =
-    localStorage.getItem("territoryPattern") || "";
+    TerritoryPatternStorage.getSelectedPattern();
 
   @state() private buttonWidth: number = 100;
 
@@ -166,7 +167,7 @@ export class territoryPatternsModal extends LitElement {
 
   private selectPattern(patternKey: string) {
     this.selectedPattern = patternKey;
-    localStorage.setItem("territoryPattern", patternKey);
+    TerritoryPatternStorage.setSelectedPattern(patternKey);
     this.updatePreview();
     this.close();
   }

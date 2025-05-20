@@ -89,12 +89,22 @@ export class BotBehavior {
     }
   }
 
+  // Nation enemy selection
   selectEnemy(): Player | null {
     if (this.enemy === null) {
       // Save up troops until we reach the trigger ratio
       const maxPop = this.game.config().maxPopulation(this.player);
       const ratio = this.player.population() / maxPop;
       if (ratio < this.triggerRatio) return null;
+    }
+
+    // Select the most hated player
+    if (this.enemy === null) {
+      const mostHated = this.player.allRelationsSorted()[0];
+      if (mostHated !== undefined && mostHated.relation === Relation.Hostile) {
+        this.enemy = mostHated.player;
+        this.enemyUpdated = this.game.ticks();
+      }
     }
 
     // Prefer neighboring bots
@@ -109,15 +119,6 @@ export class BotBehavior {
       }
     }
 
-    // Select the most hated player
-    if (this.enemy === null) {
-      const mostHated = this.player.allRelationsSorted()[0];
-      if (mostHated !== undefined && mostHated.relation === Relation.Hostile) {
-        this.enemy = mostHated.player;
-        this.enemyUpdated = this.game.ticks();
-      }
-    }
-
     // Sanity check, don't attack our allies or teammates
     if (this.enemy && this.player.isFriendly(this.enemy)) {
       this.enemy = null;
@@ -125,6 +126,7 @@ export class BotBehavior {
     return this.enemy;
   }
 
+  // Bot enemy selection
   selectRandomEnemy(): Player | TerraNullius | null {
     if (this.enemy === null) {
       // Save up troops until we reach the trigger ratio

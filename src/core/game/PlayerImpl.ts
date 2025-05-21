@@ -80,8 +80,6 @@ export class PlayerImpl implements Player {
   public _units: Unit[] = [];
   public _tiles: Set<TileRef> = new Set();
 
-  private _pattern: string | null;
-  private _flag: string | undefined;
   private _name: string;
   private _displayName: string;
 
@@ -108,8 +106,6 @@ export class PlayerImpl implements Player {
     startTroops: number,
     private readonly _team: Team | null,
   ) {
-    this._pattern = playerInfo.pattern;
-    this._flag = playerInfo.flag;
     this._name = sanitizeUsername(playerInfo.name);
     this._targetTroopRatio = 95n;
     this._troops = toInt(startTroops);
@@ -181,11 +177,11 @@ export class PlayerImpl implements Player {
   }
 
   pattern(): string | null {
-    return this._pattern;
+    return this.playerInfo.pattern;
   }
 
   flag(): string | undefined {
-    return this._flag;
+    return this.playerInfo.flag;
   }
 
   name(): string {

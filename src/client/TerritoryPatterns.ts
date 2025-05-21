@@ -14,3 +14,15 @@ const TerritoryPatternsSchema = z.object({
 
 export const territoryPatterns =
   TerritoryPatternsSchema.parse(rawTerritoryPatterns);
+
+export class TerritoryPatternStorage {
+  private static readonly KEY = "territoryPattern";
+
+  static getSelectedPattern(): string | undefined {
+    return localStorage.getItem(TerritoryPatternStorage.KEY) ?? undefined;
+  }
+
+  static setSelectedPattern(patternKey: string): void {
+    localStorage.setItem(TerritoryPatternStorage.KEY, patternKey);
+  }
+}

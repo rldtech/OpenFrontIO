@@ -1,9 +1,11 @@
-import { LitElement, html, render } from "lit";
+import { html, LitElement, render } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
 import "./components/Difficulties";
 import "./components/Maps";
-import { territoryPatterns } from "./TerritoryPatterns";
-import { TerritoryPatternStorage } from "./Utils";
+import {
+  territoryPatterns,
+  TerritoryPatternStorage,
+} from "./TerritoryPatterns";
 
 @customElement("territory-patterns-modal")
 export class territoryPatternsModal extends LitElement {

@@ -94,15 +94,3 @@ export const translateText = (
 
   return langSelector.translateText(key, params);
 };
-
-export class TerritoryPatternStorage {
-  private static readonly KEY = "territoryPattern";
-
-  static getSelectedPattern(): string | undefined {
-    return localStorage.getItem(TerritoryPatternStorage.KEY) ?? undefined;
-  }
-
-  static setSelectedPattern(patternKey: string): void {
-    localStorage.setItem(TerritoryPatternStorage.KEY, patternKey);
-  }
-}

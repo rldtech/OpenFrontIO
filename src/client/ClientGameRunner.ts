@@ -194,6 +194,7 @@ export class ClientGameRunner {
         persistentID: getPersistentIDFromCookie(),
         username: this.lobby.playerName,
         clientID: this.lobby.clientID,
+        stats: update.allPlayersStats[this.lobby.clientID],
       },
     ];
     let winner: ClientID | Team | null = null;
@@ -218,7 +219,6 @@ export class ClientGameRunner {
       Date.now(),
       winner,
       update.winnerType,
-      update.allPlayersStats,
     );
     endGame(record);
   }

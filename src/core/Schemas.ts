@@ -204,8 +204,8 @@ export const AttackIntentSchema = BaseIntentSchema.extend({
 });
 
 export const SpawnIntentSchema = BaseIntentSchema.extend({
-  flag: z.string().nullable(),
-  pattern: z.string().nullable(),
+  flag: z.string().optional(),
+  pattern: z.string().optional(),
   type: z.literal("spawn"),
   name: SafeString,
   playerType: PlayerTypeSchema,

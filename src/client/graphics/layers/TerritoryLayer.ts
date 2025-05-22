@@ -306,7 +306,7 @@ export class TerritoryLayer implements Layer {
         const px = Math.floor(x / scale) % tileWidth;
         const py = Math.floor(y / scale) % tileHeight;
 
-        const patternValue = pattern[py][px];
+        const patternValue = pattern ? pattern[py][px] : 0;
 
         const colorToUse =
           patternValue === 1 ? baseColor.darken(0.2) : baseColor;

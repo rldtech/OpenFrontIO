@@ -48,6 +48,27 @@ export class territoryPatternsModal extends LitElement {
       this.updatePreview();
     });
 
+    for (const [key, p] of Object.entries(territoryPatterns.patterns)) {
+      if (!p.pattern && p.patternBase64) {
+        const bytes = Uint8Array.from(atob(p.patternBase64), (c) =>
+          c.charCodeAt(0),
+        );
+        const bits = Array.from(bytes).flatMap((byte) =>
+          [...Array(8)].map((_, i) => (byte >> (7 - i)) & 1),
+        );
+        const pattern: number[][] = [];
+        for (let y = 0; y < p.tileHeight; y++) {
+          const row: number[] = [];
+          for (let x = 0; x < p.tileWidth; x++) {
+            const index = y * p.tileWidth + x;
+            row.push(bits[index] ?? 0);
+          }
+          pattern.push(row);
+        }
+        p.pattern = pattern;
+      }
+    }
+
     this.setLockedPatterns(["evan"], {
       evan: "This pattern is locked because it is restricted.",
     });
@@ -129,7 +150,7 @@ export class territoryPatternsModal extends LitElement {
                             border-radius: 4px;
                           "
                       >
-                        ${pattern.pattern.flat().map(
+                        ${(pattern.pattern ?? []).flat().map(
                           (cell) => html`
                             <div
                               style="
@@ -212,7 +233,7 @@ export class territoryPatternsModal extends LitElement {
             border-radius: 4px;
           "
         >
-          ${pattern.pattern.flat().map(
+          ${(pattern.pattern ?? []).flat().map(
             (cell) => html`
               <div
                 style="

@@ -301,7 +301,12 @@ export class TerritoryLayer implements Layer {
         const baseColor = this.theme.territoryColor(owner);
         const patternConfig = territoryPatterns.patterns[patternName];
 
-        const { tileWidth, tileHeight, scale, pattern } = patternConfig;
+        const {
+          tileWidth = 1,
+          tileHeight = 1,
+          scale = 1,
+          pattern,
+        } = patternConfig;
 
         const px = Math.floor(x / scale) % tileWidth;
         const py = Math.floor(y / scale) % tileHeight;

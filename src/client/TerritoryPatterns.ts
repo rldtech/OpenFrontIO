@@ -2,9 +2,9 @@ import { z } from "zod";
 import rawTerritoryPatterns from "../../resources/territory_patterns.json";
 
 const PatternSchema = z.object({
-  tileWidth: z.number(),
-  tileHeight: z.number(),
-  scale: z.number(),
+  tileWidth: z.number().optional(),
+  tileHeight: z.number().optional(),
+  scale: z.number().optional(),
   pattern: z.array(z.array(z.number())).optional(),
   patternBase64: z.string().optional(),
 });
@@ -24,24 +24,39 @@ for (const [key, value] of Object.entries(territoryPatterns.patterns)) {
       bytes[i] = byteString.charCodeAt(i);
     }
 
+    const version = bytes[0];
+    if (version !== 1) {
+      throw new Error("The pattern versions are different.");
+    }
+    const tileWidth = (bytes[1] << 8) | bytes[2];
+    const tileHeight = (bytes[3] << 8) | bytes[4];
+    const scale = (bytes[5] << 8) | bytes[6];
+
+    const totalBits = tileWidth * tileHeight;
+    const totalBytes = Math.ceil(totalBits / 8);
+    const data = bytes.slice(7, 7 + totalBytes);
+
     const bits: number[] = [];
-    for (const byte of bytes) {
+    for (const byte of data) {
       for (let i = 7; i >= 0; i--) {
         bits.push((byte >> i) & 1);
       }
     }
 
     const pattern: number[][] = [];
-    for (let y = 0; y < value.tileHeight; y++) {
+    for (let y = 0; y < tileHeight; y++) {
       const row: number[] = [];
-      for (let x = 0; x < value.tileWidth; x++) {
-        const index = y * value.tileWidth + x;
+      for (let x = 0; x < tileWidth; x++) {
+        const index = y * tileWidth + x;
         row.push(bits[index] ?? 0);
       }
       pattern.push(row);
     }
 
     value.pattern = pattern;
+    value.tileWidth = tileWidth;
+    value.tileHeight = tileHeight;
+    value.scale = scale;
   }
 }
 

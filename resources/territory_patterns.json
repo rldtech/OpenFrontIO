@@ -1,100 +1,52 @@
 {
   "patterns": {
     "stripes_v": {
-      "tileWidth": 2,
-      "tileHeight": 2,
-      "scale": 8,
-      "patternBase64": "oA=="
+      "patternBase64": "AQACAAIACKA="
     },
     "stripes_h": {
-      "tileWidth": 2,
-      "tileHeight": 2,
-      "scale": 8,
-      "patternBase64": "wA=="
+      "patternBase64": "AQACAAIACMA="
     },
     "checkerboard": {
-      "tileWidth": 2,
-      "tileHeight": 2,
-      "scale": 8,
-      "patternBase64": "kA=="
+      "patternBase64": "AQACAAIACJA="
     },
     "diagonal": {
-      "tileWidth": 16,
-      "tileHeight": 16,
-      "scale": 1,
-      "patternBase64": "gABAACAAEAAIAAQAAgABAACAAEAAIAAQAAgABAACAAE="
+      "patternBase64": "AQAQABAAAYAAQAAgABAACAAEAAIAAQAAgABAACAAEAAIAAQAAgAB"
     },
     "cross": {
-      "tileWidth": 16,
-      "tileHeight": 16,
-      "scale": 1,
-      "patternBase64": "gAFAAiAEEAgIEAQgAkABgAGAAkAEIAgQEAggBEACgAE="
+      "patternBase64": "AQAQABAAAYABQAIgBBAICBAEIAJAAYABgAJABCAIEBAIIARAAoAB"
     },
     "mini_cross": {
-      "tileWidth": 16,
-      "tileHeight": 8,
-      "scale": 1,
-      "patternBase64": "wAMwDAwwA8ADwAwwMAzAAw=="
+      "patternBase64": "AQAQAAgAAcADMAwMMAPAA8AMMDAMwAM="
     },
     "horizontal_stripes": {
-      "tileWidth": 16,
-      "tileHeight": 16,
-      "scale": 1,
-      "patternBase64": "//8AAAAAAAAAAAAAAAAAAP//AAAAAAAAAAAAAAAAAAA="
+      "patternBase64": "AQAQABAAAf//AAAAAAAAAAAAAAAAAAD//wAAAAAAAAAAAAAAAAAA"
     },
     "sparse_dots": {
-      "tileWidth": 16,
-      "tileHeight": 16,
-      "scale": 1,
-      "patternBase64": "gIAAAAAAAAAAAAAAAAAAAICAAAAAAAAAAAAAAAAAAAA="
+      "patternBase64": "AQAQABAAAYCAAAAAAAAAAAAAAAAAAACAgAAAAAAAAAAAAAAAAAAA"
     },
     "evan": {
-      "tileWidth": 24,
-      "tileHeight": 7,
-      "scale": 5,
-      "patternBase64": "AAAAeSMSQSSacSeWQMSSeMSSAAAA"
+      "patternBase64": "AQAYAAcABQAAAHkjEkEkmnEnlkDEknjEkgAAAA=="
     },
     "diagonal_stripe": {
-      "tileWidth": 16,
-      "tileHeight": 8,
-      "scale": 1,
-      "patternBase64": "gAFAAiAEEAgIEAQgAkABgA=="
+      "patternBase64": "AQAQAAgAAYABQAIgBBAICBAEIAJAAYA="
     },
     "mountain_ridge": {
-      "tileWidth": 16,
-      "tileHeight": 8,
-      "scale": 1,
-      "patternBase64": "AAAYGDw8fn7//35+PDwYGA=="
+      "patternBase64": "AQAQAAgAAQAAGBg8PH5+//9+fjw8GBg="
     },
     "scattered_dots": {
-      "tileWidth": 16,
-      "tileHeight": 8,
-      "scale": 1,
-      "patternBase64": "AABABAAAAAAAAAAAEAgAAA=="
+      "patternBase64": "AQAQAAgAAQAAQAQAAAAAAAAAABAIAAA="
     },
     "circuit_board": {
-      "tileWidth": 16,
-      "tileHeight": 8,
-      "scale": 1,
-      "patternBase64": "w8PDwzAwMDAMMAwww8PDww=="
+      "patternBase64": "AQAQAAgAAcPDw8MwMDAwDDAMMMPDw8M="
     },
     "vertical_bars": {
-      "tileWidth": 16,
-      "tileHeight": 8,
-      "scale": 1,
-      "patternBase64": "kkmSSZJJkkmSSZJJkkmSSQ=="
+      "patternBase64": "AQAQAAgAAZJJkkmSSZJJkkmSSZJJkkk="
     },
     ".w.": {
-      "tileWidth": 16,
-      "tileHeight": 8,
-      "scale": 1,
-      "patternBase64": "AAAAAAAAQAJBgiJEdC5oFg=="
+      "patternBase64": "AQAQAAgAAQAAAAAAAEACQYIiRHQuaBY="
     },
     "openfront": {
-      "tileWidth": 66,
-      "tileHeight": 10,
-      "scale": 5,
-      "patternBase64": "AAAAAAAAAAAAAAAAAAAAAAHDj5EPnhxF8IkSBkIESJkQIkSBUIESJUQInjxMPHiJMQIkCBEIFCJEQIkCBEIEiJEQHED5EIERxEQAAAAAAAAAAAA="
+      "patternBase64": "AQBCAAoABQAAAAAAAAAAAAAAAAAAAAABw4+RD54cRfCJEgZCBEiZECJEgVCBEiVECJ48TDx4iTECJAgRCBQiRECJAgRCBIiREBxA+RCBEcREAAAAAAAAAAAA"
     }
   }
 }

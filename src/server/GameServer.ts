@@ -394,7 +394,7 @@ export class GameServer {
             );
           }
           return {
-            ip: ipAnonymize(client.ip),
+            playerID: client.playerID,
             clientID: client.clientID,
             username: client.username,
             persistentID: client.persistentID,
@@ -404,7 +404,7 @@ export class GameServer {
         archive(
           createGameRecord(
             this.id,
-            this.gameStartInfo,
+            this.gameStartInfo.config,
             playerRecords,
             this.turns,
             this._startTime ?? 0,

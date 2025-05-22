@@ -48,7 +48,7 @@ export class BotSpawner {
     }
     return new SpawnExecution(
       new PlayerInfo(
-        null,
+        undefined,
         "",
         botName,
         PlayerType.Bot,

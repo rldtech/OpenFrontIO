@@ -4,7 +4,7 @@ describe("PlayerInfo", () => {
   describe("clan", () => {
     test("should extract clan from name when format is [XX]Name", () => {
       const playerInfo = new PlayerInfo(
-        null,
+        undefined,
         "fr",
         "[CL]PlayerName",
         PlayerType.Human,
@@ -16,7 +16,7 @@ describe("PlayerInfo", () => {
 
     test("should extract clan from name when format is [XXX]Name", () => {
       const playerInfo = new PlayerInfo(
-        null,
+        undefined,
         "fr",
         "[ABC]PlayerName",
         PlayerType.Human,
@@ -28,7 +28,7 @@ describe("PlayerInfo", () => {
 
     test("should extract clan from name when format is [XXXX]Name", () => {
       const playerInfo = new PlayerInfo(
-        null,
+        undefined,
         "fr",
         "[ABCD]PlayerName",
         PlayerType.Human,
@@ -40,7 +40,7 @@ describe("PlayerInfo", () => {
 
     test("should extract clan from name when format is [XXXXX]Name", () => {
       const playerInfo = new PlayerInfo(
-        null,
+        undefined,
         "fr",
         "[ABCDE]PlayerName",
         PlayerType.Human,
@@ -52,7 +52,7 @@ describe("PlayerInfo", () => {
 
     test("should return null when name doesn't start with [", () => {
       const playerInfo = new PlayerInfo(
-        null,
+        undefined,
         "fr",
         "PlayerName",
         PlayerType.Human,
@@ -64,7 +64,7 @@ describe("PlayerInfo", () => {
 
     test("should return null when name doesn't contain ]", () => {
       const playerInfo = new PlayerInfo(
-        null,
+        undefined,
         "fr",
         "[ABCPlayerName",
         PlayerType.Human,
@@ -76,7 +76,7 @@ describe("PlayerInfo", () => {
 
     test("should return null when clan tag is not 2-5 uppercase letters", () => {
       const playerInfo = new PlayerInfo(
-        null,
+        undefined,
         "fr",
         "[A]PlayerName",
         PlayerType.Human,
@@ -88,7 +88,7 @@ describe("PlayerInfo", () => {
 
     test("should return null when clan tag contains non-uppercase letters", () => {
       const playerInfo = new PlayerInfo(
-        null,
+        undefined,
         "fr",
         "[Abc]PlayerName",
         PlayerType.Human,
@@ -100,7 +100,7 @@ describe("PlayerInfo", () => {
 
     test("should return null when clan tag is too long", () => {
       const playerInfo = new PlayerInfo(
-        null,
+        undefined,
         "fr",
         "[ABCDEF]PlayerName",
         PlayerType.Human,

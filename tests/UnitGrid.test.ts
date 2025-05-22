@@ -12,7 +12,7 @@ async function checkRange(
   const grid = new UnitGrid(game.map());
   const player = game.addPlayer(
     new PlayerInfo(
-      null,
+      undefined,
       "us",
       "test_player",
       PlayerType.Human,
@@ -42,7 +42,7 @@ async function nearbyUnits(
   const grid = new UnitGrid(game.map());
   const player = game.addPlayer(
     new PlayerInfo(
-      null,
+      undefined,
       "us",
       "test_player",
       PlayerType.Human,
@@ -123,7 +123,7 @@ describe("Unit Grid range tests", () => {
       const grid = new UnitGrid(game.map());
       const player = game.addPlayer(
         new PlayerInfo(
-          null,
+          undefined,
           "us",
           "test_player",
           PlayerType.Human,
@@ -147,7 +147,7 @@ describe("Unit Grid range tests", () => {
       const grid = new UnitGrid(game.map());
       const player = game.addPlayer(
         new PlayerInfo(
-          null,
+          undefined,
           "us",
           "test_player",
           PlayerType.Human,

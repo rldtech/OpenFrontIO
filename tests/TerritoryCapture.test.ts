@@ -7,7 +7,7 @@ describe("Territory management", () => {
     const game = await setup("Plains");
     game.addPlayer(
       new PlayerInfo(
-        null,
+        undefined,
         "us",
         "test_player",
         PlayerType.Human,

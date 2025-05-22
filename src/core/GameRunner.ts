@@ -61,7 +61,7 @@ export async function createGameRunner(
             new Cell(n.coordinates[0], n.coordinates[1]),
             n.strength,
             new PlayerInfo(
-              null,
+              undefined,
               n.flag || "",
               n.name,
               PlayerType.FakeHuman,

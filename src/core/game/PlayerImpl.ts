@@ -175,7 +175,7 @@ export class PlayerImpl implements Player {
     return this._smallID;
   }
 
-  pattern(): string | null {
+  pattern(): string | undefined {
     return this.playerInfo.pattern;
   }
 

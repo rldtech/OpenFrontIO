@@ -16,9 +16,14 @@ const TerritoryPatternsSchema = z.object({
 export const territoryPatterns =
   TerritoryPatternsSchema.parse(rawTerritoryPatterns);
 
-for (const [key, value] of Object.entries(territoryPatterns.patterns)) {
-  if (!value.pattern && value.patternBase64) {
-    const byteString = atob(value.patternBase64);
+class PatternDecoder {
+  static decodeBase64Pattern(base64: string): {
+    pattern: number[][];
+    tileWidth: number;
+    tileHeight: number;
+    scale: number;
+  } {
+    const byteString = atob(base64);
     const bytes = new Uint8Array(byteString.length);
     for (let i = 0; i < byteString.length; i++) {
       bytes[i] = byteString.charCodeAt(i);
@@ -53,10 +58,17 @@ for (const [key, value] of Object.entries(territoryPatterns.patterns)) {
       pattern.push(row);
     }
 
-    value.pattern = pattern;
-    value.tileWidth = tileWidth;
-    value.tileHeight = tileHeight;
-    value.scale = scale;
+    return { pattern, tileWidth, tileHeight, scale };
+  }
+}
+
+for (const [key, value] of Object.entries(territoryPatterns.patterns)) {
+  if (!value.pattern && value.patternBase64) {
+    const decoded = PatternDecoder.decodeBase64Pattern(value.patternBase64);
+    value.pattern = decoded.pattern;
+    value.tileWidth = decoded.tileWidth;
+    value.tileHeight = decoded.tileHeight;
+    value.scale = decoded.scale;
   }
 }
 

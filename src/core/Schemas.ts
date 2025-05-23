@@ -151,7 +151,7 @@ const NukesEnum = z.enum([
 const NukeStatsSchema = z.record(NukesEnum, z.number());
 
 export const PlayerStatsSchema = z.object({
-  sentNukes: z.record(ID, NukeStatsSchema),
+  sentNukes: z.record(ID.or(z.literal("null")), NukeStatsSchema),
 });
 
 export const AllPlayersStatsSchema = z.record(ID, PlayerStatsSchema);

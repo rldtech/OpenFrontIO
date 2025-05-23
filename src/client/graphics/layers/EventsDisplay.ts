@@ -26,6 +26,7 @@ import {
 import { ClientID } from "../../../core/Schemas";
 import {
   CancelAttackIntentEvent,
+  CancelBoatIntentEvent,
   SendAllianceReplyIntentEvent,
 } from "../../Transport";
 import { Layer } from "./Layer";
@@ -107,8 +108,10 @@ export class EventsDisplay extends LitElement implements Layer {
   tick() {
     this.active = true;
     const updates = this.game.updatesSinceLastTick();
-    for (const [ut, fn] of this.updateMap) {
-      updates[ut]?.forEach((u) => fn(u));
+    if (updates) {
+      for (const [ut, fn] of this.updateMap) {
+        updates[ut]?.forEach(fn);
+      }
     }
 
     let remainingEvents = this.events.filter((event) => {
@@ -137,16 +140,16 @@ export class EventsDisplay extends LitElement implements Layer {
     // Update attacks
     this.incomingAttacks = myPlayer.incomingAttacks().filter((a) => {
       const t = (this.game.playerBySmallID(a.attackerID) as PlayerView).type();
-      return t != PlayerType.Bot;
+      return t !== PlayerType.Bot;
     });
 
     this.outgoingAttacks = myPlayer
       .outgoingAttacks()
-      .filter((a) => a.targetID != 0);
+      .filter((a) => a.targetID !== 0);
 
     this.outgoingLandAttacks = myPlayer
       .outgoingAttacks()
-      .filter((a) => a.targetID == 0);
+      .filter((a) => a.targetID === 0);
 
     this.outgoingBoats = myPlayer
       .units()
@@ -157,7 +160,7 @@ export class EventsDisplay extends LitElement implements Layer {
 
   private addEvent(event: Event) {
     this.events = [...this.events, event];
-    if (this._hidden == true) {
+    if (this._hidden === true) {
       this.newEvents++;
     }
     this.requestUpdate();
@@ -179,7 +182,7 @@ export class EventsDisplay extends LitElement implements Layer {
   onDisplayMessageEvent(event: DisplayMessageUpdate) {
     const myPlayer = this.game.playerByClientID(this.clientID);
     if (
-      event.playerID != null &&
+      event.playerID !== null &&
       (!myPlayer || myPlayer.smallID() !== event.playerID)
     ) {
       return;
@@ -306,14 +309,12 @@ export class EventsDisplay extends LitElement implements Layer {
       const malusPercent = Math.round(
         (1 - this.game.config().traitorDefenseDebuff()) * 100,
       );
-      const traitorDurationRaw =
-        Number(this.game.config().traitorDuration) / 10;
-      const traitorDurationSeconds = Math.floor(traitorDurationRaw);
 
+      const traitorDuration = Math.floor(
+        this.game.config().traitorDuration() * 0.1,
+      );
       const durationText =
-        traitorDurationSeconds === 1
-          ? "1 second"
-          : `${traitorDurationSeconds} seconds`;
+        traitorDuration === 1 ? "1 second" : `${traitorDuration} seconds`;
 
       this.addEvent({
         description:
@@ -345,6 +346,7 @@ export class EventsDisplay extends LitElement implements Layer {
         : update.player2ID === myPlayer.smallID()
           ? update.player1ID
           : null;
+    if (otherID === null) return;
     const other = this.game.playerBySmallID(otherID) as PlayerView;
     if (!other || !myPlayer.isAlive() || !other.isAlive()) return;
 
@@ -379,6 +381,12 @@ export class EventsDisplay extends LitElement implements Layer {
     this.eventBus.emit(new CancelAttackIntentEvent(myPlayer.id(), id));
   }
 
+  emitBoatCancelIntent(id: number) {
+    const myPlayer = this.game.playerByClientID(this.clientID);
+    if (!myPlayer) return;
+    this.eventBus.emit(new CancelBoatIntentEvent(id));
+  }
+
   emitGoToPlayerEvent(attackerID: number) {
     const attacker = this.game.playerBySmallID(attackerID) as PlayerView;
     if (!attacker) return;
@@ -394,14 +402,14 @@ export class EventsDisplay extends LitElement implements Layer {
     if (!myPlayer) return;
 
     const recipient =
-      update.emoji.recipientID == AllPlayers
+      update.emoji.recipientID === AllPlayers
         ? AllPlayers
         : this.game.playerBySmallID(update.emoji.recipientID);
     const sender = this.game.playerBySmallID(
       update.emoji.senderID,
     ) as PlayerView;
 
-    if (recipient == myPlayer) {
+    if (recipient === myPlayer) {
       this.addEvent({
         description: `${sender.displayName()}:${update.emoji.message}`,
         unsafeDescription: true,
@@ -427,10 +435,7 @@ export class EventsDisplay extends LitElement implements Layer {
   onUnitIncomingEvent(event: UnitIncomingUpdate) {
     const myPlayer = this.game.playerByClientID(this.clientID);
 
-    if (
-      event.playerID != null &&
-      (!myPlayer || myPlayer.smallID() !== event.playerID)
-    ) {
+    if (!myPlayer || myPlayer.smallID() !== event.playerID) {
       return;
     }
 
@@ -482,8 +487,10 @@ export class EventsDisplay extends LitElement implements Layer {
                     <button
                       translate="no"
                       class="ml-2"
-                      @click=${() =>
-                        this.emitGoToPlayerEvent(attack.attackerID)}
+                      @click=${() => {
+                        attack.attackerID &&
+                          this.emitGoToPlayerEvent(attack.attackerID);
+                      }}
                     >
                       ${renderTroops(attack.troops)}
                       ${(
@@ -572,25 +579,29 @@ export class EventsDisplay extends LitElement implements Layer {
   }
 
   private renderBoats() {
-    if (this.outgoingBoats.length === 0) {
-      return html``;
-    }
-
     return html`
       ${this.outgoingBoats.length > 0
         ? html`
             <tr class="border-t border-gray-700">
-              <td
-                class="lg:p-3 p-1 text-left text-blue-400 grid grid-cols-3 gap-2"
-              >
+              <td class="lg:p-3 p-1 text-left text-blue-400">
                 ${this.outgoingBoats.map(
-                  (boats) => html`
+                  (boat) => html`
                     <button
                       translate="no"
-                      @click=${() => this.emitGoToUnitEvent(boats)}
+                      @click=${() => this.emitGoToUnitEvent(boat)}
                     >
-                      Boat: ${renderTroops(boats.troops())}
+                      Boat: ${renderTroops(boat.troops())}
                     </button>
+                    ${!boat.retreating()
+                      ? html`<button
+                          ${boat.retreating() ? "disabled" : ""}
+                          @click=${() => {
+                            this.emitBoatCancelIntent(boat.id());
+                          }}
+                        >
+                          ❌
+                        </button>`
+                      : "(retreating...)"}
                   `,
                 )}
               </td>
@@ -608,7 +619,7 @@ export class EventsDisplay extends LitElement implements Layer {
     this.events.sort((a, b) => {
       const aPrior = a.priority ?? 100000;
       const bPrior = b.priority ?? 100000;
-      if (aPrior == bPrior) {
+      if (aPrior === bPrior) {
         return a.createdAt - b.createdAt;
       }
       return bPrior - aPrior;
@@ -665,7 +676,8 @@ export class EventsDisplay extends LitElement implements Layer {
                       ${event.focusID
                         ? html`<button
                             @click=${() => {
-                              this.emitGoToPlayerEvent(event.focusID);
+                              event.focusID &&
+                                this.emitGoToPlayerEvent(event.focusID);
                             }}
                           >
                             ${this.getEventDescription(event)}
@@ -673,7 +685,8 @@ export class EventsDisplay extends LitElement implements Layer {
                         : event.unitView
                           ? html`<button
                               @click=${() => {
-                                this.emitGoToUnitEvent(event.unitView);
+                                event.unitView &&
+                                  this.emitGoToUnitEvent(event.unitView);
                               }}
                             >
                               ${this.getEventDescription(event)}

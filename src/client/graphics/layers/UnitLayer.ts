@@ -36,7 +36,7 @@ export class UnitLayer implements Layer {
 
   private unitToTrail = new Map<UnitView, TileRef[]>();
 
-  private theme: Theme = null;
+  private theme: Theme;
 
   private alternateView = false;
 
@@ -67,7 +67,7 @@ export class UnitLayer implements Layer {
   }
 
   tick() {
-    if (this.myPlayer == null) {
+    if (this.myPlayer === null) {
       this.myPlayer = this.game.playerByClientID(this.clientID);
     }
 
@@ -96,7 +96,7 @@ export class UnitLayer implements Layer {
     const clickRef = this.game.ref(cell.x, cell.y);
 
     // Make sure we have the current player
-    if (this.myPlayer == null) {
+    if (this.myPlayer === null) {
       this.myPlayer = this.game.playerByClientID(this.clientID);
     }
 
@@ -189,9 +189,13 @@ export class UnitLayer implements Layer {
 
   redraw() {
     this.canvas = document.createElement("canvas");
-    this.context = this.canvas.getContext("2d");
+    const context = this.canvas.getContext("2d");
+    if (context === null) throw new Error("2d context not supported");
+    this.context = context;
     this.transportShipTrailCanvas = document.createElement("canvas");
-    this.unitTrailContext = this.transportShipTrailCanvas.getContext("2d");
+    const trailContext = this.transportShipTrailCanvas.getContext("2d");
+    if (trailContext === null) throw new Error("2d context not supported");
+    this.unitTrailContext = trailContext;
 
     this.canvas.width = this.game.width();
     this.canvas.height = this.game.height();
@@ -217,36 +221,43 @@ export class UnitLayer implements Layer {
   private updateUnitsSprites() {
     const unitsToUpdate = this.game
       .updatesSinceLastTick()
-      ?.[GameUpdateType.Unit]?.map((unit) => this.game.unit(unit.id));
-    unitsToUpdate
-      ?.filter((UnitView) => isSpriteReady(UnitView.type()))
-      .forEach((unitView) => {
-        this.clearUnitCells(unitView);
-      });
-    unitsToUpdate?.forEach((unitView) => {
-      this.onUnitEvent(unitView);
-    });
+      ?.[GameUpdateType.Unit]?.map((unit) => this.game.unit(unit.id))
+      .filter((unit) => unit !== undefined);
+
+    if (unitsToUpdate) {
+      // the clearing and drawing of unit sprites need to be done in 2 passes
+      // otherwise the sprite of a unit can be drawn on top of another unit
+      this.clearUnitsCells(unitsToUpdate);
+      this.drawUnitsCells(unitsToUpdate);
+    }
   }
 
-  private clearUnitCells(unit: UnitView) {
-    const sprite = getColoredSprite(unit, this.theme);
-    const clearsize = sprite.width + 1;
+  private clearUnitsCells(unitViews: UnitView[]) {
+    unitViews
+      .filter((unitView) => isSpriteReady(unitView.type()))
+      .forEach((unitView) => {
+        const sprite = getColoredSprite(unitView, this.theme);
+        const clearsize = sprite.width + 1;
+        const lastX = this.game.x(unitView.lastTile());
+        const lastY = this.game.y(unitView.lastTile());
+        this.context.clearRect(
+          lastX - clearsize / 2,
+          lastY - clearsize / 2,
+          clearsize,
+          clearsize,
+        );
+      });
+  }
 
-    const lastX = this.game.x(unit.lastTile());
-    const lastY = this.game.y(unit.lastTile());
-    this.context.clearRect(
-      lastX - clearsize / 2,
-      lastY - clearsize / 2,
-      clearsize,
-      clearsize,
-    );
+  private drawUnitsCells(unitViews: UnitView[]) {
+    unitViews.forEach((unitView) => this.onUnitEvent(unitView));
   }
 
   private relationship(unit: UnitView): Relationship {
-    if (this.myPlayer == null) {
+    if (this.myPlayer === null) {
       return Relationship.Enemy;
     }
-    if (this.myPlayer == unit.owner()) {
+    if (this.myPlayer === unit.owner()) {
       return Relationship.Self;
     }
     if (this.myPlayer.isFriendly(unit.owner())) {
@@ -289,7 +300,7 @@ export class UnitLayer implements Layer {
   }
 
   private handleWarShipEvent(unit: UnitView) {
-    if (unit.warshipTargetId()) {
+    if (unit.targetUnitId()) {
       this.drawSprite(unit, colord({ r: 200, b: 0, g: 0 }));
     } else {
       this.drawSprite(unit);
@@ -301,8 +312,8 @@ export class UnitLayer implements Layer {
 
     // Clear current and previous positions
     this.clearCell(this.game.x(unit.lastTile()), this.game.y(unit.lastTile()));
-    if (this.oldShellTile.has(unit)) {
-      const oldTile = this.oldShellTile.get(unit);
+    const oldTile = this.oldShellTile.get(unit);
+    if (oldTile !== undefined) {
       this.clearCell(this.game.x(oldTile), this.game.y(oldTile));
     }
 
@@ -348,7 +359,7 @@ export class UnitLayer implements Layer {
   }
 
   private clearTrail(unit: UnitView) {
-    const trail = this.unitToTrail.get(unit);
+    const trail = this.unitToTrail.get(unit) ?? [];
     const rel = this.relationship(unit);
     for (const t of trail) {
       this.clearCell(this.game.x(t), this.game.y(t), this.unitTrailContext);
@@ -381,7 +392,7 @@ export class UnitLayer implements Layer {
     }
 
     let newTrailSize = 1;
-    const trail = this.unitToTrail.get(unit);
+    const trail = this.unitToTrail.get(unit) ?? [];
     // It can move faster than 1 pixel, draw a line for the trail or else it will be dotted
     if (trail.length >= 1) {
       const cur = {
@@ -441,7 +452,7 @@ export class UnitLayer implements Layer {
     if (!this.unitToTrail.has(unit)) {
       this.unitToTrail.set(unit, []);
     }
-    const trail = this.unitToTrail.get(unit);
+    const trail = this.unitToTrail.get(unit) ?? [];
     trail.push(unit.lastTile());
 
     // Paint trail
@@ -496,15 +507,16 @@ export class UnitLayer implements Layer {
     const x = this.game.x(unit.tile());
     const y = this.game.y(unit.tile());
 
-    let alternateViewColor = null;
+    let alternateViewColor: Colord | null = null;
 
     if (this.alternateView) {
       let rel = this.relationship(unit);
-      if (unit.type() == UnitType.TradeShip && unit.dstPortId() != null) {
-        const target = this.game.unit(unit.dstPortId())?.owner();
+      const dstPortId = unit.targetUnitId();
+      if (unit.type() === UnitType.TradeShip && dstPortId !== undefined) {
+        const target = this.game.unit(dstPortId)?.owner();
         const myPlayer = this.game.myPlayer();
-        if (myPlayer != null && target != null) {
-          if (myPlayer == target) {
+        if (myPlayer !== null && target !== undefined) {
+          if (myPlayer === target) {
             rel = Relationship.Self;
           } else if (myPlayer.isFriendly(target)) {
             rel = Relationship.Ally;
@@ -528,7 +540,7 @@ export class UnitLayer implements Layer {
       unit,
       this.theme,
       alternateViewColor ?? customTerritoryColor,
-      alternateViewColor,
+      alternateViewColor ?? undefined,
     );
 
     if (unit.isActive()) {

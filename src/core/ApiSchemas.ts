@@ -13,7 +13,7 @@ export const TokenPayloadSchema = z.object({
     .refine(
       (val) => {
         const uuid = base64urlToUuid(val);
-        return uuid != null;
+        return !!uuid;
       },
       {
         message: "Invalid base64-encoded UUID",
@@ -31,7 +31,7 @@ export const TokenPayloadSchema = z.object({
   rol: z
     .string()
     .optional()
-    .transform((val) => val.split(",")),
+    .transform((val) => (val ?? "").split(",")),
 });
 export type TokenPayload = z.infer<typeof TokenPayloadSchema>;
 
@@ -72,13 +72,17 @@ export const DiscordUserSchema = z.object({
 export type DiscordUser = z.infer<typeof DiscordUserSchema>;
 
 export const UserMeResponseSchema = z.object({
-  player: z
-    .object({
-      publicId: z.string().optional(),
-      flares: z.string().array().optional(),
-      roles: z.string().array().optional(),
-    })
-    .optional(),
-  user: DiscordUserSchema,
+  user: z.object({
+    id: z.string(),
+    avatar: z.string(),
+    username: z.string(),
+    global_name: z.string(),
+    discriminator: z.string(),
+    locale: z.string(),
+  }),
+  player: z.object({
+    publicId: z.string(),
+    roles: z.string().array(),
+  }),
 });
 export type UserMeResponse = z.infer<typeof UserMeResponseSchema>;

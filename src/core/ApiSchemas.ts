@@ -82,6 +82,7 @@ export const UserMeResponseSchema = z.object({
   }),
   player: z.object({
     publicId: z.string(),
+    flares: z.string().array(),
     roles: z.string().array(),
   }),
 });

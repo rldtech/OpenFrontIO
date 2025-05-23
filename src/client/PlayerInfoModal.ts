@@ -298,11 +298,14 @@ export class PlayerInfoModal extends LitElement {
     const { user, player } = userMeResponse;
     const { username, id, avatar } = user;
     if (player) {
-      const { publicId, roles } = player;
+      const { publicId, roles, flares } = player;
       if (publicId) {
         // ...
       }
       if (roles) {
+        // ...
+      }
+      if (flares) {
         // ...
       }
     }

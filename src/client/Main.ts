@@ -165,12 +165,12 @@ class Client {
     piModal instanceof PlayerInfoModal;
     document
       .getElementById("player-info-button")
-      .addEventListener("click", () => {
+      ?.addEventListener("click", () => {
         piModal.open();
       });
 
-    const claims = isLoggedIn();
-    if (claims === false) {
+    const loggedIn = isLoggedIn();
+    if (loggedIn === false) {
       // Not logged in
       loginDiscordButton.disable = false;
       loginDiscordButton.translationKey = "main.login_discord";
@@ -178,9 +178,9 @@ class Client {
       logoutDiscordButton.hidden = true;
       piModal.onLoggedOut();
     } else {
-      // JWT appears to be valid, assume we are logged in
+      // JWT appears to be valid
       loginDiscordButton.disable = true;
-      loginDiscordButton.translationKey = "main.logged_in";
+      loginDiscordButton.translationKey = "main.checking_login";
       logoutDiscordButton.hidden = false;
       logoutDiscordButton.addEventListener("click", () => {
         // Log out
@@ -191,7 +191,7 @@ class Client {
         logoutDiscordButton.hidden = true;
         piModal.onLoggedOut();
       });
-      piModal.onLoggedIn(claims);
+      piModal.onLoggedIn(loggedIn.claims);
       // Look up the discord user object.
       // TODO: Add caching
       getUserMe().then((userMeResponse) => {
@@ -206,6 +206,7 @@ class Client {
         }
         piModal.onUserMe(userMeResponse);
         // TODO: Update the page for logged in user
+        loginDiscordButton.translationKey = "main.logged_in";
       });
     }
 
@@ -305,7 +306,7 @@ class Client {
             ? ""
             : this.flagInput.getCurrentFlag(),
         playerName: this.usernameInput?.getCurrentUsername() ?? "",
-        token: localStorage.getItem("token") ?? getPersistentIDFromCookie(),
+        token: getPlayToken(),
         clientID: lobby.clientID,
         gameStartInfo: lobby.gameStartInfo ?? lobby.gameRecord?.info,
         gameRecord: lobby.gameRecord,
@@ -384,12 +385,21 @@ function setFavicon(): void {
 }
 
 // WARNING: DO NOT EXPOSE THIS ID
-export function getPersistentIDFromCookie(): string {
-  const claims = isLoggedIn();
-  if (claims !== false && claims.sub) {
-    return claims.sub;
-  }
+function getPlayToken(): string {
+  const result = isLoggedIn();
+  if (result !== false) return result.token;
+  return getPersistentIDFromCookie();
+}
 
+// WARNING: DO NOT EXPOSE THIS ID
+export function getPersistentID(): string {
+  const result = isLoggedIn();
+  if (result !== false) return result.claims.sub;
+  return getPersistentIDFromCookie();
+}
+
+// WARNING: DO NOT EXPOSE THIS ID
+function getPersistentIDFromCookie(): string {
   const COOKIE_NAME = "player_persistent_id";
 
   // Try to get existing cookie

@@ -644,10 +644,12 @@ export class DefaultConfig implements Config {
     // smaller countries recieve a boost to pop growth to speed up early game
     const baseAdditionRate = 10;
     const basePopGrowthRate = 1300 / max + 1 / 140;
-    const reproductionPop = 0.8 * player.troops() + 1.2 * player.workers();
+    const population = player.population();
+    const attacking = player.totalPopulation() - population;
+    const totalTroops = attacking + player.troops();
+    const reproductionPop = 0.8 * totalTroops + 1.2 * player.workers();
     let toAdd = baseAdditionRate + basePopGrowthRate * reproductionPop;
-    const totalPop = player.totalPopulation();
-    const ratio = 1 - totalPop / max;
+    const ratio = 1 - population / max;
     toAdd *= ratio;
 
     if (player.type() === PlayerType.Bot) {
@@ -671,7 +673,7 @@ export class DefaultConfig implements Config {
       }
     }
 
-    return Math.min(totalPop + toAdd, max) - totalPop;
+    return Math.min(population + toAdd, max) - population;
   }
 
   goldAdditionRate(player: Player): number {

@@ -27,7 +27,6 @@ export class WarshipExecution implements Execution {
   private activePatrolTarget: TileRef | undefined;
   private patrolAnchorTile: TileRef | undefined; //directs patrol to a specific tile
 
-
   private lastShellAttack = 0;
   private alreadySentShell = new Set<Unit>();
 
@@ -58,11 +57,11 @@ export class WarshipExecution implements Execution {
     const result = this.pathfinder.nextTile(this.warship.tile(), target);
     switch (result.type) {
       case PathFindResultType.Completed:
-      this.warship.setTargetTile(undefined);
-      this.patrolAnchorTile = this.warship.tile();       // ← update the new patrol anchor
-      this.activePatrolTarget = undefined;               // ← clear current patrol destination
-      this.warship.touch();
-      return;
+        this.warship.setTargetTile(undefined);
+        this.patrolAnchorTile = this.warship.tile(); // ← update the new patrol anchor
+        this.activePatrolTarget = undefined; // ← clear current patrol destination
+        this.warship.touch();
+        return;
 
       case PathFindResultType.NextTile:
         this.warship.move(result.tile);
@@ -153,7 +152,10 @@ export class WarshipExecution implements Execution {
         this.active = false;
         return;
       }
-      const spawn = this._owner.canBuild(UnitType.Warship, this.activePatrolTarget);
+      const spawn = this._owner.canBuild(
+        UnitType.Warship,
+        this.activePatrolTarget,
+      );
       if (spawn === false) {
         this.active = false;
         return;

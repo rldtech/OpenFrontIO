@@ -54,6 +54,7 @@ export const ColoredTeams: Record<string, Team> = {
 
 export enum GameMapType {
   World = "World",
+  WorldMapGiant = "Giant World Map",
   Europe = "Europe",
   EuropeClassic = "Europe Classic",
   Mena = "Mena",
@@ -76,11 +77,13 @@ export enum GameMapType {
   DeglaciatedAntarctica = "Deglaciated Antarctica",
   FalklandIslands = "Falkland Islands",
   Baikal = "Baikal",
+  Halkidiki = "Halkidiki",
 }
 
 export const mapCategories: Record<string, GameMapType[]> = {
   continental: [
     GameMapType.World,
+    GameMapType.WorldMapGiant,
     GameMapType.NorthAmerica,
     GameMapType.SouthAmerica,
     GameMapType.Europe,
@@ -101,6 +104,7 @@ export const mapCategories: Record<string, GameMapType[]> = {
     GameMapType.FaroeIslands,
     GameMapType.FalklandIslands,
     GameMapType.Baikal,
+    GameMapType.Halkidiki,
   ],
   fantasy: [
     GameMapType.Pangaea,
@@ -162,9 +166,13 @@ export interface UnitParamsMap {
 
   [UnitType.Port]: {};
 
-  [UnitType.AtomBomb]: {};
+  [UnitType.AtomBomb]: {
+    targetTile?: number;
+  };
 
-  [UnitType.HydrogenBomb]: {};
+  [UnitType.HydrogenBomb]: {
+    targetTile?: number;
+  };
 
   [UnitType.TradeShip]: {
     dstPort: Unit;
@@ -183,7 +191,9 @@ export interface UnitParamsMap {
 
   [UnitType.MIRV]: {};
 
-  [UnitType.MIRVWarhead]: {};
+  [UnitType.MIRVWarhead]: {
+    targetTile?: number;
+  };
 
   [UnitType.Construction]: {};
 }
@@ -199,8 +209,6 @@ export const nukeTypes = [
   UnitType.MIRVWarhead,
   UnitType.MIRV,
 ] as UnitType[];
-
-export type NukeType = (typeof nukeTypes)[number];
 
 export enum Relation {
   Hostile = 0,
@@ -276,6 +284,11 @@ export interface Attack {
   delete(): void;
   // The tile the attack originated from, mostly used for boat attacks.
   sourceTile(): TileRef | null;
+  addBorderTile(tile: TileRef): void;
+  removeBorderTile(tile: TileRef): void;
+  clearBorder(): void;
+  borderSize(): number;
+  averagePosition(): Cell | null;
 }
 
 export interface AllianceRequest {
@@ -322,57 +335,61 @@ export class PlayerInfo {
 }
 
 export interface Unit {
-  id(): number;
+  hash(): number;
 
-  // Properties
+  // Common properties.
+  id(): number;
   type(): UnitType;
-  troops(): number;
   owner(): Player;
   info(): UnitInfo;
-
-  // Location
+  delete(displayMessage?: boolean, destroyer?: Player): void;
   tile(): TileRef;
   lastTile(): TileRef;
   move(tile: TileRef): void;
-
-  // State
   isActive(): boolean;
-  hasHealth(): boolean;
-  health(): number;
-  modifyHealth(delta: number): void;
-
-  setWarshipTarget(target: Unit | null): void; // warship only
-  warshipTarget(): Unit | null;
-
   setOwner(owner: Player): void;
-  setCooldown(triggerCooldown: boolean): void;
-  ticksLeftInCooldown(cooldownDuration: number): Tick;
-  isCooldown(): boolean;
-  setDstPort(dstPort: Unit): void;
-  dstPort(): Unit | null; // Only for trade ships
-  setSafeFromPirates(): void; // Only for trade ships
-  isSafeFromPirates(): boolean; // Only for trade ships
-  detonationDst(): TileRef | null; // Only for nukes
+  touch(): void;
+  toUpdate(): UnitUpdate;
 
-  setMoveTarget(cell: TileRef | null): void;
-  moveTarget(): TileRef | null;
-
+  // Targeting
+  setTargetTile(cell: TileRef | undefined): void;
+  targetTile(): TileRef | undefined;
+  setTargetUnit(unit: Unit | undefined): void;
+  targetUnit(): Unit | undefined;
   setTargetedBySAM(targeted: boolean): void;
   targetedBySAM(): boolean;
+  setInterceptedBySam(): void;
+  interceptedBySam(): boolean;
 
-  // Mutations
+  // Health
+  hasHealth(): boolean;
+  retreating(): boolean;
+  orderBoatRetreat(): void;
+  health(): number;
+  modifyHealth(delta: number, attacker?: Player): void;
+
+  // Troops
   setTroops(troops: number): void;
-  delete(displayerMessage?: boolean): void;
+  troops(): number;
 
-  // Only for Construction type
+  // --- UNIT SPECIFIC ---
+
+  // SAMs & Missile Silos
+  launch(): void;
+  ticksLeftInCooldown(): Tick | undefined;
+  isInCooldown(): boolean;
+
+  // Trade Ships
+  setSafeFromPirates(): void; // Only for trade ships
+  isSafeFromPirates(): boolean; // Only for trade ships
+
+  // Construction
   constructionType(): UnitType | null;
   setConstructionType(type: UnitType): void;
 
-  // Updates
-  toUpdate(): UnitUpdate;
-
-  cachePut(from: TileRef, to: TileRef): void; // ports only
-  cacheGet(from: TileRef): TileRef | undefined; // ports only
+  // Ports
+  cachePut(from: TileRef, to: TileRef): void;
+  cacheGet(from: TileRef): TileRef | undefined;
 }
 
 export interface TerraNullius {
@@ -420,6 +437,7 @@ export interface Player {
   // Resources & Population
   gold(): Gold;
   population(): number;
+  totalPopulation(): number;
   workers(): number;
   troops(): number;
   targetTroopRatio(): number;
@@ -494,10 +512,12 @@ export interface Player {
 
   // Attacking.
   canAttack(tile: TileRef): boolean;
+
   createAttack(
     target: Player | TerraNullius,
     troops: number,
     sourceTile: TileRef | null,
+    border: Set<number>,
   ): Attack;
   outgoingAttacks(): Attack[];
   incomingAttacks(): Attack[];
@@ -611,6 +631,7 @@ export interface PlayerInteraction {
   canTarget: boolean;
   canDonate: boolean;
   canEmbargo: boolean;
+  allianceCreatedAtTick?: Tick;
 }
 
 export interface EmojiMessage {

@@ -13,7 +13,7 @@ import {
 } from "../core/Schemas";
 import { createGameRecord, decompressGameRecord } from "../core/Util";
 import { LobbyConfig } from "./ClientGameRunner";
-import { getPersistentIDFromCookie } from "./Main";
+import { getPersistentID } from "./Main";
 
 export class LocalServer {
   // All turns from the game record on replay.
@@ -150,6 +150,10 @@ export class LocalServer {
       return;
     }
     if (this.replayTurns.length > 0) {
+      if (this.turns.length >= this.replayTurns.length) {
+        this.endGame();
+        return;
+      }
       this.intents = this.replayTurns[this.turns.length].intents;
     }
     const pastTurn: Turn = {
@@ -167,12 +171,16 @@ export class LocalServer {
   public endGame(saveFullGame: boolean = false) {
     consolex.log("local server ending game");
     clearInterval(this.turnCheckInterval);
+    if (this.isReplay) {
+      return;
+    }
     const players: PlayerRecord[] = [
       {
-        ip: null,
-        persistentID: getPersistentIDFromCookie(),
+        playerID: this.lobbyConfig.clientID, // hack?
+        persistentID: getPersistentID(),
         username: this.lobbyConfig.playerName,
         clientID: this.lobbyConfig.clientID,
+        stats: this.allPlayersStats[this.lobbyConfig.clientID],
       },
     ];
     if (this.lobbyConfig.gameStartInfo === undefined) {
@@ -180,14 +188,12 @@ export class LocalServer {
     }
     const record = createGameRecord(
       this.lobbyConfig.gameStartInfo.gameID,
-      this.lobbyConfig.gameStartInfo,
+      this.lobbyConfig.gameStartInfo.config,
       players,
       this.turns,
       this.startedAt,
       Date.now(),
-      this.winner?.winner ?? null,
-      this.winner?.winnerType ?? null,
-      this.allPlayersStats,
+      this.winner?.winner,
     );
     if (!saveFullGame) {
       // Clear turns because beacon only supports up to 64kb

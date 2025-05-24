@@ -24,7 +24,9 @@ export class WarshipExecution implements Execution {
   private target: Unit | undefined = undefined;
   private pathfinder: PathFinder | null = null;
 
-  private patrolTile: TileRef | undefined;
+  private activePatrolTarget: TileRef | undefined;
+  private patrolAnchorTile: TileRef | undefined; //directs patrol to a specific tile
+
 
   private lastShellAttack = 0;
   private alreadySentShell = new Set<Unit>();
@@ -43,7 +45,7 @@ export class WarshipExecution implements Execution {
     }
     this.pathfinder = PathFinder.Mini(mg, 5000);
     this._owner = mg.player(this.playerID);
-    this.patrolTile = this.patrolCenterTile;
+    this.activePatrolTarget = this.patrolCenterTile;
     this.random = new PseudoRandom(mg.ticks());
   }
 
@@ -56,9 +58,12 @@ export class WarshipExecution implements Execution {
     const result = this.pathfinder.nextTile(this.warship.tile(), target);
     switch (result.type) {
       case PathFindResultType.Completed:
-        this.warship.setTargetTile(undefined);
-        this.warship.touch();
-        return;
+      this.warship.setTargetTile(undefined);
+      this.patrolAnchorTile = this.warship.tile();       // ← update the new patrol anchor
+      this.activePatrolTarget = undefined;               // ← clear current patrol destination
+      this.warship.touch();
+      return;
+
       case PathFindResultType.NextTile:
         this.warship.move(result.tile);
         break;
@@ -103,9 +108,9 @@ export class WarshipExecution implements Execution {
     if (this.warship === null || this.pathfinder === null) {
       throw new Error("Warship not initialized");
     }
-    if (this.patrolTile === undefined) {
-      this.patrolTile = this.randomTile();
-      if (this.patrolTile === undefined) {
+    if (this.activePatrolTarget === undefined) {
+      this.activePatrolTarget = this.randomTile();
+      if (this.activePatrolTarget === undefined) {
         return;
       }
     }
@@ -117,11 +122,11 @@ export class WarshipExecution implements Execution {
       // Patrol unless we are hunting down a tradeship
       const result = this.pathfinder.nextTile(
         this.warship.tile(),
-        this.patrolTile,
+        this.activePatrolTarget,
       );
       switch (result.type) {
         case PathFindResultType.Completed:
-          this.patrolTile = undefined;
+          this.activePatrolTarget = undefined;
           this.warship.touch();
           break;
         case PathFindResultType.NextTile:
@@ -132,7 +137,7 @@ export class WarshipExecution implements Execution {
           return;
         case PathFindResultType.PathNotFound:
           consolex.log(`path not found to patrol tile`);
-          this.patrolTile = undefined;
+          this.activePatrolTarget = undefined;
           break;
       }
     }
@@ -141,14 +146,14 @@ export class WarshipExecution implements Execution {
   tick(ticks: number): void {
     if (this.pathfinder === null) throw new Error("Warship not initialized");
     if (this.warship === null) {
-      if (this.patrolTile === undefined) {
+      if (this.activePatrolTarget === undefined) {
         console.log(
           `WarshipExecution: no patrol tile for ${this._owner.name()}`,
         );
         this.active = false;
         return;
       }
-      const spawn = this._owner.canBuild(UnitType.Warship, this.patrolTile);
+      const spawn = this._owner.canBuild(UnitType.Warship, this.activePatrolTarget);
       if (spawn === false) {
         this.active = false;
         return;
@@ -295,12 +300,13 @@ export class WarshipExecution implements Execution {
     const maxAttemptBeforeExpand: number = 500;
     let attempts: number = 0;
     let expandCount: number = 0;
+    const origin = this.patrolAnchorTile ?? this.patrolCenterTile;
     while (expandCount < 3) {
       const x =
-        this.mg.x(this.patrolCenterTile) +
+        this.mg.x(origin) +
         this.random.nextInt(-warshipPatrolRange / 2, warshipPatrolRange / 2);
       const y =
-        this.mg.y(this.patrolCenterTile) +
+        this.mg.y(origin) +
         this.random.nextInt(-warshipPatrolRange / 2, warshipPatrolRange / 2);
       if (!this.mg.isValidCoord(x, y)) {
         continue;

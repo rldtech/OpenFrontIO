@@ -33,6 +33,7 @@ import { TopBar } from "./layers/TopBar";
 import { UILayer } from "./layers/UILayer";
 import { UnitLayer } from "./layers/UnitLayer";
 import { WinModal } from "./layers/WinModal";
+
 export function createRenderer(
   canvas: HTMLCanvasElement,
   game: GameView,
@@ -47,6 +48,9 @@ export function createRenderer(
     soundManager.loadSound("click", "/sounds/click1.mp3"),
     soundManager.loadSound("alarm", "/sounds/alarm.mp3"),
     soundManager.loadSound("mirv", "/sounds/mirv.mp3"),
+    soundManager.loadSound("prep", "/sounds/prep.mp3"),
+    soundManager.loadSound("atombomb", "/sounds/atombomb.mp3"),
+    soundManager.loadSound("hbomb", "/sounds/hbomb.mp3"),
   ]).catch((e) => console.error("Failed to load sounds:", e));
 
   //hide when the game renders
@@ -159,7 +163,6 @@ export function createRenderer(
   // playerPanel.soundManager = soundManager; // Pass SoundManager
   playerPanel.uiState = uiState;
 
-
   const chatModal = document.querySelector("chat-modal") as ChatModal;
   if (!(chatModal instanceof ChatModal)) {
     console.error("chat modal not found");
@@ -217,7 +220,7 @@ export function createRenderer(
     eventsDisplay,
     chatDisplay,
     buildMenu,
-    radialMenu, // Use instantiated radialMenu
+    radialMenu,
     new SpawnTimer(game, transformHandler),
     leaderboard,
     controlPanel,
@@ -239,7 +242,7 @@ export function createRenderer(
     transformHandler,
     uiState,
     layers,
-    soundManager, // Pass SoundManager
+    soundManager,
   );
 }
 
@@ -253,7 +256,7 @@ export class GameRenderer {
     public transformHandler: TransformHandler,
     public uiState: UIState,
     private layers: Layer[],
-    private soundManager: SoundManager, // Add SoundManager
+    private soundManager: SoundManager,
   ) {
     const context = canvas.getContext("2d");
     if (context === null) throw new Error("2d context not supported");

@@ -36,7 +36,7 @@ export class UnitLayer implements Layer {
   private unitTrailContext: CanvasRenderingContext2D;
 
   private unitToTrail = new Map<UnitView, TileRef[]>();
-  private mirvUnits = new Set<UnitView>();
+  private nukeUnits = new Set<UnitView>();
 
   private theme: Theme;
 
@@ -59,7 +59,7 @@ export class UnitLayer implements Layer {
     private eventBus: EventBus,
     private clientID: ClientID,
     transformHandler: TransformHandler,
-    private soundManager: SoundManager, // Add SoundManager
+    private soundManager: SoundManager,
   ) {
     this.theme = game.config().theme();
     this.transformHandler = transformHandler;
@@ -392,10 +392,17 @@ export class UnitLayer implements Layer {
 
     if (!this.unitToTrail.has(unit)) {
       this.unitToTrail.set(unit, []);
-      if (unit.type() === UnitType.MIRV) {
-        if (!this.mirvUnits.has(unit)) {
-          this.mirvUnits.add(unit);
-          this.soundManager.playSound("alarm");
+      if (!this.nukeUnits.has(unit)) {
+        this.nukeUnits.add(unit);
+
+        switch (unit.type()) {
+          case UnitType.MIRV:
+            this.soundManager.playSound("alarm");
+            break;
+          case UnitType.AtomBomb:
+          case UnitType.HydrogenBomb:
+            this.soundManager.playSound("prep");
+            break;
         }
       }
     }
@@ -430,8 +437,16 @@ export class UnitLayer implements Layer {
     );
     this.drawSprite(unit);
     if (!unit.isActive()) {
+      switch (unit.type()) {
+        case UnitType.AtomBomb:
+          this.soundManager.playSound("atombomb");
+          break;
+        case UnitType.HydrogenBomb:
+          this.soundManager.playSound("hbomb");
+          break;
+      }
       this.clearTrail(unit);
-      this.mirvUnits.delete(unit);
+      this.nukeUnits.delete(unit);
     }
   }
 

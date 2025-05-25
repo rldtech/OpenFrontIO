@@ -1,13 +1,14 @@
 import { LitElement, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import { SoundManager } from "../../../core/animation/SoundManager"; // Import SoundManager
 import { EventBus } from "../../../core/EventBus";
 import { GameType } from "../../../core/game/Game";
 import { GameUpdateType } from "../../../core/game/GameUpdates";
 import { GameView } from "../../../core/game/GameView";
-import { UserSettings } from "../../../core/game/UserSettings";
+import { UserSettings } from "../../../core/GameSettings";
 import { AlternateViewEvent, RefreshGraphicsEvent } from "../../InputHandler";
 import { PauseGameEvent } from "../../Transport";
-import { Layer } from "./Layer";
+import { Layer } from "../Layer";
 
 const button = ({
   classes = "",
@@ -44,6 +45,7 @@ const secondsToHms = (d: number): string => {
 export class OptionsMenu extends LitElement implements Layer {
   public game: GameView;
   public eventBus: EventBus;
+  public soundManager: SoundManager; // Add SoundManager property
   private userSettings: UserSettings = new UserSettings();
 
   @state()
@@ -64,6 +66,11 @@ export class OptionsMenu extends LitElement implements Layer {
 
   @state()
   private alternateView: boolean = false;
+
+  constructor() {
+    super();
+    this.soundManager = new SoundManager(); // Will be overwritten by GameRenderer
+  }
 
   private onTerrainButtonClick() {
     this.alternateView = !this.alternateView;
@@ -124,11 +131,25 @@ export class OptionsMenu extends LitElement implements Layer {
     this.userSettings.toggleLeftClickOpenMenu();
   }
 
+  private onToggleSoundButtonClick() {
+    this.userSettings.toggleSound();
+    if (this.userSettings.soundEnabled()) {
+      this.soundManager.unmute();
+    } else {
+      this.soundManager.mute();
+    }
+    this.requestUpdate();
+  }
+
   init() {
     console.log("init called from OptionsMenu");
     this.showPauseButton =
       this.game.config().gameConfig().gameType === GameType.Singleplayer ||
       this.game.config().isReplay();
+    // Initialize sound state
+    if (!this.userSettings.soundEnabled()) {
+      this.soundManager.mute();
+    }
     this.isVisible = true;
     this.requestUpdate();
   }
@@ -226,6 +247,12 @@ export class OptionsMenu extends LitElement implements Layer {
               (this.userSettings.leftClickOpensMenu()
                 ? "Opens menu"
                 : "Attack"),
+          })}
+          ${button({
+            onClick: this.onToggleSoundButtonClick,
+            title: "Toggle Sound",
+            children:
+              "🔊: " + (this.userSettings.soundEnabled() ? "On" : "Off"),
           })}
           <!-- ${button({
             onClick: this.onToggleFocusLockedButtonClick,

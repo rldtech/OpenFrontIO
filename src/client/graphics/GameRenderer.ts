@@ -3,6 +3,7 @@ import { EventBus } from "../../core/EventBus";
 import { ClientID } from "../../core/Schemas";
 import { SoundManager } from "../../core/SoundManager";
 import { GameView } from "../../core/game/GameView";
+import { UserSettings } from "../../core/game/UserSettings";
 import { GameStartingModal } from "../GameStartingModal";
 import { RefreshGraphicsEvent as RedrawGraphicsEvent } from "../InputHandler";
 import { TransformHandler } from "./TransformHandler";
@@ -43,6 +44,11 @@ export function createRenderer(
   const transformHandler = new TransformHandler(game, eventBus, canvas);
   const uiState = { attackRatio: 20 };
   const soundManager = new SoundManager();
+  const userSettings = new UserSettings(); // Create UserSettings instance
+
+  if (!userSettings.soundEnabled()) {
+    soundManager.mute();
+  }
 
   Promise.all([
     soundManager.loadSound("click", "/sounds/click1.mp3"),
@@ -75,7 +81,7 @@ export function createRenderer(
   }
   buildMenu.game = game;
   buildMenu.eventBus = eventBus;
-  buildMenu.soundManager = soundManager; // Pass SoundManager
+  buildMenu.soundManager = soundManager;
 
   const leaderboard = document.querySelector("leader-board") as Leaderboard;
   if (!emojiTable || !(leaderboard instanceof Leaderboard)) {
@@ -101,7 +107,7 @@ export function createRenderer(
   controlPanel.eventBus = eventBus;
   controlPanel.uiState = uiState;
   controlPanel.game = game;
-  controlPanel.soundManager = soundManager; // Pass SoundManager
+  controlPanel.soundManager = soundManager;
 
   const eventsDisplay = document.querySelector(
     "events-display",
@@ -145,7 +151,7 @@ export function createRenderer(
   }
   optionsMenu.eventBus = eventBus;
   optionsMenu.game = game;
-  // optionsMenu.soundManager = soundManager; // Pass SoundManager
+  optionsMenu.soundManager = soundManager;
 
   const topBar = document.querySelector("top-bar") as TopBar;
   if (!(topBar instanceof TopBar)) {
@@ -160,7 +166,6 @@ export function createRenderer(
   playerPanel.g = game;
   playerPanel.eventBus = eventBus;
   playerPanel.emojiTable = emojiTable;
-  // playerPanel.soundManager = soundManager; // Pass SoundManager
   playerPanel.uiState = uiState;
 
   const chatModal = document.querySelector("chat-modal") as ChatModal;
@@ -169,16 +174,14 @@ export function createRenderer(
   }
   chatModal.g = game;
   chatModal.eventBus = eventBus;
-  // chatModal.soundManager = soundManager; // Pass SoundManager
 
   const multiTabModal = document.querySelector(
     "multi-tab-modal",
   ) as MultiTabModal;
   if (!(multiTabModal instanceof MultiTabModal)) {
-    console.error("multi-tab modal not found");
+    console.error("multi-tab-modal not found");
   }
   multiTabModal.game = game;
-  // multiTabModal.soundManager = soundManager; // Pass SoundManager
 
   const radialMenu = new RadialMenu(
     eventBus,

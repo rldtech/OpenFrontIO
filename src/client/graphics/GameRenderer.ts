@@ -44,7 +44,7 @@ export function createRenderer(
   const transformHandler = new TransformHandler(game, eventBus, canvas);
   const uiState = { attackRatio: 20 };
   const soundManager = new SoundManager();
-  const userSettings = new UserSettings(); // Create UserSettings instance
+  const userSettings = new UserSettings();
 
   if (!userSettings.soundEnabled()) {
     soundManager.mute();

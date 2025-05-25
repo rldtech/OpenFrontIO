@@ -1,14 +1,14 @@
 import { LitElement, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import { SoundManager } from "../../../core/animation/SoundManager"; // Import SoundManager
 import { EventBus } from "../../../core/EventBus";
 import { GameType } from "../../../core/game/Game";
 import { GameUpdateType } from "../../../core/game/GameUpdates";
 import { GameView } from "../../../core/game/GameView";
-import { UserSettings } from "../../../core/GameSettings";
+import { UserSettings } from "../../../core/game/UserSettings"; // Fixed import
+import { SoundManager } from "../../../core/SoundManager"; // Fixed import
 import { AlternateViewEvent, RefreshGraphicsEvent } from "../../InputHandler";
 import { PauseGameEvent } from "../../Transport";
-import { Layer } from "../Layer";
+import { Layer } from "./Layer"; // Fixed import
 
 const button = ({
   classes = "",
@@ -45,7 +45,7 @@ const secondsToHms = (d: number): string => {
 export class OptionsMenu extends LitElement implements Layer {
   public game: GameView;
   public eventBus: EventBus;
-  public soundManager: SoundManager; // Add SoundManager property
+  public soundManager: SoundManager;
   private userSettings: UserSettings = new UserSettings();
 
   @state()
@@ -69,7 +69,7 @@ export class OptionsMenu extends LitElement implements Layer {
 
   constructor() {
     super();
-    this.soundManager = new SoundManager(); // Will be overwritten by GameRenderer
+    this.soundManager = new SoundManager();
   }
 
   private onTerrainButtonClick() {
@@ -146,7 +146,6 @@ export class OptionsMenu extends LitElement implements Layer {
     this.showPauseButton =
       this.game.config().gameConfig().gameType === GameType.Singleplayer ||
       this.game.config().isReplay();
-    // Initialize sound state
     if (!this.userSettings.soundEnabled()) {
       this.soundManager.mute();
     }

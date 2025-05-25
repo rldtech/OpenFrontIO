@@ -398,6 +398,7 @@ export class UnitLayer implements Layer {
         switch (unit.type()) {
           case UnitType.MIRV:
             this.soundManager.playSound("alarm");
+            this.soundManager.playSound("prep");
             break;
           case UnitType.AtomBomb:
           case UnitType.HydrogenBomb:

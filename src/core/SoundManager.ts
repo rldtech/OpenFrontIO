@@ -17,9 +17,9 @@ export class SoundManager {
     const audio = this.sounds.get(name);
     if (audio) {
       audio.currentTime = 0;
-      audio.play().catch((e) =>
-        console.warn(`Failed to play sound ${name}:`, e)
-      );
+      audio
+        .play()
+        .catch((e) => console.warn(`Failed to play sound ${name}:`, e));
     } else {
       console.warn(`Sound ${name} not found`);
     }

@@ -216,11 +216,18 @@ export class TerritoryLayer implements Layer {
 
       // Only update if something was drawn
       if (this.maxDirtyX >= 0) {
-        // Step 1: Get dirty rect
-        const dx = this.minDirtyX;
-        const dy = this.minDirtyY;
+        let dx = this.minDirtyX;
+        let dy = this.minDirtyY;
+        let maxX = this.maxDirtyX;
+        let maxY = this.maxDirtyY;
 
-        // Step 2: Get visible bounds
+        if (this.game.inSpawnPhase()) {
+          dx = 0;
+          dy = 0;
+          maxX = this.game.width() - 1;
+          maxY = this.game.height() - 1;
+        }
+
         const [topLeft, bottomRight] =
           this.transformHandler.screenBoundingRect();
         const vx0 = topLeft.x;
@@ -228,11 +235,10 @@ export class TerritoryLayer implements Layer {
         const vx1 = bottomRight.x;
         const vy1 = bottomRight.y;
 
-        // Step 3: Clip dirty rect to visible rect
         const clippedX = Math.max(dx, vx0);
         const clippedY = Math.max(dy, vy0);
-        const clippedMaxX = Math.min(this.maxDirtyX, vx1);
-        const clippedMaxY = Math.min(this.maxDirtyY, vy1);
+        const clippedMaxX = Math.min(maxX, vx1);
+        const clippedMaxY = Math.min(maxY, vy1);
         const clippedW = clippedMaxX - clippedX + 1;
         const clippedH = clippedMaxY - clippedY + 1;
 
@@ -246,7 +252,6 @@ export class TerritoryLayer implements Layer {
             clippedW,
             clippedH,
           );
-          // Reset dirty tracking
           this.minDirtyX = this.minDirtyY = Infinity;
           this.maxDirtyX = this.maxDirtyY = -1;
         }

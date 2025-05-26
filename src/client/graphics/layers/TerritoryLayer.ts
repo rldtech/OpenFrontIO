@@ -219,8 +219,6 @@ export class TerritoryLayer implements Layer {
         // Step 1: Get dirty rect
         const dx = this.minDirtyX;
         const dy = this.minDirtyY;
-        const dw = this.maxDirtyX - dx + 1;
-        const dh = this.maxDirtyY - dy + 1;
 
         // Step 2: Get visible bounds
         const [topLeft, bottomRight] =

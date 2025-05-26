@@ -303,7 +303,24 @@ export class PlayerInfoModal extends LitElement {
         // ...
       }
       if (roles) {
-        // ...
+        this.roles = [];
+        roles.forEach((roleId) => {
+          const roleEntry = Object.entries(roleStyles).find(
+            ([, style]) => style.id === roleId,
+          );
+
+          if (roleEntry) {
+            const [roleKey] = roleEntry;
+            if (!this.roles.includes(roleKey)) {
+              this.roles = [...this.roles, roleKey];
+            }
+          }
+        });
+
+        this.highestRole = this.getHighestRole(this.roles);
+        const { flagWrapper, nameText } = this.getRoleStyle(this.highestRole);
+        this.flagWrapper = flagWrapper;
+        this.nameText = nameText;
       }
       if (flares) {
         // ...
@@ -324,12 +341,12 @@ export class PlayerInfoModal extends LitElement {
   }
 
   onLoggedIn(claims: TokenPayload) {
-    const { rol } = claims;
-    this.roles = rol;
-    this.highestRole = this.getHighestRole(this.roles);
-    const { flagWrapper, nameText } = this.getRoleStyle(this.highestRole);
-    this.flagWrapper = flagWrapper;
-    this.nameText = nameText;
+    // const { rol } = claims;
+    // this.roles = rol;
+    // this.highestRole = this.getHighestRole(this.roles);
+    // const { flagWrapper, nameText } = this.getRoleStyle(this.highestRole);
+    // this.flagWrapper = flagWrapper;
+    // this.nameText = nameText;
     this.isLoggedIn = true;
   }
 

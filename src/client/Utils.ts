@@ -96,7 +96,7 @@ export const translateText = (
 };
 
 export type RoleStyle = {
-  id?: string;
+  id: string;
   label: string;
   flagWrapper: string;
   nameText: string;
@@ -167,6 +167,7 @@ export const roleStyles = {
     priority: 6,
   },
   cho: {
+    id: "fake_chocolate_id", // Chocolate (fake ID)
     label: "Chocolate!",
     flagWrapper: "choco-flag-wrapper",
     nameText: "choco-name-text",
@@ -175,6 +176,7 @@ export const roleStyles = {
     priority: 7,
   },
   act: {
+    id: "fake_active_contributor_id", // Active Contributor (fake ID)
     label: "Active Contributor",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-green-500 to-green-700 animate-shimmer",
@@ -204,6 +206,7 @@ export const roleStyles = {
     priority: 10,
   },
   trd: {
+    id: "fake_translator_dev_id", // Translator Dev (fake ID)
     label: "Translator Dev",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-purple-400 to-purple-600 animate-shimmer",

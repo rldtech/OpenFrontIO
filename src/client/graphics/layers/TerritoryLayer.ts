@@ -8,6 +8,7 @@ import { GameUpdateType } from "../../../core/game/GameUpdates";
 import { GameView, PlayerView } from "../../../core/game/GameView";
 import { PseudoRandom } from "../../../core/PseudoRandom";
 import { AlternateViewEvent, DragEvent } from "../../InputHandler";
+import { TransformHandler } from "../TransformHandler";
 import { Layer } from "./Layer";
 
 export class TerritoryLayer implements Layer {
@@ -23,6 +24,12 @@ export class TerritoryLayer implements Layer {
   });
   private random = new PseudoRandom(123);
   private theme: Theme;
+
+  // ── track smallest / largest modified coordinates ──
+  private minDirtyX = Infinity;
+  private minDirtyY = Infinity;
+  private maxDirtyX = -1;
+  private maxDirtyY = -1;
 
   // Used for spawn highlighting
   private highlightCanvas: HTMLCanvasElement;
@@ -40,6 +47,7 @@ export class TerritoryLayer implements Layer {
   constructor(
     private game: GameView,
     private eventBus: EventBus,
+    private transformHandler: TransformHandler,
   ) {
     this.theme = game.config().theme();
   }
@@ -148,6 +156,12 @@ export class TerritoryLayer implements Layer {
     });
     this.redraw();
   }
+  private markDirty(x: number, y: number) {
+    this.minDirtyX = Math.min(this.minDirtyX, x);
+    this.minDirtyY = Math.min(this.minDirtyY, y);
+    this.maxDirtyX = Math.max(this.maxDirtyX, x);
+    this.maxDirtyY = Math.max(this.maxDirtyY, y);
+  }
 
   redraw() {
     console.log("redrew territory layer");
@@ -199,7 +213,47 @@ export class TerritoryLayer implements Layer {
     ) {
       this.lastRefresh = now;
       this.renderTerritory();
-      this.context.putImageData(this.imageData, 0, 0);
+
+      // Only update if something was drawn
+      if (this.maxDirtyX >= 0) {
+        // Step 1: Get dirty rect
+        const dx = this.minDirtyX;
+        const dy = this.minDirtyY;
+        const dw = this.maxDirtyX - dx + 1;
+        const dh = this.maxDirtyY - dy + 1;
+
+        // Step 2: Get visible bounds
+        const [topLeft, bottomRight] =
+          this.transformHandler.screenBoundingRect();
+        const vx0 = topLeft.x;
+        const vy0 = topLeft.y;
+        const vx1 = bottomRight.x;
+        const vy1 = bottomRight.y;
+
+        // Step 3: Clip dirty rect to visible rect
+        const clippedX = Math.max(dx, vx0);
+        const clippedY = Math.max(dy, vy0);
+        const clippedMaxX = Math.min(this.maxDirtyX, vx1);
+        const clippedMaxY = Math.min(this.maxDirtyY, vy1);
+        const clippedW = clippedMaxX - clippedX + 1;
+        const clippedH = clippedMaxY - clippedY + 1;
+
+        if (clippedW > 0 && clippedH > 0) {
+          this.context.putImageData(
+            this.imageData,
+            0,
+            0,
+            clippedX,
+            clippedY,
+            clippedW,
+            clippedH,
+          );
+        }
+
+        // Reset dirty tracking
+        this.minDirtyX = this.minDirtyY = Infinity;
+        this.maxDirtyX = this.maxDirtyY = -1;
+      }
     }
     if (this.alternativeView) {
       return;
@@ -302,12 +356,14 @@ export class TerritoryLayer implements Layer {
     this.imageData.data[offset + 1] = color.rgba.g;
     this.imageData.data[offset + 2] = color.rgba.b;
     this.imageData.data[offset + 3] = alpha;
+    this.markDirty(x, y);
   }
 
   clearCell(cell: Cell) {
     const index = cell.y * this.game.width() + cell.x;
     const offset = index * 4;
     this.imageData.data[offset + 3] = 0; // Set alpha to 0 (fully transparent)
+    this.markDirty(cell.x, cell.y);
   }
 
   enqueueTile(tile: TileRef) {

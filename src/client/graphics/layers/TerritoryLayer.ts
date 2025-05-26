@@ -246,11 +246,10 @@ export class TerritoryLayer implements Layer {
             clippedW,
             clippedH,
           );
+          // Reset dirty tracking
+          this.minDirtyX = this.minDirtyY = Infinity;
+          this.maxDirtyX = this.maxDirtyY = -1;
         }
-
-        // Reset dirty tracking
-        this.minDirtyX = this.minDirtyY = Infinity;
-        this.maxDirtyX = this.maxDirtyY = -1;
       }
     }
     if (this.alternativeView) {

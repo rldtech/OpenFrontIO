@@ -96,6 +96,7 @@ export const translateText = (
 };
 
 export type RoleStyle = {
+  id?: string;
   label: string;
   flagWrapper: string;
   nameText: string;
@@ -106,6 +107,7 @@ export type RoleStyle = {
 
 export const roleStyles = {
   cre: {
+    id: "1286745100411473930", // Creator
     label: "Creator",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-yellow-200 via-yellow-300 to-yellow-200 animate-shimmer",
@@ -115,6 +117,7 @@ export const roleStyles = {
     priority: 1,
   },
   adm: {
+    id: "1286738076386856991", // Admin
     label: "Admin",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-red-500 via-red-600 to-red-500 animate-shimmer",
@@ -124,6 +127,7 @@ export const roleStyles = {
     priority: 2,
   },
   ass: {
+    id: "1357747869742010661", // Admin Assistant
     label: "Admin Assistant",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-orange-200 via-orange-300 to-orange-200 animate-shimmer",
@@ -133,6 +137,7 @@ export const roleStyles = {
     priority: 3,
   },
   mod: {
+    id: "1338654590043820148", // Mod
     label: "Mod",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-orange-400 via-orange-500 to-orange-400 animate-shimmer",
@@ -142,6 +147,7 @@ export const roleStyles = {
     priority: 4,
   },
   sta: {
+    id: "1343759662545244296", // Support Staff
     label: "Support Staff",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-300 animate-shimmer",
@@ -151,6 +157,7 @@ export const roleStyles = {
     priority: 5,
   },
   rst: {
+    id: "1355753028099117147", // Retired Staff
     label: "Retired Staff",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-[#5964f2] to-[#4451d1] animate-shimmer",
@@ -177,6 +184,7 @@ export const roleStyles = {
     priority: 8,
   },
   cor: {
+    id: "1370238576868200488", // Core Contributor
     label: "Core Contributor",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-green-600 to-green-900 animate-shimmer",
@@ -186,6 +194,7 @@ export const roleStyles = {
     priority: 9,
   },
   ctr: {
+    id: "1314972008362020957", // Contributor
     label: "Contributor",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-green-400 to-green-600 animate-shimmer",
@@ -204,6 +213,7 @@ export const roleStyles = {
     priority: 11,
   },
   htr: {
+    id: "1367345660852174930", // Head Translator
     label: "Head Translator",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-teal-400 to-teal-600 animate-shimmer",
@@ -213,6 +223,7 @@ export const roleStyles = {
     priority: 12,
   },
   tra: {
+    id: "1367345579272831128", // Translator
     label: "Translator",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-blue-400 to-blue-600 animate-shimmer",
@@ -222,6 +233,7 @@ export const roleStyles = {
     priority: 13,
   },
   ccr: {
+    id: "1320961080750637076", // Content Creator
     label: "Content Creator",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-orange-500 to-orange-700 animate-shimmer",
@@ -231,6 +243,7 @@ export const roleStyles = {
     priority: 14,
   },
   bet: {
+    id: "1327125593791397929", // Beta Tester
     label: "Beta Tester",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-teal-500 to-teal-700 animate-shimmer",
@@ -240,6 +253,7 @@ export const roleStyles = {
     priority: 15,
   },
   dca: {
+    id: "1345831753528377425", // Dev Chat Access
     label: "Dev Chat Access",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-purple-500 to-purple-700 animate-shimmer",
@@ -249,6 +263,7 @@ export const roleStyles = {
     priority: 16,
   },
   eas: {
+    id: "1330243292306341969", // Early Access Supporter
     label: "Early Access Supporter",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-yellow-500 to-yellow-400 animate-shimmer",
@@ -258,6 +273,7 @@ export const roleStyles = {
     priority: 17,
   },
   mhr: {
+    id: "1359441841371480176", // Money Haters
     label: "Money Haters",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-[#a05cca] to-[#8b4fb6] animate-shimmer",
@@ -267,6 +283,7 @@ export const roleStyles = {
     priority: 18,
   },
   bst: {
+    id: "1319387513206345770", // Server Booster
     label: "Server Booster",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-pink-500 to-pink-700 animate-shimmer",
@@ -276,6 +293,7 @@ export const roleStyles = {
     priority: 19,
   },
   og0: {
+    id: "1286743849707769936", // OG
     label: "OG",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-yellow-300 to-yellow-200 animate-shimmer",
@@ -285,6 +303,7 @@ export const roleStyles = {
     priority: 20,
   },
   og1: {
+    id: "1314802550314237952", // OG100
     label: "OG100",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-lime-300 to-lime-500 animate-shimmer",
@@ -294,6 +313,7 @@ export const roleStyles = {
     priority: 21,
   },
   cha: {
+    id: "1292157381496799264", // Challenger
     label: "Challenger",
     flagWrapper:
       "p-[3px] rounded-full bg-gradient-to-r from-blue-500 to-blue-700",
@@ -303,6 +323,7 @@ export const roleStyles = {
     priority: 22,
   },
   pin: {
+    id: "1316444187276738612", // Ping
     label: "Ping",
     flagWrapper: "p-[3px] rounded-full bg-gray-400",
     nameText: "text-2xl font-bold text-gray-300 drop-shadow",
@@ -311,6 +332,7 @@ export const roleStyles = {
     priority: 23,
   },
   dsp: {
+    id: "1369340951109304340", // Development Stream Ping
     label: "Development Stream Ping",
     flagWrapper: "p-[3px] rounded-full bg-blue-400",
     nameText: "text-2xl font-bold text-blue-200 drop-shadow",
@@ -319,6 +341,7 @@ export const roleStyles = {
     priority: 24,
   },
   bot: {
+    id: "1286910984702791711", // Bot
     label: "Bot",
     flagWrapper: "p-[3px] rounded-full bg-gray-400",
     nameText: "text-2xl font-bold text-gray-300 drop-shadow",
@@ -327,6 +350,7 @@ export const roleStyles = {
     priority: 25,
   },
   mem: {
+    id: "1347621713852235808", // Member
     label: "Member",
     flagWrapper: "p-[3px] rounded-full bg-gray-400",
     nameText: "text-2xl font-bold text-gray-300 drop-shadow",

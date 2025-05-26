@@ -401,8 +401,9 @@ export class UnitLayer implements Layer {
             this.soundManager.playSound("prep");
             break;
           case UnitType.AtomBomb:
+            this.soundManager.playSound("atomlaunch");
           case UnitType.HydrogenBomb:
-            this.soundManager.playSound("prep");
+            this.soundManager.playSound("hydolaunch");
             break;
         }
       }

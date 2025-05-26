@@ -51,12 +51,13 @@ export function createRenderer(
   }
 
   Promise.all([
-    soundManager.loadSound("click", "/sounds/click1.mp3"),
+    soundManager.loadSound("click", "/sounds/click.mp3"),
     soundManager.loadSound("alarm", "/sounds/alarm.mp3"),
     soundManager.loadSound("mirv", "/sounds/mirv.mp3"),
-    soundManager.loadSound("prep", "/sounds/prep.mp3"),
-    soundManager.loadSound("atombomb", "/sounds/atombomb.mp3"),
-    soundManager.loadSound("hbomb", "/sounds/hbomb.mp3"),
+    soundManager.loadSound("hydolaunch", "/sounds/hydrogen_launch.mp3"),
+    soundManager.loadSound("atomlaunch", "/sounds/atom_launch.mp3"),
+    soundManager.loadSound("atombomb", "/sounds/atom_hit.mp3"),
+    soundManager.loadSound("hbomb", "/sounds/hydrogen_hit.mp3"),
   ]).catch((e) => console.error("Failed to load sounds:", e));
 
   //hide when the game renders

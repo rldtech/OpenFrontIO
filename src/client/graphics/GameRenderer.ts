@@ -54,7 +54,7 @@ export function createRenderer(
     soundManager.loadSound("click", "/sounds/click.mp3"),
     soundManager.loadSound("alarm", "/sounds/alarm.mp3"),
     soundManager.loadSound("mirv", "/sounds/mirv.mp3"),
-    soundManager.loadSound("hyrdolaunch", "/sounds/hydrogen_launch.mp3"),
+    soundManager.loadSound("hydrolaunch", "/sounds/hydrogen_launch.mp3"),
     soundManager.loadSound("atomlaunch", "/sounds/atom_launch.mp3"),
     soundManager.loadSound("atombomb", "/sounds/atom_hit.mp3"),
     soundManager.loadSound("hbomb", "/sounds/hydrogen_hit.mp3"),

@@ -1,19 +1,24 @@
 export class UserSettings {
-  private cache: Record<string, boolean>;
-
   constructor() {
-    this.cache = {
-      emojis: this.getFromStorage("settings.emojis", true),
-      anonymousNames: this.getFromStorage("settings.anonymousNames", false),
-      specialEffects: this.getFromStorage("settings.specialEffects", true),
-      darkMode: this.getFromStorage("settings.darkMode", false),
-      leftClickOpensMenu: this.getFromStorage(
-        "settings.leftClickOpensMenu",
-        false,
-      ),
-      focusLocked: this.getFromStorage("settings.focusLocked", true),
-    };
+    this._emojis = this.getFromStorage("settings.emojis", true);
+    this._anonymousNames = this.getFromStorage(
+      "settings.anonymousNames",
+      false,
+    );
+    this._specialEffects = this.getFromStorage("settings.specialEffects", true);
+    this._darkMode = this.getFromStorage("settings.darkMode", false);
+    this._leftClickOpensMenu = this.getFromStorage(
+      "settings.leftClickOpensMenu",
+      false,
+    );
+    this._focusLocked = this.getFromStorage("settings.focusLocked", true);
   }
+  private _emojis: boolean;
+  private _anonymousNames: boolean;
+  private _specialEffects: boolean;
+  private _darkMode: boolean;
+  private _leftClickOpensMenu: boolean;
+  private _focusLocked: boolean;
 
   private getFromStorage(key: string, defaultValue: boolean): boolean {
     const value = localStorage.getItem(key);
@@ -27,78 +32,75 @@ export class UserSettings {
   }
 
   emojis() {
-    return this.cache.emojis;
+    return this._emojis;
   }
   anonymousNames() {
-    return this.cache.anonymousNames;
+    return this._anonymousNames;
   }
   fxLayer() {
-    return this.cache.specialEffects;
+    return this._specialEffects;
   }
   darkMode() {
-    return this.cache.darkMode;
+    return this._darkMode;
   }
   leftClickOpensMenu() {
-    return this.cache.leftClickOpensMenu;
+    return this._leftClickOpensMenu;
   }
   focusLocked() {
     return false;
   } // Keep disabled if buggy
 
   toggleLeftClickOpenMenu() {
-    this.cache.leftClickOpensMenu = !this.cache.leftClickOpensMenu;
-    this.setToStorage(
-      "settings.leftClickOpensMenu",
-      this.cache.leftClickOpensMenu,
-    );
+    this._leftClickOpensMenu = !this._leftClickOpensMenu;
+    this.setToStorage("settings.leftClickOpensMenu", this._leftClickOpensMenu);
   }
 
   toggleFocusLocked() {
-    this.cache.focusLocked = !this.cache.focusLocked;
-    this.setToStorage("settings.focusLocked", this.cache.focusLocked);
+    this._focusLocked = !this._focusLocked;
+    this.setToStorage("settings.focusLocked", this._focusLocked);
   }
 
   toggleEmojis() {
-    this.cache.emojis = !this.cache.emojis;
-    this.setToStorage("settings.emojis", this.cache.emojis);
+    this._emojis = !this._emojis;
+    this.setToStorage("settings.emojis", this._emojis);
   }
 
   toggleRandomName() {
-    this.cache.anonymousNames = !this.cache.anonymousNames;
-    this.setToStorage("settings.anonymousNames", this.cache.anonymousNames);
+    this._anonymousNames = !this._anonymousNames;
+    this.setToStorage("settings.anonymousNames", this._anonymousNames);
   }
 
   toggleFxLayer() {
-    this.cache.specialEffects = !this.cache.specialEffects;
-    this.setToStorage("settings.specialEffects", this.cache.specialEffects);
+    this._specialEffects = !this._specialEffects;
+    this.setToStorage("settings.specialEffects", this._specialEffects);
   }
 
   toggleDarkMode() {
-    this.cache.darkMode = !this.cache.darkMode;
-    this.setToStorage("settings.darkMode", this.cache.darkMode);
-    if (this.cache.darkMode) {
+    this._darkMode = !this._darkMode;
+    this.setToStorage("settings.darkMode", this._darkMode);
+    if (this._darkMode) {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
     }
   }
   setEmojis(value: boolean) {
-    this.cache.emojis = value;
+    this._emojis = value;
     this.setToStorage("settings.emojis", value);
   }
 
   setAnonymousNames(value: boolean) {
-    this.cache.anonymousNames = value;
+    this._anonymousNames = value;
     this.setToStorage("settings.anonymousNames", value);
   }
 
   setFxLayer(value: boolean) {
-    this.cache.specialEffects = value;
+    this._specialEffects = value;
     this.setToStorage("settings.specialEffects", value);
   }
 
   setDarkMode(value: boolean) {
-    this.cache.darkMode = value;
+    this._darkMode = value;
     this.setToStorage("settings.darkMode", value);
     if (value) {
       document.documentElement.classList.add("dark");
@@ -108,7 +110,7 @@ export class UserSettings {
   }
 
   setLeftClickOpensMenu(value: boolean) {
-    this.cache.leftClickOpensMenu = value;
+    this._leftClickOpensMenu = value;
     this.setToStorage("settings.leftClickOpensMenu", value);
   }
 }

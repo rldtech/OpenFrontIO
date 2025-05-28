@@ -21,14 +21,13 @@ export class UnitImpl implements Unit {
   private _lastTile: TileRef;
   private _retreating: boolean = false;
   private _targetedBySAM = false;
-  private _interceptedBySAM = false;
+  private _reachedTarget = false;
   private _lastSetSafeFromPirates: number; // Only for trade ships
   private _constructionType: UnitType | undefined;
   private _lastOwner: PlayerImpl | null = null;
   private _troops: number;
   private _cooldownStartTick: Tick | null = null;
-  private _pathCache: Map<TileRef, TileRef> = new Map();
-
+  private _patrolTile: TileRef | undefined;
   constructor(
     private _type: UnitType,
     private mg: GameImpl,
@@ -39,12 +38,17 @@ export class UnitImpl implements Unit {
   ) {
     this._lastTile = _tile;
     this._health = toInt(this.mg.unitInfo(_type).maxHealth ?? 1);
-
+    this._targetTile =
+      "targetTile" in params ? (params.targetTile ?? undefined) : undefined;
     this._troops = "troops" in params ? (params.troops ?? 0) : 0;
     this._lastSetSafeFromPirates =
       "lastSetSafeFromPirates" in params
         ? (params.lastSetSafeFromPirates ?? 0)
         : 0;
+    this._patrolTile =
+      "patrolTile" in params ? (params.patrolTile ?? undefined) : undefined;
+    this._targetUnit =
+      "targetUnit" in params ? (params.targetUnit ?? undefined) : undefined;
 
     switch (this._type) {
       case UnitType.Warship:
@@ -56,6 +60,19 @@ export class UnitImpl implements Unit {
         this.mg.stats().unitBuild(_owner, this._type);
     }
   }
+
+  setPatrolTile(tile: TileRef): void {
+    this._patrolTile = tile;
+  }
+
+  patrolTile(): TileRef | undefined {
+    return this._patrolTile;
+  }
+
+  isUnit(): this is Unit {
+    return true;
+  }
+
   touch(): void {
     this.mg.addUpdate(this.toUpdate());
   }
@@ -64,13 +81,6 @@ export class UnitImpl implements Unit {
   }
   tileTarget(): TileRef | undefined {
     return this._targetTile;
-  }
-
-  cachePut(from: TileRef, to: TileRef): void {
-    this._pathCache.set(from, to);
-  }
-  cacheGet(from: TileRef): TileRef | undefined {
-    return this._pathCache.get(from);
   }
 
   id() {
@@ -86,7 +96,7 @@ export class UnitImpl implements Unit {
       ownerID: this._owner.smallID(),
       lastOwnerID: this._lastOwner?.smallID(),
       isActive: this._active,
-      wasIntercepted: this._interceptedBySAM,
+      reachedTarget: this._reachedTarget,
       retreating: this._retreating,
       pos: this._tile,
       lastPos: this._lastTile,
@@ -306,12 +316,12 @@ export class UnitImpl implements Unit {
     return this._targetedBySAM;
   }
 
-  setInterceptedBySam(): void {
-    this._interceptedBySAM = true;
+  setReachedTarget(): void {
+    this._reachedTarget = true;
   }
 
-  interceptedBySam(): boolean {
-    return this._interceptedBySAM;
+  reachedTarget(): boolean {
+    return this._reachedTarget;
   }
 
   setSafeFromPirates(): void {

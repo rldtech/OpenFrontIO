@@ -11,9 +11,9 @@ import {
   ServerStartGameMessageSchema,
   Turn,
 } from "../core/Schemas";
-import { createGameRecord, decompressGameRecord } from "../core/Util";
+import { createGameRecord, decompressGameRecord, replacer } from "../core/Util";
 import { LobbyConfig } from "./ClientGameRunner";
-import { getPersistentIDFromCookie } from "./Main";
+import { getPersistentID } from "./Main";
 
 export class LocalServer {
   // All turns from the game record on replay.
@@ -176,8 +176,7 @@ export class LocalServer {
     }
     const players: PlayerRecord[] = [
       {
-        playerID: this.lobbyConfig.clientID, // hack?
-        persistentID: getPersistentIDFromCookie(),
+        persistentID: getPersistentID(),
         username: this.lobbyConfig.playerName,
         clientID: this.lobbyConfig.clientID,
         stats: this.allPlayersStats[this.lobbyConfig.clientID],
@@ -193,17 +192,19 @@ export class LocalServer {
       this.turns,
       this.startedAt,
       Date.now(),
-      this.winner?.winner ?? null,
-      this.winner?.winnerType ?? null,
+      this.winner?.winner,
     );
     if (!saveFullGame) {
       // Clear turns because beacon only supports up to 64kb
       record.turns = [];
     }
     // For unload events, sendBeacon is the only reliable method
-    const blob = new Blob([JSON.stringify(GameRecordSchema.parse(record))], {
-      type: "application/json",
-    });
+    const blob = new Blob(
+      [JSON.stringify(GameRecordSchema.parse(record), replacer)],
+      {
+        type: "application/json",
+      },
+    );
     const workerPath = this.lobbyConfig.serverConfig.workerPath(
       this.lobbyConfig.gameStartInfo.gameID,
     );

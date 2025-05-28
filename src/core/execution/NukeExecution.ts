@@ -119,7 +119,7 @@ export class NukeExecution implements Execution {
         this.type !== UnitType.MIRVWarhead,
       );
       this.nuke = this.player.buildUnit(this.type, spawn, {
-        detonationDst: this.dst,
+        targetTile: this.dst,
       });
       if (this.mg.hasOwner(this.dst)) {
         const target = this.mg.owner(this.dst);
@@ -239,6 +239,7 @@ export class NukeExecution implements Execution {
       }
     }
     this.active = false;
+    this.nuke.setReachedTarget();
     this.nuke.delete(false);
 
     // Record stats

@@ -52,6 +52,7 @@ describe("PlayerInfo", () => {
 
     test("should extract clan from name when format is [xxxxx]Name", () => {
       const playerInfo = new PlayerInfo(
+        undefined,
         "fr",
         "[abcde]PlayerName",
         PlayerType.Human,
@@ -63,6 +64,7 @@ describe("PlayerInfo", () => {
 
     test("should extract clan from name when format is [XxXxX]Name", () => {
       const playerInfo = new PlayerInfo(
+        undefined,
         "fr",
         "[AbCdE]PlayerName",
         PlayerType.Human,

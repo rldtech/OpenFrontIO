@@ -73,7 +73,7 @@ export interface UnitUpdate {
   pos: TileRef;
   lastPos: TileRef;
   isActive: boolean;
-  wasIntercepted: boolean;
+  reachedTarget: boolean;
   retreating: boolean;
   targetUnitId?: number; // Only for trade ships
   targetTile?: TileRef; // Only for nukes
@@ -178,8 +178,7 @@ export interface WinUpdate {
   type: GameUpdateType.Win;
   allPlayersStats: AllPlayersStats;
   // Player id or team name.
-  winner: number | Team;
-  winnerType: "player" | "team";
+  winner: ["player", number] | ["team", Team];
 }
 
 export interface HashUpdate {

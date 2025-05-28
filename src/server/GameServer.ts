@@ -300,7 +300,6 @@ export class GameServer {
       gameID: this.id,
       config: this.gameConfig,
       players: this.activeClients.map((c) => ({
-        playerID: c.playerID,
         username: c.username,
         clientID: c.clientID,
         flag: c.flag,
@@ -547,7 +546,6 @@ export class GameServer {
         this.log.warn(`Unable to find stats for clientID ${client.clientID}`);
       }
       return {
-        playerID: client.playerID,
         clientID: client.clientID,
         username: client.username,
         persistentID: client.persistentID,
@@ -562,8 +560,7 @@ export class GameServer {
         this.turns,
         this._startTime ?? 0,
         Date.now(),
-        this.winner?.winner ?? null,
-        this.winner?.winnerType ?? null,
+        this.winner?.winner,
       ),
     );
   }

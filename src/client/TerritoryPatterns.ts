@@ -5,8 +5,10 @@ const PatternSchema = z.object({
   tileWidth: z.number().optional(),
   tileHeight: z.number().optional(),
   scale: z.number().optional(),
-  pattern: z.array(z.array(z.number())).optional(),
   patternBase64: z.string().optional(),
+  patternData: z
+    .custom<Uint8Array>((val) => val instanceof Uint8Array)
+    .optional(),
 });
 
 const TerritoryPatternsSchema = z.object({
@@ -18,7 +20,7 @@ export const territoryPatterns =
 
 class PatternDecoder {
   static decodeBase64Pattern(base64: string): {
-    pattern: number[][];
+    data: Uint8Array;
     tileWidth: number;
     tileHeight: number;
     scale: number;
@@ -40,32 +42,16 @@ class PatternDecoder {
     const totalBits = tileWidth * tileHeight;
     const totalBytes = Math.ceil(totalBits / 8);
     const data = bytes.slice(7, 7 + totalBytes);
+    console.log("data", data);
 
-    const bits: number[] = [];
-    for (const byte of data) {
-      for (let i = 7; i >= 0; i--) {
-        bits.push((byte >> i) & 1);
-      }
-    }
-
-    const pattern: number[][] = [];
-    for (let y = 0; y < tileHeight; y++) {
-      const row: number[] = [];
-      for (let x = 0; x < tileWidth; x++) {
-        const index = y * tileWidth + x;
-        row.push(bits[index] ?? 0);
-      }
-      pattern.push(row);
-    }
-
-    return { pattern, tileWidth, tileHeight, scale };
+    return { data, tileWidth, tileHeight, scale };
   }
 }
 
 for (const [key, value] of Object.entries(territoryPatterns.patterns)) {
-  if (!value.pattern && value.patternBase64) {
+  if (value.patternBase64) {
     const decoded = PatternDecoder.decodeBase64Pattern(value.patternBase64);
-    value.pattern = decoded.pattern;
+    value.patternData = decoded.data;
     value.tileWidth = decoded.tileWidth;
     value.tileHeight = decoded.tileHeight;
     value.scale = decoded.scale;

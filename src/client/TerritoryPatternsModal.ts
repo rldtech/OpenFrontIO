@@ -1,3 +1,4 @@
+import type { TemplateResult } from "lit";
 import { html, LitElement, render } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
 import "./components/Difficulties";
@@ -129,21 +130,31 @@ export class territoryPatternsModal extends LitElement {
                             border-radius: 4px;
                           "
                       >
-                        ${(pattern.pattern ?? []).flat().map(
-                          (cell) => html`
-                            <div
-                              style="
-                                  background-color: ${cell === 1
-                                ? "#000"
-                                : "transparent"};
+                        ${(() => {
+                          const tiles: TemplateResult[] = [];
+                          const total = cellCountX * cellCountY;
+                          for (let i = 0; i < total; i++) {
+                            const byteIndex = Math.floor(i / 8);
+                            const bitIndex = 7 - (i % 8);
+                            const bit =
+                              (pattern.patternData?.[byteIndex] ?? 0) &
+                              (1 << bitIndex);
+                            tiles.push(html`
+                              <div
+                                style="
+                                  background-color: ${bit
+                                  ? "#000"
+                                  : "transparent"};
                                   border: 1px solid rgba(0, 0, 0, 0.1);
                                   width: ${cellSize}px;
                                   height: ${cellSize}px;
                                   border-radius: 1px;
                                 "
-                            ></div>
-                          `,
-                        )}
+                              ></div>
+                            `);
+                          }
+                          return tiles;
+                        })()}
                       </div>
                     `;
                   })()}
@@ -212,19 +223,28 @@ export class territoryPatternsModal extends LitElement {
             border-radius: 4px;
           "
         >
-          ${(pattern.pattern ?? []).flat().map(
-            (cell) => html`
-              <div
-                style="
-                  background-color: ${cell === 1 ? "#000" : "transparent"};
-                  border: 1px solid rgba(0, 0, 0, 0.1);
-                  width: ${cellSize}px;
-                  height: ${cellSize}px;
-                  border-radius: 1px;
-                "
-              ></div>
-            `,
-          )}
+          ${(() => {
+            const tiles: TemplateResult[] = [];
+            const total = cellCountX * cellCountY;
+            for (let i = 0; i < total; i++) {
+              const byteIndex = Math.floor(i / 8);
+              const bitIndex = 7 - (i % 8);
+              const bit =
+                (pattern.patternData?.[byteIndex] ?? 0) & (1 << bitIndex);
+              tiles.push(html`
+                <div
+                  style="
+                    background-color: ${bit ? "#000" : "transparent"};
+                    border: 1px solid rgba(0, 0, 0, 0.1);
+                    width: ${cellSize}px;
+                    height: ${cellSize}px;
+                    border-radius: 1px;
+                  "
+                ></div>
+              `);
+            }
+            return tiles;
+          })()}
         </div>
       </div>
     `;

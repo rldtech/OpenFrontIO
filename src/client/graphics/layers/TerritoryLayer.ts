@@ -305,16 +305,19 @@ export class TerritoryLayer implements Layer {
           tileWidth = 1,
           tileHeight = 1,
           scale = 1,
-          pattern,
+          patternData,
         } = patternConfig;
 
-        const px = Math.floor(x / scale) % tileWidth;
-        const py = Math.floor(y / scale) % tileHeight;
+        const px =
+          ((Math.floor(x / scale) % tileWidth) + tileWidth) % tileWidth;
+        const py =
+          ((Math.floor(y / scale) % tileHeight) + tileHeight) % tileHeight;
 
-        const patternValue = pattern ? pattern[py][px] : 0;
+        const bitIndex = py * tileWidth + px;
+        const byte = patternData?.[Math.floor(bitIndex / 8)] ?? 0;
+        const bit = (byte >> (7 - (bitIndex % 8))) & 1;
 
-        const colorToUse =
-          patternValue === 1 ? baseColor.darken(0.2) : baseColor;
+        const colorToUse = bit ? baseColor.darken(0.2) : baseColor;
         this.paintCell(x, y, colorToUse, 150);
       }
     }

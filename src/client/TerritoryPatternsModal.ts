@@ -4,6 +4,7 @@ import { customElement, query, state } from "lit/decorators.js";
 import "./components/Difficulties";
 import "./components/Maps";
 import {
+  initTerritoryPatterns,
   territoryPatterns,
   TerritoryPatternStorage,
 } from "./TerritoryPatterns";
@@ -48,6 +49,8 @@ export class territoryPatternsModal extends LitElement {
       containers.forEach((container) => this.resizeObserver.observe(container));
       this.updatePreview();
     });
+
+    initTerritoryPatterns();
 
     this.setLockedPatterns(["evan"], {
       evan: "This pattern is locked because it is restricted.",

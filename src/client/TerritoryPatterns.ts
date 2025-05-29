@@ -48,13 +48,15 @@ class PatternDecoder {
   }
 }
 
-for (const [key, value] of Object.entries(territoryPatterns.patterns)) {
-  if (value.patternBase64) {
-    const decoded = PatternDecoder.decodeBase64Pattern(value.patternBase64);
-    value.patternData = decoded.data;
-    value.tileWidth = decoded.tileWidth;
-    value.tileHeight = decoded.tileHeight;
-    value.scale = decoded.scale;
+export function initTerritoryPatterns(): void {
+  for (const [key, value] of Object.entries(territoryPatterns.patterns)) {
+    if (value.patternBase64) {
+      const decoded = PatternDecoder.decodeBase64Pattern(value.patternBase64);
+      value.patternData = decoded.data;
+      value.tileWidth = decoded.tileWidth;
+      value.tileHeight = decoded.tileHeight;
+      value.scale = decoded.scale;
+    }
   }
 }
 

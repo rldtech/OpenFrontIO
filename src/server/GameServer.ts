@@ -533,6 +533,15 @@ export class GameServer {
     }
   }
 
+  private markClientIdle(client: Client, isIdle: boolean) {
+    client.isIdle = isIdle;
+    this.addIntent({
+      type: "mark_idle",
+      clientID: client.clientID,
+      isIdle: isIdle,
+    });
+  }
+
   private archiveGame() {
     this.log.info("archiving game", {
       gameID: this.id,

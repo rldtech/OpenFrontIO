@@ -1,18 +1,18 @@
 import { Execution, Game, Player, PlayerID } from "../game/Game";
 
-export class MarkIdleExecution implements Execution {
+export class MarkDisconnectedExecution implements Execution {
   private player: Player;
   private active: boolean = true;
 
   constructor(
     private playerID: PlayerID,
-    private isIdle: boolean,
+    private isDisconnected: boolean,
   ) {}
 
   init(mg: Game, ticks: number): void {
     if (!mg.hasPlayer(this.playerID)) {
       console.warn(
-        `MarkIdleExecution: player ${this.playerID} not found in game`,
+        `MarkDisconnectedExecution: player ${this.playerID} not found in game`,
       );
       this.active = false;
       return;
@@ -21,7 +21,7 @@ export class MarkIdleExecution implements Execution {
     this.player = mg.player(this.playerID);
     if (!this.player) {
       console.warn(
-        `MarkIdleExecution: failed to retrieve player ${this.playerID}`,
+        `MarkDisconnectedExecution: failed to retrieve player ${this.playerID}`,
       );
       this.active = false;
       return;
@@ -29,7 +29,7 @@ export class MarkIdleExecution implements Execution {
   }
 
   tick(ticks: number): void {
-    this.player.markIdle(this.isIdle);
+    this.player.markDisconnected(this.isDisconnected);
     this.active = false;
   }
 

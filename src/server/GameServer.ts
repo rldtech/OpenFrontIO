@@ -35,7 +35,7 @@ export class GameServer {
 
   private maxGameDuration = 3 * 60 * 60 * 1000; // 3 hours
 
-  private idleTimeout = 1 * 60 * 1000; // 1 minute
+  private disconnectedTimeout = 1 * 30 * 1000; // 30 seconds
 
   private turns: Turn[] = [];
   private intents: Intent[] = [];
@@ -167,8 +167,7 @@ export class GameServer {
         return;
       }
 
-      client.isIdle = existing.isIdle;
-      client.lastAction = existing.lastAction;
+      client.isDisconnected = existing.isDisconnected;
       client.lastPing = existing.lastPing;
 
       existing.ws.removeAllListeners("message");
@@ -198,7 +197,6 @@ export class GameServer {
               );
               return;
             }
-            client.lastAction = Date.now();
             this.addIntent(clientMsg.intent);
           }
           if (clientMsg.type === "ping") {
@@ -361,7 +359,7 @@ export class GameServer {
     this.intents = [];
 
     this.handleSynchronization();
-    this.checkIdleStatus();
+    this.checkDisconnectedStatus();
 
     let msg = "";
     try {
@@ -542,7 +540,7 @@ export class GameServer {
     }
   }
 
-  private checkIdleStatus() {
+  private checkDisconnectedStatus() {
     if (this.turns.length % 5 !== 0) {
       return;
     }
@@ -550,27 +548,25 @@ export class GameServer {
     const now = Date.now();
     for (const [clientID, client] of this.allClients) {
       if (
-        client.isIdle === false &&
-        now - client.lastPing > this.idleTimeout &&
-        now - client.lastAction > this.idleTimeout
+        client.isDisconnected === false &&
+        now - client.lastPing > this.disconnectedTimeout
       ) {
-        this.markClientIdle(client, true);
+        this.markClientDisconnected(client, true);
       } else if (
-        client.isIdle &&
-        now - client.lastPing < this.idleTimeout &&
-        now - client.lastAction < this.idleTimeout
+        client.isDisconnected &&
+        now - client.lastPing < this.disconnectedTimeout
       ) {
-        this.markClientIdle(client, false);
+        this.markClientDisconnected(client, false);
       }
     }
   }
 
-  private markClientIdle(client: Client, isIdle: boolean) {
-    client.isIdle = isIdle;
+  private markClientDisconnected(client: Client, isDisconnected: boolean) {
+    client.isDisconnected = isDisconnected;
     this.addIntent({
-      type: "mark_idle",
+      type: "mark_disconnected",
       clientID: client.clientID,
-      isIdle: isIdle,
+      isDisconnected: isDisconnected,
     });
   }
 

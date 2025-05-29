@@ -34,7 +34,7 @@ export type Intent =
   | EmbargoIntent
   | QuickChatIntent
   | MoveWarshipIntent
-  | MarkIdleIntent;
+  | MarkDisconnectedIntent;
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>;
 export type CancelAttackIntent = z.infer<typeof CancelAttackIntentSchema>;
@@ -57,7 +57,9 @@ export type TargetTroopRatioIntent = z.infer<
 export type BuildUnitIntent = z.infer<typeof BuildUnitIntentSchema>;
 export type MoveWarshipIntent = z.infer<typeof MoveWarshipIntentSchema>;
 export type QuickChatIntent = z.infer<typeof QuickChatIntentSchema>;
-export type MarkIdleIntent = z.infer<typeof MarkIdleIntentSchema>;
+export type MarkDisconnectedIntent = z.infer<
+  typeof MarkDisconnectedIntentSchema
+>;
 
 export type Turn = z.infer<typeof TurnSchema>;
 export type GameConfig = z.infer<typeof GameConfigSchema>;
@@ -168,7 +170,7 @@ const BaseIntentSchema = z.object({
     "attack",
     "cancel_attack",
     "spawn",
-    "mark_idle",
+    "mark_disconnected",
     "boat",
     "cancel_boat",
     "name",
@@ -293,16 +295,16 @@ export const QuickChatIntentSchema = BaseIntentSchema.extend({
   variables: z.record(SafeString).optional(),
 });
 
-export const MarkIdleIntentSchema = BaseIntentSchema.extend({
-  type: z.literal("mark_idle"),
-  isIdle: z.boolean(),
+export const MarkDisconnectedIntentSchema = BaseIntentSchema.extend({
+  type: z.literal("mark_disconnected"),
+  isDisconnected: z.boolean(),
 });
 
 const IntentSchema = z.union([
   AttackIntentSchema,
   CancelAttackIntentSchema,
   SpawnIntentSchema,
-  MarkIdleIntentSchema,
+  MarkDisconnectedIntentSchema,
   BoatAttackIntentSchema,
   CancelBoatIntentSchema,
   AllianceRequestIntentSchema,

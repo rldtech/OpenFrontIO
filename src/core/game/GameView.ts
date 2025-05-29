@@ -292,8 +292,8 @@ export class PlayerView {
   hasSpawned(): boolean {
     return this.data.hasSpawned;
   }
-  isIdle(): boolean {
-    return this.data.isIdle;
+  isDisconnected(): boolean {
+    return this.data.isDisconnected;
   }
 }
 

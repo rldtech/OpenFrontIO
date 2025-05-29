@@ -433,8 +433,8 @@ export interface Player {
   largestClusterBoundingBox: { min: Cell; max: Cell } | null;
   lastTileChange(): Tick;
 
-  isIdle(): boolean;
-  markIdle(isIdle: boolean): void;
+  isDisconnected(): boolean;
+  markDisconnected(isDisconnected: boolean): void;
 
   hasSpawned(): boolean;
   setHasSpawned(hasSpawned: boolean): void;

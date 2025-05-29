@@ -5,8 +5,7 @@ import { ClientID } from "../core/Schemas";
 
 export class Client {
   public lastPing: number = Date.now();
-  public lastAction: number = Date.now();
-  public isIdle: boolean = false;
+  public isDisconnected: boolean = false;
 
   public hashes: Map<Tick, number> = new Map();
 

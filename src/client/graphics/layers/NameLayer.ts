@@ -1,8 +1,8 @@
 import allianceIcon from "../../../../resources/images/AllianceIcon.svg";
 import allianceRequestIcon from "../../../../resources/images/AllianceRequestIcon.svg";
 import crownIcon from "../../../../resources/images/CrownIcon.svg";
+import disconnectedIcon from "../../../../resources/images/DisconnectedIcon.svg";
 import embargoIcon from "../../../../resources/images/EmbargoIcon.svg";
-import idleIcon from "../../../../resources/images/IdleIcon.svg";
 import nukeRedIcon from "../../../../resources/images/NukeIconRed.svg";
 import nukeWhiteIcon from "../../../../resources/images/NukeIconWhite.svg";
 import shieldIcon from "../../../../resources/images/ShieldIconBlack.svg";
@@ -39,7 +39,7 @@ export class NameLayer implements Layer {
   private renders: RenderInfo[] = [];
   private seenPlayers: Set<PlayerView> = new Set();
   private traitorIconImage: HTMLImageElement;
-  private idleIconImage: HTMLImageElement;
+  private disconnectedIconImage: HTMLImageElement;
   private allianceRequestIconImage: HTMLImageElement;
   private allianceIconImage: HTMLImageElement;
   private targetIconImage: HTMLImageElement;
@@ -60,8 +60,8 @@ export class NameLayer implements Layer {
   ) {
     this.traitorIconImage = new Image();
     this.traitorIconImage.src = traitorIcon;
-    this.idleIconImage = new Image();
-    this.idleIconImage.src = idleIcon;
+    this.disconnectedIconImage = new Image();
+    this.disconnectedIconImage.src = disconnectedIcon;
     this.allianceIconImage = new Image();
     this.allianceIconImage.src = allianceIcon;
     this.allianceRequestIconImage = new Image();
@@ -353,16 +353,22 @@ export class NameLayer implements Layer {
       existingTraitor.remove();
     }
 
-    // Idle icon
-    const existingIdle = iconsDiv.querySelector('[data-icon="idle"]');
-    if (render.player.isIdle()) {
-      if (!existingIdle) {
+    // Disconnected icon
+    const existingDisconnected = iconsDiv.querySelector(
+      '[data-icon="disconnected"]',
+    );
+    if (render.player.isDisconnected()) {
+      if (!existingDisconnected) {
         iconsDiv.appendChild(
-          this.createIconElement(this.idleIconImage.src, iconSize, "idle"),
+          this.createIconElement(
+            this.disconnectedIconImage.src,
+            iconSize,
+            "disconnected",
+          ),
         );
       }
-    } else if (existingIdle) {
-      existingIdle.remove();
+    } else if (existingDisconnected) {
+      existingDisconnected.remove();
     }
 
     // Alliance icon

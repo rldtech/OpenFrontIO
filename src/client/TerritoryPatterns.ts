@@ -2,13 +2,7 @@ import { z } from "zod";
 import rawTerritoryPatterns from "../../resources/territory_patterns.json";
 
 const PatternSchema = z.object({
-  tileWidth: z.number().optional(),
-  tileHeight: z.number().optional(),
-  scale: z.number().optional(),
   patternBase64: z.string().optional(),
-  patternData: z
-    .custom<Uint8Array>((val) => val instanceof Uint8Array)
-    .optional(),
 });
 
 const TerritoryPatternsSchema = z.object({
@@ -18,13 +12,14 @@ const TerritoryPatternsSchema = z.object({
 export const territoryPatterns =
   TerritoryPatternsSchema.parse(rawTerritoryPatterns);
 
-class PatternDecoder {
-  static decodeBase64Pattern(base64: string): {
-    data: Uint8Array;
-    tileWidth: number;
-    tileHeight: number;
-    scale: number;
-  } {
+export class PatternDecoder {
+  private bytes: Uint8Array;
+  private tileWidth: number;
+  private tileHeight: number;
+  private scale: number;
+  private dataStart: number;
+
+  constructor(base64: string) {
     const byteString = atob(base64);
     const bytes = new Uint8Array(byteString.length);
     for (let i = 0; i < byteString.length; i++) {
@@ -35,28 +30,38 @@ class PatternDecoder {
     if (version !== 1) {
       throw new Error("The pattern versions are different.");
     }
-    const tileWidth = (bytes[1] << 8) | bytes[2];
-    const tileHeight = (bytes[3] << 8) | bytes[4];
-    const scale = (bytes[5] << 8) | bytes[6];
 
-    const totalBits = tileWidth * tileHeight;
-    const totalBytes = Math.ceil(totalBits / 8);
-    const data = bytes.slice(7, 7 + totalBytes);
-    console.log("data", data);
-
-    return { data, tileWidth, tileHeight, scale };
+    this.tileWidth = (bytes[1] << 8) | bytes[2];
+    this.tileHeight = (bytes[3] << 8) | bytes[4];
+    this.scale = (bytes[5] << 8) | bytes[6];
+    this.dataStart = 7;
+    this.bytes = bytes;
   }
-}
 
-export function initTerritoryPatterns(): void {
-  for (const [key, value] of Object.entries(territoryPatterns.patterns)) {
-    if (value.patternBase64) {
-      const decoded = PatternDecoder.decodeBase64Pattern(value.patternBase64);
-      value.patternData = decoded.data;
-      value.tileWidth = decoded.tileWidth;
-      value.tileHeight = decoded.tileHeight;
-      value.scale = decoded.scale;
-    }
+  getTileWidth(): number {
+    return this.tileWidth;
+  }
+
+  getTileHeight(): number {
+    return this.tileHeight;
+  }
+
+  getScale(): number {
+    return this.scale;
+  }
+
+  isSet(x: number, y: number): boolean {
+    const px =
+      ((Math.floor(x / this.scale) % this.tileWidth) + this.tileWidth) %
+      this.tileWidth;
+    const py =
+      ((Math.floor(y / this.scale) % this.tileHeight) + this.tileHeight) %
+      this.tileHeight;
+    const idx = py * this.tileWidth + px;
+    const byteIndex = Math.floor(idx / 8);
+    const bitIndex = 7 - (idx % 8);
+    const byte = this.bytes[this.dataStart + byteIndex] ?? 0;
+    return (byte & (1 << bitIndex)) !== 0;
   }
 }
 

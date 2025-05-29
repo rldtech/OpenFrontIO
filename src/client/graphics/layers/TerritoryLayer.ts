@@ -8,7 +8,7 @@ import { GameUpdateType } from "../../../core/game/GameUpdates";
 import { GameView, PlayerView } from "../../../core/game/GameView";
 import { PseudoRandom } from "../../../core/PseudoRandom";
 import { AlternateViewEvent, DragEvent } from "../../InputHandler";
-import { territoryPatterns } from "../../TerritoryPatterns";
+import { PatternDecoder, territoryPatterns } from "../../TerritoryPatterns";
 import { Layer } from "./Layer";
 
 export class TerritoryLayer implements Layer {
@@ -301,22 +301,8 @@ export class TerritoryLayer implements Layer {
         const baseColor = this.theme.territoryColor(owner);
         const patternConfig = territoryPatterns.patterns[patternName];
 
-        const {
-          tileWidth = 1,
-          tileHeight = 1,
-          scale = 1,
-          patternData,
-        } = patternConfig;
-
-        const px =
-          ((Math.floor(x / scale) % tileWidth) + tileWidth) % tileWidth;
-        const py =
-          ((Math.floor(y / scale) % tileHeight) + tileHeight) % tileHeight;
-
-        const bitIndex = py * tileWidth + px;
-        const byte = patternData?.[Math.floor(bitIndex / 8)] ?? 0;
-        const bit = (byte >> (7 - (bitIndex % 8))) & 1;
-
+        const decoder = new PatternDecoder(patternConfig.patternBase64 ?? "");
+        const bit = decoder.isSet(x, y) ? 1 : 0;
         const colorToUse = bit ? baseColor.darken(0.2) : baseColor;
         this.paintCell(x, y, colorToUse, 150);
       }

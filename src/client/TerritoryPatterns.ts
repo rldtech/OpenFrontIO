@@ -28,9 +28,10 @@ export class PatternDecoder {
       throw new Error("The pattern versions are different.");
     }
 
-    this.tileWidth = (bytes[1] << 8) | bytes[2];
-    this.tileHeight = (bytes[3] << 8) | bytes[4];
-    this.scale = (bytes[5] << 8) | bytes[6];
+    const view = new DataView(bytes.buffer, bytes.byteOffset + 1, 6);
+    this.tileWidth = view.getUint16(0, false);
+    this.tileHeight = view.getUint16(2, false);
+    this.scale = view.getUint16(4, false);
     this.dataStart = 7;
     this.bytes = bytes;
   }
@@ -48,16 +49,14 @@ export class PatternDecoder {
   }
 
   isSet(x: number, y: number): boolean {
-    const px =
-      ((Math.floor(x / this.scale) % this.tileWidth) + this.tileWidth) %
-      this.tileWidth;
-    const py =
-      ((Math.floor(y / this.scale) % this.tileHeight) + this.tileHeight) %
-      this.tileHeight;
+    const norm = (v: number, mod: number) => (v + mod) % mod;
+    const px = norm((x / this.scale) | 0, this.tileWidth);
+    const py = norm((y / this.scale) | 0, this.tileHeight);
     const idx = py * this.tileWidth + px;
-    const byteIndex = Math.floor(idx / 8);
+    const byteIndex = idx >> 3;
     const bitIndex = 7 - (idx % 8);
-    const byte = this.bytes[this.dataStart + byteIndex] ?? 0;
+    const byte = this.bytes[this.dataStart + byteIndex];
+    if (byte === undefined) throw new Error("Invalid pattern");
     return (byte & (1 << bitIndex)) !== 0;
   }
 }

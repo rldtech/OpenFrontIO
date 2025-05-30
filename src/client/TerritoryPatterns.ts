@@ -63,6 +63,7 @@ export class PatternDecoder {
 
 export class TerritoryPatternStorage {
   private static readonly KEY = "territoryPattern";
+  private static readonly BASE64_KEY = "territoryPatternBase64";
 
   static getSelectedPattern(): string | undefined {
     return localStorage.getItem(TerritoryPatternStorage.KEY) ?? undefined;
@@ -70,5 +71,15 @@ export class TerritoryPatternStorage {
 
   static setSelectedPattern(patternKey: string): void {
     localStorage.setItem(TerritoryPatternStorage.KEY, patternKey);
+  }
+
+  static getSelectedPatternBase64(): string | undefined {
+    return (
+      localStorage.getItem(TerritoryPatternStorage.BASE64_KEY) ?? undefined
+    );
+  }
+
+  static setSelectedPatternBase64(base64: string): void {
+    localStorage.setItem(TerritoryPatternStorage.BASE64_KEY, base64);
   }
 }

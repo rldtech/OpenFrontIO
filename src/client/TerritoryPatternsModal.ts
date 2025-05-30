@@ -179,6 +179,10 @@ export class territoryPatternsModal extends LitElement {
   private selectPattern(patternKey: string) {
     this.selectedPattern = patternKey;
     TerritoryPatternStorage.setSelectedPattern(patternKey);
+    const base64 = territoryPatterns[patternKey];
+    if (base64) {
+      TerritoryPatternStorage.setSelectedPatternBase64(base64);
+    }
     this.updatePreview();
     this.close();
   }

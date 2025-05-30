@@ -235,10 +235,12 @@ export class GameServer {
       this.activeClients = this.activeClients.filter(
         (c) => c.clientID !== client.clientID,
       );
+      this.markClientDisconnected(client, true);
     });
     client.ws.on("error", (error: Error) => {
       if ((error as any).code === "WS_ERR_UNEXPECTED_RSV_1") {
         client.ws.close(1002);
+        this.markClientDisconnected(client, true);
       }
     });
 
@@ -359,7 +361,6 @@ export class GameServer {
     this.intents = [];
 
     this.handleSynchronization();
-    this.checkDisconnectedStatus();
 
     let msg = "";
     try {
@@ -444,6 +445,7 @@ export class GameServer {
         });
         if (client.ws.readyState === WebSocket.OPEN) {
           client.ws.close(1000, "no heartbeats received, closing connection");
+          this.markClientDisconnected(client, true);
         }
       } else {
         alive.push(client);
@@ -529,6 +531,7 @@ export class GameServer {
         persistentID: client.persistentID,
       });
       client.ws.close(1000, "Kicked from game");
+      this.markClientDisconnected(client, true);
       this.activeClients = this.activeClients.filter(
         (c) => c.clientID !== clientID,
       );
@@ -537,27 +540,6 @@ export class GameServer {
       this.log.warn(`cannot kick client, not found in game`, {
         clientID,
       });
-    }
-  }
-
-  private checkDisconnectedStatus() {
-    if (this.turns.length % 5 !== 0) {
-      return;
-    }
-
-    const now = Date.now();
-    for (const [clientID, client] of this.allClients) {
-      if (
-        client.isDisconnected === false &&
-        now - client.lastPing > this.disconnectedTimeout
-      ) {
-        this.markClientDisconnected(client, true);
-      } else if (
-        client.isDisconnected &&
-        now - client.lastPing < this.disconnectedTimeout
-      ) {
-        this.markClientDisconnected(client, false);
-      }
     }
   }
 

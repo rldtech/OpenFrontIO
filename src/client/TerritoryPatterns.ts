@@ -1,13 +1,10 @@
 import { z } from "zod";
 import rawTerritoryPatterns from "../../resources/territory_patterns.json";
 
-const PatternSchema = z.object({
-  patternBase64: z.string().optional(),
-});
-
-const TerritoryPatternsSchema = z.object({
-  patterns: z.record(PatternSchema),
-});
+export const TerritoryPatternsSchema = z.record(
+  z.string(),
+  z.string().base64(),
+);
 
 export const territoryPatterns =
   TerritoryPatternsSchema.parse(rawTerritoryPatterns);

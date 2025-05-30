@@ -299,9 +299,9 @@ export class TerritoryLayer implements Layer {
         const x = this.game.x(tile);
         const y = this.game.y(tile);
         const baseColor = this.theme.territoryColor(owner);
-        const patternConfig = territoryPatterns.patterns[patternName];
+        const patternBase64 = territoryPatterns[patternName];
 
-        const decoder = new PatternDecoder(patternConfig.patternBase64 ?? "");
+        const decoder = new PatternDecoder(patternBase64 ?? "");
         const bit = decoder.isSet(x, y) ? 1 : 0;
         const colorToUse = bit ? baseColor.darken(0.2) : baseColor;
         this.paintCell(x, y, colorToUse, 150);

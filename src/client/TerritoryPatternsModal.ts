@@ -82,7 +82,7 @@ export class territoryPatternsModal extends LitElement {
           class="flex flex-wrap gap-4 p-2"
           style="justify-content: center; align-items: flex-start;"
         >
-          ${Object.entries(territoryPatterns.patterns).map(([key, pattern]) => {
+          ${Object.entries(territoryPatterns ?? {}).map(([key, pattern]) => {
             const isLocked = this.isPatternLocked(key);
             const reason = this.lockedReasons[key] || "Locked";
 
@@ -114,7 +114,7 @@ export class territoryPatternsModal extends LitElement {
                     "
                 >
                   ${(() => {
-                    const decoder = new PatternDecoder(pattern.patternBase64!);
+                    const decoder = new PatternDecoder(pattern);
                     const cellCountX = decoder.getTileWidth();
                     const cellCountY = decoder.getTileHeight();
                     const cellSize = Math.floor(
@@ -186,12 +186,12 @@ export class territoryPatternsModal extends LitElement {
   private updatePreview() {
     if (!this.previewButton || !this.selectedPattern) return;
 
-    const pattern = territoryPatterns.patterns[this.selectedPattern];
+    const pattern = territoryPatterns[this.selectedPattern];
     if (!pattern) return;
 
     const fixedHeight = 48;
     const fixedWidth = 48;
-    const decoder = new PatternDecoder(pattern.patternBase64!);
+    const decoder = new PatternDecoder(pattern);
     const cellCountX = decoder.getTileWidth();
     const cellCountY = decoder.getTileHeight();
 

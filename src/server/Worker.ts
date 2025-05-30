@@ -316,15 +316,21 @@ export function startWorker() {
               config,
             );
 
-            const roles: string[] | null = null;
+            let roles: string[] | null = null;
 
-            // Check user roles
             if (claims !== null) {
               const result = await getUserMe(clientMsg.token, config);
               if (result === false) {
                 log.warn("Token is not valid", claims);
                 return;
+              } else {
+                const { player } = result;
+                roles = player.roles;
               }
+            }
+
+            if (roles === null || !roles.includes("1338654590043820148")) {
+              clientMsg.pattern = undefined; // test
             }
 
             // TODO: Validate client settings based on roles

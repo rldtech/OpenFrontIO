@@ -187,7 +187,10 @@ export const AttackIntentSchema = BaseIntentSchema.extend({
 
 export const SpawnIntentSchema = BaseIntentSchema.extend({
   flag: z.string().optional(),
-  pattern: z.string().optional(),
+  pattern: z
+    .string()
+    .regex(/^[A-Za-z0-9+/=]*$/)
+    .optional(),
   type: z.literal("spawn"),
   name: SafeString,
   playerType: PlayerTypeSchema,

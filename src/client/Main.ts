@@ -23,6 +23,7 @@ import { NewsModal } from "./NewsModal";
 import "./PublicLobby";
 import { PublicLobby } from "./PublicLobby";
 import { SinglePlayerModal } from "./SinglePlayerModal";
+import { TerritoryPatternStorage } from "./TerritoryPatterns";
 import { territoryPatternsModal } from "./TerritoryPatternsModal";
 import { UserSettingModal } from "./UserSettingModal";
 import "./UsernameInput";
@@ -298,7 +299,7 @@ class Client {
       {
         gameID: lobby.gameID,
         serverConfig: config,
-        pattern: localStorage.getItem("territoryPattern") ?? "",
+        pattern: TerritoryPatternStorage.getSelectedPatternBase64() || "",
         flag:
           this.flagInput === null || this.flagInput.getCurrentFlag() === "xx"
             ? ""

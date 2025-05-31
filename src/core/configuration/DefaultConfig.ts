@@ -565,9 +565,9 @@ export class DefaultConfig implements Config {
     numAdjacentTilesWithEnemy: number,
   ): number {
     if (defender.isPlayer()) {
-      return 10 * numAdjacentTilesWithEnemy ** 0.7;
+      return 30 * numAdjacentTilesWithEnemy ** 0.7;
     } else {
-      return 12 * numAdjacentTilesWithEnemy ** 0.7;
+      return 36 * numAdjacentTilesWithEnemy ** 0.7;
     }
   }
 

@@ -107,7 +107,7 @@ export class PlayerImpl implements Player {
     private readonly _team: Team | null,
   ) {
     this._name = sanitizeUsername(playerInfo.name);
-    this._targetTroopRatio = 95n;
+    this._targetTroopRatio = 60n;
     this._troops = toInt(startTroops);
     this._workers = 0n;
     this._gold = 0n;

@@ -99,6 +99,11 @@
           display: none;
         }
       }
+
+      /* display:none if child has class parent-hidden since we can't use shadow DOM in Lit due to Tailwind */
+      .component-hideable:has(> .parent-hidden) {
+        display: none;
+      }
     </style>
 
     <!-- Immediate execution to prevent FOUC -->
@@ -231,7 +236,9 @@
             ></button>
           </territory-patterns-modal>
           <username-input class="relative w-full"></username-input>
-          <news-button class="w-[20%] md:w-[15%]"></news-button>
+          <news-button
+            class="w-[20%] md:w-[15%] component-hideable"
+          ></news-button>
         </div>
         <div></div>
         <div>

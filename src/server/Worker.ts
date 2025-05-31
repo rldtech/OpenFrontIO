@@ -11,7 +11,7 @@ import { getServerConfigFromServer } from "../core/configuration/ConfigLoader";
 import { GameType } from "../core/game/Game";
 import {
   ClientMessageSchema,
-  GameConfig,
+  GameConfigSchema,
   GameRecord,
   GameRecordSchema,
 } from "../core/Schemas";
@@ -89,7 +89,13 @@ export function startWorker() {
         return res.status(400).json({ error: "Game ID is required" });
       }
       const clientIP = req.ip || req.socket.remoteAddress || "unknown";
-      const gc = req.body?.gameConfig as GameConfig;
+      const parsed = GameConfigSchema.safeParse(req.body);
+      if (!parsed.success) {
+        const error = z.prettifyError(parsed.error);
+        return res.status(400).json({ error });
+      }
+
+      const gc = parsed.data;
       if (
         gc?.gameType === GameType.Public &&
         req.headers[config.adminHeader()] !== config.adminToken()
@@ -97,9 +103,7 @@ export function startWorker() {
         log.warn(
           `cannot create public game ${id}, ip ${ipAnonymize(clientIP)} incorrect admin token`,
         );
-        return res
-          .status(400)
-          .json({ error: "Invalid admin token for public game creation" });
+        return res.status(401).send("Unauthorized");
       }
 
       // Double-check this worker should host this game

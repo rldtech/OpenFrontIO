@@ -244,10 +244,49 @@ export class territoryPatternsModal extends LitElement {
   }
 
   private updatePreview() {
-    if (!this.previewButton || !this.selectedPattern) return;
+    if (!this.previewButton) return;
 
-    const pattern = territoryPatterns[this.selectedPattern];
-    if (!pattern) return;
+    const pattern = this.selectedPattern
+      ? territoryPatterns[this.selectedPattern]
+      : null;
+    if (!pattern) {
+      const blankPreview = html`
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 48px;
+            width: 48px;
+            background-color: #ffffff;
+            border-radius: 4px;
+            box-sizing: border-box;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #ccc;
+          "
+        >
+          <div
+            style="display: grid; grid-template-columns: repeat(2, 24px); grid-template-rows: repeat(2, 24px);"
+          >
+            <div
+              style="background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.1); width: 24px; height: 24px;"
+            ></div>
+            <div
+              style="background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.1); width: 24px; height: 24px;"
+            ></div>
+            <div
+              style="background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.1); width: 24px; height: 24px;"
+            ></div>
+            <div
+              style="background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.1); width: 24px; height: 24px;"
+            ></div>
+          </div>
+        </div>
+      `;
+      render(blankPreview, this.previewButton);
+      return;
+    }
 
     const fixedHeight = 48;
     const fixedWidth = 48;

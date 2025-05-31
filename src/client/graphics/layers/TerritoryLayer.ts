@@ -6,11 +6,14 @@ import { Cell, PlayerType, UnitType } from "../../../core/game/Game";
 import { euclDistFN, TileRef } from "../../../core/game/GameMap";
 import { GameUpdateType } from "../../../core/game/GameUpdates";
 import { GameView, PlayerView } from "../../../core/game/GameView";
+import { UserSettings } from "../../../core/game/UserSettings";
 import { PseudoRandom } from "../../../core/PseudoRandom";
 import { AlternateViewEvent, DragEvent } from "../../InputHandler";
 import { PatternDecoder } from "../../TerritoryPatterns";
 import { TransformHandler } from "../TransformHandler";
 import { Layer } from "./Layer";
+
+const userSettings: UserSettings = new UserSettings();
 
 export class TerritoryLayer implements Layer {
   private canvas: HTMLCanvasElement;
@@ -287,7 +290,7 @@ export class TerritoryLayer implements Layer {
       }
     } else {
       const patternName = owner.pattern();
-      if (!patternName) {
+      if (!patternName || !userSettings.territoryPatterns()) {
         this.paintTile(tile, this.theme.territoryColor(owner), 150);
       } else {
         const x = this.game.x(tile);

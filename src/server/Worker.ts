@@ -11,10 +11,10 @@ import { getServerConfigFromServer } from "../core/configuration/ConfigLoader";
 import { GameType } from "../core/game/Game";
 import {
   ClientMessageSchema,
-  GameConfigSchema,
   GameRecord,
   GameRecordSchema,
 } from "../core/Schemas";
+import { CreateGameInputSchema, GameInputSchema } from "../core/WorkerSchemas";
 import { archive, readGameRecord } from "./Archive";
 import { Client } from "./Client";
 import { GameManager } from "./GameManager";
@@ -89,7 +89,7 @@ export function startWorker() {
         return res.status(400).json({ error: "Game ID is required" });
       }
       const clientIP = req.ip || req.socket.remoteAddress || "unknown";
-      const result = GameConfigSchema.optional().safeParse(req.body);
+      const result = CreateGameInputSchema.safeParse(req.body);
       if (!result.success) {
         const error = z.prettifyError(result.error);
         return res.status(400).json({ error });
@@ -148,7 +148,7 @@ export function startWorker() {
   app.put(
     "/api/game/:id",
     gatekeeper.httpHandler(LimiterType.Put, async (req, res) => {
-      const result = GameConfigSchema.partial().safeParse(req.body);
+      const result = GameInputSchema.safeParse(req.body);
       if (!result.success) {
         const error = z.prettifyError(result.error);
         return res.status(400).json({ error });

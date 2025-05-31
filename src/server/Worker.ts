@@ -89,13 +89,13 @@ export function startWorker() {
         return res.status(400).json({ error: "Game ID is required" });
       }
       const clientIP = req.ip || req.socket.remoteAddress || "unknown";
-      const parsed = GameConfigSchema.safeParse(req.body);
-      if (!parsed.success) {
-        const error = z.prettifyError(parsed.error);
+      const result = GameConfigSchema.optional().safeParse(req.body);
+      if (!result.success) {
+        const error = z.prettifyError(result.error);
         return res.status(400).json({ error });
       }
 
-      const gc = parsed.data;
+      const gc = result.data;
       if (
         gc?.gameType === GameType.Public &&
         req.headers[config.adminHeader()] !== config.adminToken()

@@ -1,6 +1,7 @@
 import type { TemplateResult } from "lit";
 import { html, LitElement, render } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
+import { UserMeResponse } from "../core/ApiSchemas";
 import "./components/Difficulties";
 import "./components/Maps";
 import {
@@ -29,6 +30,8 @@ export class territoryPatternsModal extends LitElement {
   @state() private hoveredPattern: string | null = null;
   @state() private hoverPosition = { x: 0, y: 0 };
 
+  @state() private roles: string[] = [];
+
   private resizeObserver: ResizeObserver;
 
   constructor() {
@@ -49,10 +52,6 @@ export class territoryPatternsModal extends LitElement {
       containers.forEach((container) => this.resizeObserver.observe(container));
       this.updatePreview();
     });
-
-    this.setLockedPatterns(["evan"], {
-      evan: "This pattern is locked because it is restricted.",
-    });
   }
 
   disconnectedCallback() {
@@ -60,16 +59,73 @@ export class territoryPatternsModal extends LitElement {
     this.resizeObserver.disconnect();
   }
 
+  onUserMe(userMeResponse: UserMeResponse) {
+    const { user, player } = userMeResponse;
+    if (player) {
+      const { publicId, roles } = player;
+      if (roles) {
+        this.roles = roles;
+      }
+    }
+    this.requestUpdate();
+  }
+
+  private checkPatternPermission(roles: string[]) {
+    if (
+      roles.includes("1286745100411473930") || // creator
+      roles.includes("1286738076386856991") || // admin
+      roles.includes("1338654590043820148") // mod
+    ) {
+      return;
+    }
+
+    this.setLockedPatterns(
+      ["evan", "openfront"],
+      "This pattern is available only to moderators and above.",
+    );
+
+    if (
+      roles.includes("1359441841371480176") || // money haters
+      roles.includes("1330243292306341969") // early access supporter
+    ) {
+      return;
+    }
+
+    const restrictedForDonorsOnly = [
+      "diagonal",
+      "cross",
+      "mini_cross",
+      "horizontal_stripes",
+      "sparse_dots",
+      "diagonal_stripe",
+      "mountain_ridge",
+      "scattered_dots",
+      "circuit_board",
+      "vertical_bars",
+      ".w.",
+    ];
+
+    this.setLockedPatterns(
+      restrictedForDonorsOnly,
+      "This pattern is available only to donors (money haters or early access supporters).",
+    );
+
+    // Future permission logic here
+    return;
+  }
+
   createRenderRoot() {
     return this;
   }
 
   render() {
+    this.resetLockedPatterns();
+    this.checkPatternPermission(this.roles);
     return html`
       ${this.hoveredPattern && this.lockedReasons[this.hoveredPattern]
         ? html`
             <div
-              class="fixed z-[9999] px-3 py-2 rounded bg-black text-white text-sm pointer-events-none shadow-md"
+              class="fixed z-[10000] px-3 py-2 rounded bg-black text-white text-sm pointer-events-none shadow-md"
               style="top: ${this.hoverPosition.y + 12}px; left: ${this
                 .hoverPosition.x + 12}px;"
             >
@@ -258,12 +314,16 @@ export class territoryPatternsModal extends LitElement {
     render(previewHTML, this.previewButton);
   }
 
-  private setLockedPatterns(
-    lockedPatterns: string[],
-    reasons: Record<string, string>,
-  ) {
-    this.lockedPatterns = lockedPatterns;
-    this.lockedReasons = reasons;
+  private setLockedPatterns(lockedPatterns: string[], reason: string) {
+    this.lockedPatterns.push(...lockedPatterns);
+    for (const key of lockedPatterns) {
+      this.lockedReasons[key] = reason;
+    }
+  }
+
+  private resetLockedPatterns() {
+    this.lockedPatterns = [];
+    this.lockedReasons = {};
   }
 
   private isPatternLocked(patternKey: string): boolean {

@@ -206,6 +206,7 @@ class Client {
         // TODO: Update the page for logged in user
         loginDiscordButton.translationKey = "main.logged_in";
         const { user, player } = userMeResponse;
+        TerritoryModal.onUserMe(userMeResponse);
       });
     }
 

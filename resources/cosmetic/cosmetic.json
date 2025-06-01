@@ -41,7 +41,7 @@
       "role_group": ["donor", "staff"]
     },
     "evan": {
-      "pattern": "AQAYAAcABQAAAJ7ESIIkWY7kaQIjSR4jSQAAAA==",
+      "pattern": "AQAYAAcABAAAAJ7ESIIkWY7kaQIjSR4jSQAAAA==",
       "role_group": ["staff"]
     },
     "diagonal_stripe": {
@@ -69,7 +69,7 @@
       "role_group": ["donor", "staff"]
     },
     "openfront": {
-      "pattern": "AQBCAAoABQAAAAAAAAAAAAAAAAAAAACAw/GJ8Hk4og+RSGBCIBKZCEQigQqBSKQiEHk8MjwekYxAJBCIEChEIgKRQCBCIBGJCDgCnwiBiCMiAAAAAAAAAAAA",
+      "pattern": "AQBCAAoABAAAAAAAAAAAAAAAAAAAAACAw/GJ8Hk4og+RSGBCIBKZCEQigQqBSKQiEHk8MjwekYxAJBCIEChEIgKRQCBCIBGJCDgCnwiBiCMiAAAAAAAAAAAA",
       "role_group": ["staff"]
     }
   }

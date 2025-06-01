@@ -28,7 +28,6 @@ export default [
       "@typescript-eslint/no-unused-expressions": "off",
       "@typescript-eslint/no-unused-vars": "off",
       "no-case-declarations": "off",
-      "no-useless-escape": "off",
     },
   },
   {

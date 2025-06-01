@@ -1,6 +1,6 @@
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const territory_patterns = require("../../resources/cosmetic/territory_patterns.json");
+const territory_patterns = require("../../resources/cosmetic/cosmetic.json");
 
 type RoleGroups = Record<string, string[]>;
 type PatternEntry = {

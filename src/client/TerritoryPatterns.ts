@@ -1,6 +1,6 @@
 import { base64url } from "jose";
 import { z } from "zod";
-import rawTerritoryPatterns from "../../resources/cosmetic/territory_patterns.json";
+import rawTerritoryPatterns from "../../resources/cosmetic/cosmetic.json";
 
 export const TerritoryPatternsSchema = z.object({
   role_group: z.record(z.string(), z.array(z.string())).optional(),

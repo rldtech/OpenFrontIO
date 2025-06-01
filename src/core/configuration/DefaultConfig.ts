@@ -521,7 +521,7 @@ export class DefaultConfig implements Config {
       }
     }
     if (attackerType === PlayerType.Bot) {
-      speed *= 5; // slow bot attacks
+      speed *= 6; // slow bot attacks
     }
     if (defenderIsPlayer) {
       const defenderTroops = defender.troops();

@@ -162,50 +162,11 @@ export class TerritoryPatternsModal extends LitElement {
                     "
                   >
                     ${(() => {
-                      const decoder = new PatternDecoder(pattern.pattern);
-                      const cellCountX = decoder.getTileWidth();
-                      const cellCountY = decoder.getTileHeight();
-                      const cellSize = Math.floor(
-                        this.buttonWidth / Math.max(cellCountX, cellCountY),
+                      return this.renderPatternPreview(
+                        pattern,
+                        this.buttonWidth,
+                        this.buttonWidth,
                       );
-
-                      return html`
-                        <div
-                          style="
-                            display: grid;
-                            grid-template-columns: repeat(${cellCountX}, ${cellSize}px);
-                            grid-template-rows: repeat(${cellCountY}, ${cellSize}px);
-                            background-color: #ccc;
-                            padding: 2px;
-                            border-radius: 4px;
-                          "
-                        >
-                          ${(() => {
-                            const tiles: TemplateResult[] = [];
-                            for (let py = 0; py < cellCountY; py++) {
-                              for (let px = 0; px < cellCountX; px++) {
-                                const x = px * decoder.getScale();
-                                const y = py * decoder.getScale();
-                                const bit = decoder.isSet(x, y);
-                                tiles.push(html`
-                                  <div
-                                    style="
-                                    background-color: ${bit
-                                      ? "#000"
-                                      : "transparent"};
-                                    border: 1px solid rgba(0, 0, 0, 0.1);
-                                    width: ${cellSize}px;
-                                    height: ${cellSize}px;
-                                    border-radius: 1px;
-                                  "
-                                  ></div>
-                                `);
-                              }
-                            }
-                            return tiles;
-                          })()}
-                        </div>
-                      `;
                     })()}
                   </div>
                 </button>

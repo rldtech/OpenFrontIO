@@ -211,17 +211,17 @@ export class PlayerImpl implements Player {
     return this._units.filter((u) => ts.has(u.type()));
   }
 
-  private numUnitsBuilt: number[] = [];
-  recordUnitBuilt(type: UnitType): void {
-    if (type in this.numUnitsBuilt) {
-      this.numUnitsBuilt[type]++;
+  private numUnitsConstructed: number[] = [];
+  private recordUnitConstructed(type: UnitType): void {
+    if (type in this.numUnitsConstructed) {
+      this.numUnitsConstructed[type]++;
     } else {
-      this.numUnitsBuilt[type] = 1;
+      this.numUnitsConstructed[type] = 1;
     }
   }
 
   unitsConstructed(type: UnitType): number {
-    const built = this.numUnitsBuilt[type] ?? 0;
+    const built = this.numUnitsConstructed[type] ?? 0;
     const constructing = this.units(UnitType.Construction).filter(
       (u) => u.constructionType() === type,
     ).length;
@@ -746,6 +746,7 @@ export class PlayerImpl implements Player {
       params,
     );
     this._units.push(b);
+    this.recordUnitConstructed(type);
     this.removeGold(cost);
     this.removeTroops("troops" in params ? (params.troops ?? 0) : 0);
     this.mg.addUpdate(b.toUpdate());

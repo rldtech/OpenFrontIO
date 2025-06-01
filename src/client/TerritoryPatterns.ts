@@ -32,10 +32,9 @@ export class PatternDecoder {
       throw new Error("The pattern versions are different.");
     }
 
-    const view = new DataView(bytes.buffer, bytes.byteOffset + 1, 6);
-    this.tileWidth = view.getUint16(0, false);
-    this.tileHeight = view.getUint16(2, false);
-    this.scale = view.getUint16(4, false);
+    this.tileWidth = (bytes[1] << 8) | bytes[2];
+    this.tileHeight = (bytes[3] << 8) | bytes[4];
+    this.scale = (bytes[5] << 8) | bytes[6];
     this.dataStart = 7;
     this.bytes = bytes;
   }

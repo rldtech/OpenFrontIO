@@ -50,6 +50,10 @@ export class UnitImpl implements Unit {
     this._targetUnit =
       "targetUnit" in params ? (params.targetUnit ?? undefined) : undefined;
 
+    if (_type !== UnitType.Construction) {
+      _owner.recordUnitBuilt(_type);
+    }
+
     switch (this._type) {
       case UnitType.Warship:
       case UnitType.Port:

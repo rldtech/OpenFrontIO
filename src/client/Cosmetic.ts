@@ -2,7 +2,7 @@ import { base64url } from "jose";
 import { z } from "zod";
 import rawTerritoryPatterns from "../../resources/cosmetic/cosmetic.json";
 
-export const TerritoryPatternsSchema = z.object({
+export const CosmeticsSchema = z.object({
   role_group: z.record(z.string(), z.array(z.string())).optional(),
   pattern: z.record(
     z.string(),
@@ -14,8 +14,7 @@ export const TerritoryPatternsSchema = z.object({
   ),
 });
 
-export const territoryPatterns =
-  TerritoryPatternsSchema.parse(rawTerritoryPatterns);
+export const territoryPatterns = CosmeticsSchema.parse(rawTerritoryPatterns);
 
 export class PatternDecoder {
   private bytes: Uint8Array;

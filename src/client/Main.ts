@@ -24,7 +24,7 @@ import "./PublicLobby";
 import { PublicLobby } from "./PublicLobby";
 import { SinglePlayerModal } from "./SinglePlayerModal";
 import { TerritoryPatternStorage } from "./TerritoryPatterns";
-import { territoryPatternsModal } from "./TerritoryPatternsModal";
+import { TerritoryPatternsModal } from "./TerritoryPatternsModal";
 import { UserSettingModal } from "./UserSettingModal";
 import "./UsernameInput";
 import { UsernameInput } from "./UsernameInput";
@@ -162,11 +162,11 @@ class Client {
 
     const TerritoryModal = document.querySelector(
       "territory-patterns-modal",
-    ) as territoryPatternsModal;
+    ) as TerritoryPatternsModal;
     const tpButton = document.getElementById(
       "territory-patterns-input-preview-button",
     );
-    TerritoryModal instanceof territoryPatternsModal;
+    TerritoryModal instanceof TerritoryPatternsModal;
     if (tpButton === null)
       throw new Error("territory-patterns-input-preview-button");
     tpButton.addEventListener("click", () => {

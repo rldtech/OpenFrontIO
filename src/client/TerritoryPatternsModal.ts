@@ -11,7 +11,7 @@ import {
 } from "./TerritoryPatterns";
 
 @customElement("territory-patterns-modal")
-export class territoryPatternsModal extends LitElement {
+export class TerritoryPatternsModal extends LitElement {
   @query("o-modal") private modalEl!: HTMLElement & {
     open: () => void;
     close: () => void;

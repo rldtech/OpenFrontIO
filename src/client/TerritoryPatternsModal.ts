@@ -236,70 +236,25 @@ export class TerritoryPatternsModal extends LitElement {
     this.close();
   }
 
-  private updatePreview() {
-    if (!this.previewButton) return;
-
-    const pattern = this.selectedPattern
-      ? territoryPatterns.pattern[this.selectedPattern]
-      : null;
-    if (!pattern) {
-      const blankPreview = html`
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 48px;
-            width: 48px;
-            background-color: #ffffff;
-            border-radius: 4px;
-            box-sizing: border-box;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid #ccc;
-          "
-        >
-          <div
-            style="display: grid; grid-template-columns: repeat(2, 24px); grid-template-rows: repeat(2, 24px);"
-          >
-            <div
-              style="background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.1); width: 24px; height: 24px;"
-            ></div>
-            <div
-              style="background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.1); width: 24px; height: 24px;"
-            ></div>
-            <div
-              style="background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.1); width: 24px; height: 24px;"
-            ></div>
-            <div
-              style="background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.1); width: 24px; height: 24px;"
-            ></div>
-          </div>
-        </div>
-      `;
-      render(blankPreview, this.previewButton);
-      return;
-    }
-
-    const fixedHeight = 48;
-    const fixedWidth = 48;
+  private renderPatternPreview(
+    pattern: (typeof territoryPatterns.pattern)[string],
+    width: number,
+    height: number,
+  ): TemplateResult {
     const decoder = new PatternDecoder(pattern.pattern);
     const cellCountX = decoder.getTileWidth();
     const cellCountY = decoder.getTileHeight();
 
-    const cellSize = Math.min(
-      fixedHeight / cellCountY,
-      fixedWidth / cellCountX,
-    );
+    const cellSize = Math.min(height / cellCountY, width / cellCountX);
 
-    const previewHTML = html`
+    return html`
       <div
         style="
           display: flex;
           align-items: center;
           justify-content: center;
-          height: ${fixedHeight}px;
-          width: ${fixedWidth}px;
+          height: ${height}px;
+          width: ${width}px;
           background-color: #f0f0f0;
           border-radius: 4px;
           box-sizing: border-box;
@@ -342,7 +297,63 @@ export class TerritoryPatternsModal extends LitElement {
         </div>
       </div>
     `;
+  }
 
+  private renderBlankPreview(width: number, height: number): TemplateResult {
+    return html`
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: ${height}px;
+          width: ${width}px;
+          background-color: #ffffff;
+          border-radius: 4px;
+          box-sizing: border-box;
+          overflow: hidden;
+          position: relative;
+          border: 1px solid #ccc;
+        "
+      >
+        <div
+          style="display: grid; grid-template-columns: repeat(2, ${width /
+          2}px); grid-template-rows: repeat(2, ${height / 2}px);"
+        >
+          <div
+            style="background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.1); width: ${width /
+            2}px; height: ${height / 2}px;"
+          ></div>
+          <div
+            style="background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.1); width: ${width /
+            2}px; height: ${height / 2}px;"
+          ></div>
+          <div
+            style="background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.1); width: ${width /
+            2}px; height: ${height / 2}px;"
+          ></div>
+          <div
+            style="background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.1); width: ${width /
+            2}px; height: ${height / 2}px;"
+          ></div>
+        </div>
+      </div>
+    `;
+  }
+
+  private updatePreview() {
+    if (!this.previewButton) return;
+
+    const pattern = this.selectedPattern
+      ? territoryPatterns.pattern[this.selectedPattern]
+      : null;
+    if (!pattern) {
+      const blankPreview = this.renderBlankPreview(48, 48);
+      render(blankPreview, this.previewButton);
+      return;
+    }
+
+    const previewHTML = this.renderPatternPreview(pattern, 48, 48);
     render(previewHTML, this.previewButton);
   }
 

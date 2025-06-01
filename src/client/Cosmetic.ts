@@ -40,6 +40,10 @@ export class PatternDecoder {
     this.tileWidth = (bytes[1] << 8) | bytes[2];
     this.tileHeight = (bytes[3] << 8) | bytes[4];
     this.scale = (bytes[5] << 8) | bytes[6];
+    const shift = Math.log2(this.scale);
+    if (!Number.isInteger(shift)) {
+      throw new Error("Scale must be a power of 2.");
+    }
     this.dataStart = 7;
     this.bytes = bytes;
   }

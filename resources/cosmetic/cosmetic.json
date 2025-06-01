@@ -9,15 +9,15 @@
   },
   "pattern": {
     "stripes_v": {
-      "pattern": "ARAIBQ==",
+      "pattern": "ASQQVVU=",
       "role_group": ["all"]
     },
     "stripes_h": {
-      "pattern": "ARAIAw==",
+      "pattern": "ASQQDw8=",
       "role_group": ["all"]
     },
     "checkerboard": {
-      "pattern": "ARAICQ==",
+      "pattern": "ASQQpaU=",
       "role_group": ["all"]
     },
     "diagonal": {

@@ -51,7 +51,7 @@ export class PatternDecoder {
       height > 63
     ) {
       throw new Error(
-        "Scale must be 1–128, width must be 1–127, and height must be 1–63.",
+        `Invalid pattern metadata: scale (log₂)=${scale}, width=${width}, height=${height}. Expected: scale 0–7, width 1–127, height 1–63.`,
       );
     }
 

@@ -219,7 +219,10 @@ export class TerritoryPatternsModal extends LitElement {
     const cellCountX = decoder.getTileWidth();
     const cellCountY = decoder.getTileHeight();
 
-    const cellSize = Math.min(height / cellCountY, width / cellCountX);
+    const cellSize =
+      cellCountX > 0 && cellCountY > 0
+        ? Math.min(height / cellCountY, width / cellCountX)
+        : 1;
 
     return html`
       <div

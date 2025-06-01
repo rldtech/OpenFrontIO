@@ -54,7 +54,7 @@ export class PatternDecoder {
     const py = norm((y / this.scale) | 0, this.tileHeight);
     const idx = py * this.tileWidth + px;
     const byteIndex = idx >> 3;
-    const bitIndex = 7 - (idx % 8);
+    const bitIndex = idx & 7;
     const byte = this.bytes[this.dataStart + byteIndex];
     if (byte === undefined) throw new Error("Invalid pattern");
     return (byte & (1 << bitIndex)) !== 0;

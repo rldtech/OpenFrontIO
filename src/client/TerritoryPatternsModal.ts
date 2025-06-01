@@ -332,10 +332,17 @@ export class TerritoryPatternsModal extends LitElement {
   }
 
   private setLockedPatterns(lockedPatterns: string[], reason: string) {
-    this.lockedPatterns.push(...lockedPatterns);
-    for (const key of lockedPatterns) {
-      this.lockedReasons[key] = reason;
-    }
+    this.lockedPatterns = [...this.lockedPatterns, ...lockedPatterns];
+    this.lockedReasons = {
+      ...this.lockedReasons,
+      ...lockedPatterns.reduce(
+        (acc, key) => {
+          acc[key] = reason;
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+    };
   }
 
   private resetLockedPatterns() {

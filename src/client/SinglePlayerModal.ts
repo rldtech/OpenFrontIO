@@ -18,9 +18,9 @@ import "./components/baseComponents/Modal";
 import "./components/Difficulties";
 import { DifficultyDescription } from "./components/Difficulties";
 import "./components/Maps";
+import { TerritoryPatternStorage } from "./Cosmetic";
 import { FlagInput } from "./FlagInput";
 import { JoinLobbyEvent } from "./Main";
-import { TerritoryPatternStorage } from "./TerritoryPatterns";
 import { UsernameInput } from "./UsernameInput";
 
 @customElement("single-player-modal")

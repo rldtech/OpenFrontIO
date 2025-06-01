@@ -8,8 +8,8 @@ import { GameUpdateType } from "../../../core/game/GameUpdates";
 import { GameView, PlayerView } from "../../../core/game/GameView";
 import { UserSettings } from "../../../core/game/UserSettings";
 import { PseudoRandom } from "../../../core/PseudoRandom";
+import { PatternDecoder } from "../../Cosmetic";
 import { AlternateViewEvent, DragEvent } from "../../InputHandler";
-import { PatternDecoder } from "../../TerritoryPatterns";
 import { TransformHandler } from "../TransformHandler";
 import { Layer } from "./Layer";
 

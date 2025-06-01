@@ -8,7 +8,7 @@ import {
   PatternDecoder,
   territoryPatterns,
   TerritoryPatternStorage,
-} from "./TerritoryPatterns";
+} from "./Cosmetic";
 
 @customElement("territory-patterns-modal")
 export class TerritoryPatternsModal extends LitElement {

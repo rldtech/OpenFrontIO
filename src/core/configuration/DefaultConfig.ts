@@ -650,7 +650,7 @@ export class DefaultConfig implements Config {
     let toAdd = baseAdditionRate + basePopGrowthRate * reproductionPop;
     const totalPop = player.totalPopulation();
     const ratio = 1 - totalPop / max;
-    toAdd *= ratio ^ 1.222;
+    toAdd *= ratio ** 1.222;
 
     if (player.type() === PlayerType.Bot) {
       toAdd *= 0.7;

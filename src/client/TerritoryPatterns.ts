@@ -1,9 +1,14 @@
+import { base64url } from "jose";
 import { z } from "zod";
-import rawTerritoryPatterns from "../../resources/territory_patterns.json";
+import rawTerritoryPatterns from "../../resources/cosmetic/territory_patterns.json";
 
 export const TerritoryPatternsSchema = z.record(
   z.string(),
-  z.string().base64(),
+  z.object({
+    pattern: z.string().base64(),
+    role: z.array(z.string()).optional(),
+    role_group: z.array(z.string()).optional(),
+  }),
 );
 
 export const territoryPatterns =
@@ -17,11 +22,7 @@ export class PatternDecoder {
   private dataStart: number;
 
   constructor(base64: string) {
-    const byteString = atob(base64);
-    const bytes = new Uint8Array(byteString.length);
-    for (let i = 0; i < byteString.length; i++) {
-      bytes[i] = byteString.charCodeAt(i);
-    }
+    const bytes = base64url.decode(base64);
 
     const version = bytes[0];
     if (version !== 1) {

@@ -108,72 +108,84 @@ export class TerritoryPatternsModal extends LitElement {
     return this;
   }
 
+  private renderTooltip(): TemplateResult | null {
+    if (this.hoveredPattern && this.lockedReasons[this.hoveredPattern]) {
+      return html`
+        <div
+          class="fixed z-[10000] px-3 py-2 rounded bg-black text-white text-sm pointer-events-none shadow-md"
+          style="top: ${this.hoverPosition.y + 12}px; left: ${this.hoverPosition
+            .x + 12}px;"
+        >
+          ${this.lockedReasons[this.hoveredPattern]}
+        </div>
+      `;
+    }
+    return null;
+  }
+
+  private renderPatternButton(
+    key: string,
+    pattern: (typeof territoryPatterns.pattern)[string],
+  ): TemplateResult {
+    const isLocked = this.isPatternLocked(key);
+    // const reason = this.lockedReasons[key] || "Locked";
+    return html`
+      <button
+        class="border p-2 rounded-lg shadow text-black dark:text-white text-left
+        ${this.selectedPattern === key
+          ? "bg-blue-500 text-white"
+          : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"}
+        ${isLocked ? "opacity-50 cursor-not-allowed" : ""}"
+        style="flex: 0 1 calc(25% - 1rem); max-width: calc(25% - 1rem);"
+        @click=${() => !isLocked && this.selectPattern(key)}
+        @mouseenter=${(e: MouseEvent) => this.handleMouseEnter(key, e)}
+        @mousemove=${(e: MouseEvent) => this.handleMouseMove(e)}
+        @mouseleave=${() => this.handleMouseLeave()}
+      >
+        <div class="text-sm font-bold mb-1">${key}</div>
+        <div
+          class="preview-container"
+          style="
+            width: 100%;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+          "
+        >
+          ${this.renderPatternPreview(
+            pattern,
+            this.buttonWidth,
+            this.buttonWidth,
+          )}
+        </div>
+      </button>
+    `;
+  }
+
+  private renderPatternGrid(): TemplateResult {
+    return html`
+      <div
+        class="flex flex-wrap gap-4 p-2"
+        style="justify-content: center; align-items: flex-start;"
+      >
+        ${Object.entries(territoryPatterns.pattern ?? {}).map(
+          ([key, pattern]) => this.renderPatternButton(key, pattern),
+        )}
+      </div>
+    `;
+  }
+
   render() {
     this.resetLockedPatterns();
     this.checkPatternPermission(this.roles);
     return html`
-      ${this.hoveredPattern && this.lockedReasons[this.hoveredPattern]
-        ? html`
-            <div
-              class="fixed z-[10000] px-3 py-2 rounded bg-black text-white text-sm pointer-events-none shadow-md"
-              style="top: ${this.hoverPosition.y + 12}px; left: ${this
-                .hoverPosition.x + 12}px;"
-            >
-              ${this.lockedReasons[this.hoveredPattern]}
-            </div>
-          `
-        : null}
+      ${this.renderTooltip()}
       <o-modal id="territoryPatternsModal" title="Select Territory Pattern">
-        <div
-          class="flex flex-wrap gap-4 p-2"
-          style="justify-content: center; align-items: flex-start;"
-        >
-          ${Object.entries(territoryPatterns.pattern ?? {}).map(
-            ([key, pattern]) => {
-              const isLocked = this.isPatternLocked(key);
-              const reason = this.lockedReasons[key] || "Locked";
-
-              return html`
-                <button
-                  class="border p-2 rounded-lg shadow text-black dark:text-white text-left
-                  ${this.selectedPattern === key
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"}
-                  ${isLocked ? "opacity-50 cursor-not-allowed" : ""}"
-                  style="flex: 0 1 calc(25% - 1rem); max-width: calc(25% - 1rem);"
-                  @click=${() => !isLocked && this.selectPattern(key)}
-                  @mouseenter=${(e: MouseEvent) =>
-                    this.handleMouseEnter(key, e)}
-                  @mousemove=${(e: MouseEvent) => this.handleMouseMove(e)}
-                  @mouseleave=${() => this.handleMouseLeave()}
-                >
-                  <div class="text-sm font-bold mb-1">${key}</div>
-                  <div
-                    class="preview-container"
-                    style="
-                      width: 100%;
-                      aspect-ratio: 1;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      background: #fff;
-                      border-radius: 8px;
-                      overflow: hidden;
-                    "
-                  >
-                    ${(() => {
-                      return this.renderPatternPreview(
-                        pattern,
-                        this.buttonWidth,
-                        this.buttonWidth,
-                      );
-                    })()}
-                  </div>
-                </button>
-              `;
-            },
-          )}
-        </div>
+        ${this.renderPatternGrid()}
       </o-modal>
     `;
   }

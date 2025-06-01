@@ -138,27 +138,29 @@ export class TerritoryPatternsModal extends LitElement {
           class="flex flex-wrap gap-4 p-2"
           style="justify-content: center; align-items: flex-start;"
         >
-          ${Object.entries(territoryPatterns ?? {}).map(([key, pattern]) => {
-            const isLocked = this.isPatternLocked(key);
-            const reason = this.lockedReasons[key] || "Locked";
+          ${Object.entries(territoryPatterns.pattern ?? {}).map(
+            ([key, pattern]) => {
+              const isLocked = this.isPatternLocked(key);
+              const reason = this.lockedReasons[key] || "Locked";
 
-            return html`
-              <button
-                class="border p-2 rounded-lg shadow text-black dark:text-white text-left
+              return html`
+                <button
+                  class="border p-2 rounded-lg shadow text-black dark:text-white text-left
                   ${this.selectedPattern === key
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"}
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"}
                   ${isLocked ? "opacity-50 cursor-not-allowed" : ""}"
-                style="flex: 0 1 calc(25% - 1rem); max-width: calc(25% - 1rem);"
-                @click=${() => !isLocked && this.selectPattern(key)}
-                @mouseenter=${(e: MouseEvent) => this.handleMouseEnter(key, e)}
-                @mousemove=${(e: MouseEvent) => this.handleMouseMove(e)}
-                @mouseleave=${() => this.handleMouseLeave()}
-              >
-                <div class="text-sm font-bold mb-1">${key}</div>
-                <div
-                  class="preview-container"
-                  style="
+                  style="flex: 0 1 calc(25% - 1rem); max-width: calc(25% - 1rem);"
+                  @click=${() => !isLocked && this.selectPattern(key)}
+                  @mouseenter=${(e: MouseEvent) =>
+                    this.handleMouseEnter(key, e)}
+                  @mousemove=${(e: MouseEvent) => this.handleMouseMove(e)}
+                  @mouseleave=${() => this.handleMouseLeave()}
+                >
+                  <div class="text-sm font-bold mb-1">${key}</div>
+                  <div
+                    class="preview-container"
+                    style="
                       width: 100%;
                       aspect-ratio: 1;
                       display: flex;
@@ -168,18 +170,18 @@ export class TerritoryPatternsModal extends LitElement {
                       border-radius: 8px;
                       overflow: hidden;
                     "
-                >
-                  ${(() => {
-                    const decoder = new PatternDecoder(pattern);
-                    const cellCountX = decoder.getTileWidth();
-                    const cellCountY = decoder.getTileHeight();
-                    const cellSize = Math.floor(
-                      this.buttonWidth / Math.max(cellCountX, cellCountY),
-                    );
+                  >
+                    ${(() => {
+                      const decoder = new PatternDecoder(pattern.pattern);
+                      const cellCountX = decoder.getTileWidth();
+                      const cellCountY = decoder.getTileHeight();
+                      const cellSize = Math.floor(
+                        this.buttonWidth / Math.max(cellCountX, cellCountY),
+                      );
 
-                    return html`
-                      <div
-                        style="
+                      return html`
+                        <div
+                          style="
                             display: grid;
                             grid-template-columns: repeat(${cellCountX}, ${cellSize}px);
                             grid-template-rows: repeat(${cellCountY}, ${cellSize}px);
@@ -187,38 +189,39 @@ export class TerritoryPatternsModal extends LitElement {
                             padding: 2px;
                             border-radius: 4px;
                           "
-                      >
-                        ${(() => {
-                          const tiles: TemplateResult[] = [];
-                          for (let py = 0; py < cellCountY; py++) {
-                            for (let px = 0; px < cellCountX; px++) {
-                              const x = px * decoder.getScale();
-                              const y = py * decoder.getScale();
-                              const bit = decoder.isSet(x, y);
-                              tiles.push(html`
-                                <div
-                                  style="
+                        >
+                          ${(() => {
+                            const tiles: TemplateResult[] = [];
+                            for (let py = 0; py < cellCountY; py++) {
+                              for (let px = 0; px < cellCountX; px++) {
+                                const x = px * decoder.getScale();
+                                const y = py * decoder.getScale();
+                                const bit = decoder.isSet(x, y);
+                                tiles.push(html`
+                                  <div
+                                    style="
                                     background-color: ${bit
-                                    ? "#000"
-                                    : "transparent"};
+                                      ? "#000"
+                                      : "transparent"};
                                     border: 1px solid rgba(0, 0, 0, 0.1);
                                     width: ${cellSize}px;
                                     height: ${cellSize}px;
                                     border-radius: 1px;
                                   "
-                                ></div>
-                              `);
+                                  ></div>
+                                `);
+                              }
                             }
-                          }
-                          return tiles;
-                        })()}
-                      </div>
-                    `;
-                  })()}
-                </div>
-              </button>
-            `;
-          })}
+                            return tiles;
+                          })()}
+                        </div>
+                      `;
+                    })()}
+                  </div>
+                </button>
+              `;
+            },
+          )}
         </div>
       </o-modal>
     `;
@@ -235,9 +238,9 @@ export class TerritoryPatternsModal extends LitElement {
   private selectPattern(patternKey: string) {
     this.selectedPattern = patternKey;
     TerritoryPatternStorage.setSelectedPattern(patternKey);
-    const base64 = territoryPatterns[patternKey];
+    const base64 = territoryPatterns.pattern[patternKey];
     if (base64) {
-      TerritoryPatternStorage.setSelectedPatternBase64(base64);
+      TerritoryPatternStorage.setSelectedPatternBase64(base64.pattern);
     }
     this.updatePreview();
     this.close();
@@ -247,7 +250,7 @@ export class TerritoryPatternsModal extends LitElement {
     if (!this.previewButton) return;
 
     const pattern = this.selectedPattern
-      ? territoryPatterns[this.selectedPattern]
+      ? territoryPatterns.pattern[this.selectedPattern]
       : null;
     if (!pattern) {
       const blankPreview = html`
@@ -290,7 +293,7 @@ export class TerritoryPatternsModal extends LitElement {
 
     const fixedHeight = 48;
     const fixedWidth = 48;
-    const decoder = new PatternDecoder(pattern);
+    const decoder = new PatternDecoder(pattern.pattern);
     const cellCountX = decoder.getTileWidth();
     const cellCountY = decoder.getTileHeight();
 

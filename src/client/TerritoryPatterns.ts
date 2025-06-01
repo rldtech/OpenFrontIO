@@ -2,14 +2,17 @@ import { base64url } from "jose";
 import { z } from "zod";
 import rawTerritoryPatterns from "../../resources/cosmetic/territory_patterns.json";
 
-export const TerritoryPatternsSchema = z.record(
-  z.string(),
-  z.object({
-    pattern: z.string().base64(),
-    role: z.array(z.string()).optional(),
-    role_group: z.array(z.string()).optional(),
-  }),
-);
+export const TerritoryPatternsSchema = z.object({
+  role_group: z.record(z.string(), z.array(z.string())).optional(),
+  pattern: z.record(
+    z.string(),
+    z.object({
+      pattern: z.string().base64(),
+      role: z.array(z.string()).optional(),
+      role_group: z.array(z.string()).optional(),
+    }),
+  ),
+});
 
 export const territoryPatterns =
   TerritoryPatternsSchema.parse(rawTerritoryPatterns);

@@ -1,0 +1,76 @@
+{
+  "role_groups": {
+    "donor": ["1286741019604299857", "1286741020556429383"],
+    "staff": [
+      "1286745100411473930",
+      "1286738076386856991",
+      "1338654590043820148"
+    ]
+  },
+  "pattern": {
+    "stripes_v": {
+      "pattern": "AQACAAIACAU=",
+      "role_group": ["all"]
+    },
+    "stripes_h": {
+      "pattern": "AQACAAIACAM=",
+      "role_group": ["all"]
+    },
+    "checkerboard": {
+      "pattern": "AQACAAIACAk=",
+      "role_group": ["all"]
+    },
+    "diagonal": {
+      "pattern": "AQAQABAAAQEAAgAEAAgAEAAgAEAAgAAAAQACAAQACAAQACAAQACA",
+      "role_group": ["donor", "staff"]
+    },
+    "cross": {
+      "pattern": "AQAQABAAAQGAAkAEIAgQEAggBEACgAGAAUACIAQQCAgQBCACQAGA",
+      "role_group": ["donor", "staff"]
+    },
+    "mini_cross": {
+      "pattern": "AQAQAAgAAQPADDAwDMADwAMwDAwwA8A=",
+      "role_group": ["donor", "staff"]
+    },
+    "horizontal_stripes": {
+      "pattern": "AQAQABAAAf//AAAAAAAAAAAAAAAAAAD//wAAAAAAAAAAAAAAAAAA",
+      "role_group": ["donor", "staff"]
+    },
+    "sparse_dots": {
+      "pattern": "AQAQABAAAQEBAAAAAAAAAAAAAAAAAAABAQAAAAAAAAAAAAAAAAAA",
+      "role_group": ["donor", "staff"]
+    },
+    "evan": {
+      "pattern": "AQAYAAcABQAAAJ7ESIIkWY7kaQIjSR4jSQAAAA==",
+      "role_group": ["staff"]
+    },
+    "diagonal_stripe": {
+      "pattern": "AQAQAAgAAQGAAkAEIAgQEAggBEACgAE=",
+      "role_group": ["donor", "staff"]
+    },
+    "mountain_ridge": {
+      "pattern": "AQAQAAgAAQAAGBg8PH5+//9+fjw8GBg=",
+      "role_group": ["donor", "staff"]
+    },
+    "scattered_dots": {
+      "pattern": "AQAQAAgAAQAAAiAAAAAAAAAAAAgQAAA=",
+      "role_group": ["donor", "staff"]
+    },
+    "circuit_board": {
+      "pattern": "AQAQAAgAAcPDw8MMDAwMMAwwDMPDw8M=",
+      "role_group": ["donor", "staff"]
+    },
+    "vertical_bars": {
+      "pattern": "AQAQAAgAAUmSSZJJkkmSSZJJkkmSSZI=",
+      "role_group": ["donor", "staff"]
+    },
+    ".w.": {
+      "pattern": "AQAQAAgAAQAAAAAAAAJAgkFEIi50Fmg=",
+      "role_group": ["donor", "staff"]
+    },
+    "openfront": {
+      "pattern": "AQBCAAoABQAAAAAAAAAAAAAAAAAAAACAw/GJ8Hk4og+RSGBCIBKZCEQigQqBSKQiEHk8MjwekYxAJBCIEChEIgKRQCBCIBGJCDgCnwiBiCMiAAAAAAAAAAAA",
+      "role_group": ["staff"]
+    }
+  }
+}

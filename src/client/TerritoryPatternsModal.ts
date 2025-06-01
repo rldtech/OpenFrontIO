@@ -5,9 +5,11 @@ import { UserMeResponse } from "../core/ApiSchemas";
 import "./components/Difficulties";
 import "./components/Maps";
 import {
+  getSelectedPattern,
   PatternDecoder,
+  setSelectedPattern,
+  setSelectedPatternBase64,
   territoryPatterns,
-  TerritoryPatternStorage,
 } from "./Cosmetic";
 
 @customElement("territory-patterns-modal")
@@ -20,8 +22,7 @@ export class TerritoryPatternsModal extends LitElement {
   @query("#territory-patterns-input-preview-button")
   private previewButton!: HTMLElement;
 
-  @state() private selectedPattern =
-    TerritoryPatternStorage.getSelectedPattern();
+  @state() private selectedPattern = getSelectedPattern();
 
   @state() private buttonWidth: number = 100;
 
@@ -200,10 +201,10 @@ export class TerritoryPatternsModal extends LitElement {
 
   private selectPattern(patternKey: string) {
     this.selectedPattern = patternKey;
-    TerritoryPatternStorage.setSelectedPattern(patternKey);
+    setSelectedPattern(patternKey);
     const base64 = territoryPatterns.pattern[patternKey];
     if (base64) {
-      TerritoryPatternStorage.setSelectedPatternBase64(base64.pattern);
+      setSelectedPatternBase64(base64.pattern);
     }
     this.updatePreview();
     this.close();

@@ -70,25 +70,21 @@ export class PatternDecoder {
   }
 }
 
-export class TerritoryPatternStorage {
-  private static readonly KEY = "territoryPattern";
-  private static readonly BASE64_KEY = "territoryPatternBase64";
+const TERRITORY_PATTERN_KEY = "territoryPattern";
+const TERRITORY_PATTERN_BASE64_KEY = "territoryPatternBase64";
 
-  static getSelectedPattern(): string | undefined {
-    return localStorage.getItem(TerritoryPatternStorage.KEY) ?? undefined;
-  }
+export function getSelectedPattern(): string | undefined {
+  return localStorage.getItem(TERRITORY_PATTERN_KEY) ?? undefined;
+}
 
-  static setSelectedPattern(patternKey: string): void {
-    localStorage.setItem(TerritoryPatternStorage.KEY, patternKey);
-  }
+export function setSelectedPattern(patternKey: string): void {
+  localStorage.setItem(TERRITORY_PATTERN_KEY, patternKey);
+}
 
-  static getSelectedPatternBase64(): string | undefined {
-    return (
-      localStorage.getItem(TerritoryPatternStorage.BASE64_KEY) ?? undefined
-    );
-  }
+export function getSelectedPatternBase64(): string | undefined {
+  return localStorage.getItem(TERRITORY_PATTERN_BASE64_KEY) ?? undefined;
+}
 
-  static setSelectedPatternBase64(base64: string): void {
-    localStorage.setItem(TerritoryPatternStorage.BASE64_KEY, base64);
-  }
+export function setSelectedPatternBase64(base64: string): void {
+  localStorage.setItem(TERRITORY_PATTERN_BASE64_KEY, base64);
 }

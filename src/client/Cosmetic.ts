@@ -8,7 +8,6 @@ export const CosmeticsSchema = z.object({
     z.string(),
     z.object({
       pattern: z.string().base64(),
-      role: z.array(z.string()).optional(),
       role_group: z.array(z.string()).optional(),
     }),
   ),

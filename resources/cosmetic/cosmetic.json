@@ -9,67 +9,67 @@
   },
   "pattern": {
     "stripes_v": {
-      "pattern": "AQACAAIACAU=",
+      "pattern": "ARAIBQ==",
       "role_group": ["all"]
     },
     "stripes_h": {
-      "pattern": "AQACAAIACAM=",
+      "pattern": "ARAIAw==",
       "role_group": ["all"]
     },
     "checkerboard": {
-      "pattern": "AQACAAIACAk=",
+      "pattern": "ARAICQ==",
       "role_group": ["all"]
     },
     "diagonal": {
-      "pattern": "AQAQABAAAQEAAgAEAAgAEAAgAEAAgAAAAQACAAQACAAQACAAQACA",
+      "pattern": "AYFAAQACAAQACAAQACAAQACAAAABAAIABAAIABAAIABAAIA=",
       "role_group": ["donor", "staff"]
     },
     "cross": {
-      "pattern": "AQAQABAAAQGAAkAEIAgQEAggBEACgAGAAUACIAQQCAgQBCACQAGA",
+      "pattern": "AYFAAYACQAQgCBAQCCAEQAKAAYABQAIgBBAICBAEIAJAAYA=",
       "role_group": ["donor", "staff"]
     },
     "mini_cross": {
-      "pattern": "AQAQAAgAAQPADDAwDMADwAMwDAwwA8A=",
+      "pattern": "AYEgA8AMMDAMwAPAAzAMDDADwA==",
       "role_group": ["donor", "staff"]
     },
     "horizontal_stripes": {
-      "pattern": "AQAQABAAAf//AAAAAAAAAAAAAAAAAAD//wAAAAAAAAAAAAAAAAAA",
+      "pattern": "AYFA//8AAAAAAAAAAAAAAAAAAP//AAAAAAAAAAAAAAAAAAA=",
       "role_group": ["donor", "staff"]
     },
     "sparse_dots": {
-      "pattern": "AQAQABAAAQEBAAAAAAAAAAAAAAAAAAABAQAAAAAAAAAAAAAAAAAA",
+      "pattern": "AYFAAQEAAAAAAAAAAAAAAAAAAAEBAAAAAAAAAAAAAAAAAAA=",
       "role_group": ["donor", "staff"]
     },
     "evan": {
-      "pattern": "AQAYAAcABAAAAJ7ESIIkWY7kaQIjSR4jSQAAAA==",
+      "pattern": "AcQcAAAAnsRIgiRZjuRpAiNJHiNJAAAA",
       "role_group": ["staff"]
     },
     "diagonal_stripe": {
-      "pattern": "AQAQAAgAAQGAAkAEIAgQEAggBEACgAE=",
+      "pattern": "AYEgAYACQAQgCBAQCCAEQAKAAQ==",
       "role_group": ["donor", "staff"]
     },
     "mountain_ridge": {
-      "pattern": "AQAQAAgAAQAAGBg8PH5+//9+fjw8GBg=",
+      "pattern": "AYEgAAAYGDw8fn7//35+PDwYGA==",
       "role_group": ["donor", "staff"]
     },
     "scattered_dots": {
-      "pattern": "AQAQAAgAAQAAAiAAAAAAAAAAAAgQAAA=",
+      "pattern": "AYEgAAACIAAAAAAAAAAACBAAAA==",
       "role_group": ["donor", "staff"]
     },
     "circuit_board": {
-      "pattern": "AQAQAAgAAcPDw8MMDAwMMAwwDMPDw8M=",
+      "pattern": "AYEgw8PDwwwMDAwwDDAMw8PDww==",
       "role_group": ["donor", "staff"]
     },
     "vertical_bars": {
-      "pattern": "AQAQAAgAAUmSSZJJkkmSSZJJkkmSSZI=",
+      "pattern": "AYEgSZJJkkmSSZJJkkmSSZJJkg==",
       "role_group": ["donor", "staff"]
     },
     ".w.": {
-      "pattern": "AQAQAAgAAQAAAAAAAAJAgkFEIi50Fmg=",
+      "pattern": "AYEgAAAAAAAAAkCCQUQiLnQWaA==",
       "role_group": ["donor", "staff"]
     },
     "openfront": {
-      "pattern": "AQBCAAoABAAAAAAAAAAAAAAAAAAAAACAw/GJ8Hk4og+RSGBCIBKZCEQigQqBSKQiEHk8MjwekYxAJBCIEChEIgKRQCBCIBGJCDgCnwiBiCMiAAAAAAAAAAAA",
+      "pattern": "ARQqAAAAAAAAAAAAAAAAAAAAAIDD8YnweTiiD5FIYEIgEpkIRCKBCoFIpCIQeTwyPB6RjEAkEIgQKEQiApFAIEIgEYkIOAKfCIGIIyIAAAAAAAAAAAA=",
       "role_group": ["staff"]
     }
   }

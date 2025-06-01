@@ -26,7 +26,7 @@ export class PatternDecoder {
   constructor(base64: string) {
     const bytes = base64url.decode(base64);
 
-    if (bytes.length < 7) {
+    if (bytes.length < 3) {
       throw new Error(
         "Pattern data is too short to contain required metadata.",
       );
@@ -37,14 +37,28 @@ export class PatternDecoder {
       throw new Error("The pattern versions are different.");
     }
 
-    this.tileWidth = (bytes[1] << 8) | bytes[2];
-    this.tileHeight = (bytes[3] << 8) | bytes[4];
-    this.scale = (bytes[5] << 8) | bytes[6];
-    const shift = Math.log2(this.scale);
-    if (!Number.isInteger(shift)) {
-      throw new Error("Scale must be a power of 2.");
+    const packed = (bytes[2] << 8) | bytes[1];
+    const scale = packed & 0x7;
+    const width = (packed >> 3) & 0x7f;
+    const height = (packed >> 10) & 0x3f;
+
+    if (
+      scale < 0 ||
+      scale > 7 ||
+      width < 1 ||
+      width > 127 ||
+      height < 1 ||
+      height > 63
+    ) {
+      throw new Error(
+        "Scale must be 1–128, width must be 1–127, and height must be 1–63.",
+      );
     }
-    this.dataStart = 7;
+
+    this.scale = 1 << scale;
+    this.tileWidth = width;
+    this.tileHeight = height;
+    this.dataStart = 3;
     this.bytes = bytes;
   }
 

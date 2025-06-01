@@ -71,47 +71,37 @@ export class TerritoryPatternsModal extends LitElement {
   }
 
   private checkPatternPermission(roles: string[]) {
-    if (
-      roles.includes("1286745100411473930") || // creator
-      roles.includes("1286738076386856991") || // admin
-      roles.includes("1338654590043820148") // mod
-    ) {
-      return;
+    const patterns = territoryPatterns.pattern ?? {};
+
+    for (const [key, patternData] of Object.entries(patterns)) {
+      const roleGroup: string[] | string | undefined = patternData.role_group;
+
+      if (!roleGroup || (Array.isArray(roleGroup) && roleGroup.length === 0))
+        continue;
+
+      const groupList = Array.isArray(roleGroup) ? roleGroup : [roleGroup];
+
+      if (groupList.includes("all")) {
+        continue; // Allow all users
+      }
+
+      const isAllowed = groupList.some((required) => roles.includes(required));
+
+      if (!isAllowed) {
+        let reason: string;
+
+        if (groupList.includes("donor")) {
+          reason =
+            "This pattern is available only to donors (money haters or early access supporters).";
+        } else if (groupList.includes("staff")) {
+          reason = "This pattern is available only to moderators and above.";
+        } else {
+          reason = `This pattern is available only to specific roles. (${groupList.join(", ")})`;
+        }
+
+        this.setLockedPatterns([key], reason);
+      }
     }
-
-    this.setLockedPatterns(
-      ["evan", "openfront"],
-      "This pattern is available only to moderators and above.",
-    );
-
-    if (
-      roles.includes("1359441841371480176") || // money haters
-      roles.includes("1330243292306341969") // early access supporter
-    ) {
-      return;
-    }
-
-    const restrictedForDonorsOnly = [
-      "diagonal",
-      "cross",
-      "mini_cross",
-      "horizontal_stripes",
-      "sparse_dots",
-      "diagonal_stripe",
-      "mountain_ridge",
-      "scattered_dots",
-      "circuit_board",
-      "vertical_bars",
-      ".w.",
-    ];
-
-    this.setLockedPatterns(
-      restrictedForDonorsOnly,
-      "This pattern is available only to donors (money haters or early access supporters).",
-    );
-
-    // Future permission logic here
-    return;
   }
 
   createRenderRoot() {

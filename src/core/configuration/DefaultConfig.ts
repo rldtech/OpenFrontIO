@@ -77,7 +77,7 @@ export abstract class DefaultServerConfig implements ServerConfig {
   jwtIssuer(): string {
     const audience = this.jwtAudience();
     return audience === "localhost"
-      ? "http://localhost:8787"
+      ? "https://api-worker-dev.evanpelle.workers.dev"
       : `https://api.${audience}`;
   }
   async jwkPublicKey(): Promise<JWK> {

@@ -461,7 +461,7 @@ export interface Player {
 
   // Units
   units(...types: UnitType[]): Unit[];
-  unitsBuilt(type: UnitType): number;
+  unitsConstructed(type: UnitType): number;
   buildableUnits(tile: TileRef): BuildableUnit[];
   canBuild(type: UnitType, targetTile: TileRef): TileRef | false;
   buildUnit<T extends UnitType>(

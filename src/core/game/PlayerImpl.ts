@@ -220,8 +220,13 @@ export class PlayerImpl implements Player {
     }
   }
 
-  unitsBuilt(type: UnitType): number {
-    return this.numUnitsBuilt[type] ?? 0;
+  unitsConstructed(type: UnitType): number {
+    const built = this.numUnitsBuilt[type] ?? 0;
+    const constructing = this.units(UnitType.Construction).filter(
+      (u) => u.constructionType() === type,
+    ).length;
+    const total = constructing + built;
+    return total;
   }
 
   sharesBorderWith(other: Player | TerraNullius): boolean {

@@ -36,8 +36,8 @@ export class PatternDecoder {
       throw new Error("The pattern versions are different.");
     }
 
-    const packed = (bytes[2] << 8) | bytes[1];
-    const scale = packed & 0x7;
+    const packed = bytes[1] | (bytes[2] << 8);
+    const scale = packed & 0x07;
     const width = (packed >> 3) & 0x7f;
     const height = (packed >> 10) & 0x3f;
 

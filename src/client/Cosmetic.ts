@@ -26,6 +26,12 @@ export class PatternDecoder {
   constructor(base64: string) {
     const bytes = base64url.decode(base64);
 
+    if (bytes.length < 7) {
+      throw new Error(
+        "Pattern data is too short to contain required metadata.",
+      );
+    }
+
     const version = bytes[0];
     if (version !== 1) {
       throw new Error("The pattern versions are different.");

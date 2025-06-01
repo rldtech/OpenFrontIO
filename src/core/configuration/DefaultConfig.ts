@@ -66,9 +66,9 @@ const numPlayersConfig = {
 } as const satisfies Record<GameMapType, [number, number, number]>;
 
 const TERRAIN_EFFECTS = {
-  [TerrainType.Plains]: { mag: 0.9, speed: 0.8 },
+  [TerrainType.Plains]: { mag: 1, speed: 0.8 }, // higher speed, lower damage
   [TerrainType.Highland]: { mag: 1.1, speed: 1 },
-  [TerrainType.Mountain]: { mag: 1.3, speed: 1.25 },
+  [TerrainType.Mountain]: { mag: 1.2, speed: 1.2 },
 } as const;
 
 export abstract class DefaultServerConfig implements ServerConfig {
@@ -147,7 +147,7 @@ export abstract class DefaultServerConfig implements ServerConfig {
     const [l, m, s] = numPlayersConfig[map] ?? [50, 30, 20];
     const r = Math.random();
     const base = r < 0.3 ? l : r < 0.6 ? m : s;
-    return mode === GameMode.Team ? Math.ceil(base * 1.5) : base;
+    return Math.min(mode === GameMode.Team ? Math.ceil(base * 1.5) : base, 150);
   }
 
   workerIndex(gameID: GameID): number {
@@ -230,7 +230,7 @@ export class DefaultConfig implements Config {
   falloutDefenseModifier(falloutRatio: number): number {
     // falloutRatio is between 0 and 1
     // So defense modifier is between [3, 1]
-    return 3 - falloutRatio * 2;
+    return 2 - falloutRatio;
   }
   SAMCooldown(): number {
     return 75;
@@ -243,10 +243,10 @@ export class DefaultConfig implements Config {
     return 40;
   }
   defensePostLossMultiplier(): number {
-    return 6;
+    return 8;
   }
   defensePostSpeedMultiplier(): number {
-    return 3;
+    return 4;
   }
   playerTeams(): number | typeof Duos {
     return this._gameConfig.playerTeams ?? 0;
@@ -276,7 +276,7 @@ export class DefaultConfig implements Config {
     return 10000 + 150 * Math.pow(dist, 1.1);
   }
   tradeShipSpawnRate(numberOfPorts: number): number {
-    return Math.round(10 * Math.pow(numberOfPorts, 0.5));
+    return Math.round(10 * Math.pow(numberOfPorts, 0.3));
   }
 
   unitInfo(type: UnitType): UnitInfo {
@@ -512,16 +512,12 @@ export class DefaultConfig implements Config {
 
     if (attacker.isPlayer() && defenderIsPlayer) {
       if (
-        attackerType === PlayerType.Human &&
+        (attackerType === PlayerType.Human ||
+          attackerType === PlayerType.FakeHuman) &&
         defenderType === PlayerType.Bot
       ) {
-        mag *= 0.8;
-      }
-      if (
-        attackerType === PlayerType.FakeHuman &&
-        defenderType === PlayerType.Bot
-      ) {
-        mag *= 0.8;
+        mag *= 0.6;
+        speed *= 0.6;
       }
     }
     if (attackerType === PlayerType.Bot) {
@@ -536,24 +532,27 @@ export class DefaultConfig implements Config {
         ? this.traitorDefenseDebuff()
         : 1;
       const baseTroopLoss = 16;
-      const baseTileCost = 23;
+      const attackLossModifier = 1.3;
+      const baseTileCost = 44;
       const attackStandardSize = 10_000;
       return {
         attackerTroopLoss:
-          mag * (baseTroopLoss + defenderDensity * traitorDebuff),
+          mag *
+          (baseTroopLoss +
+            attackLossModifier * defenderDensity * traitorDebuff),
         defenderTroopLoss: defenderDensity,
         tilesPerTickUsed:
           baseTileCost *
           within(defenderDensity, 3, 100) ** 0.2 *
-          (attackStandardSize / attackTroops) ** 0.1 *
+          (attackStandardSize / attackTroops) ** 0.2 *
           speed *
-          within(attackRatio, 0.1, 20) ** 0.4,
+          within(attackRatio, 0.1, 20) ** 0.35,
       };
     } else {
       return {
         attackerTroopLoss: 16 * mag,
         defenderTroopLoss: 0,
-        tilesPerTickUsed: 31 * speed,
+        tilesPerTickUsed: 492 * speed * within(attackTroops, 1, 10000) ** -0.3,
       };
     }
   }
@@ -646,8 +645,8 @@ export class DefaultConfig implements Config {
     //population grows proportional to current population with growth decreasing as it approaches max
     // smaller countries recieve a boost to pop growth to speed up early game
     const baseAdditionRate = 10;
-    const basePopGrowthRate = 1300 / max + 1 / 140;
-    const reproductionPop = 0.85 * player.troops() + 1.15 * player.workers();
+    const basePopGrowthRate = 1200 / max + 1 / 200;
+    const reproductionPop = player.troops() + 1.15 * player.workers();
     let toAdd = baseAdditionRate + basePopGrowthRate * reproductionPop;
     const totalPop = player.totalPopulation();
     const ratio = 1 - totalPop / max;
@@ -678,11 +677,11 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): number {
-    return 0.045 * player.workers() ** 0.7;
+    return 0.08 * player.workers() ** 0.65;
   }
 
   troopAdjustmentRate(player: Player): number {
-    const maxDiff = this.maxPopulation(player) / 500;
+    const maxDiff = this.maxPopulation(player) / 600;
     const target = player.population() * player.targetTroopRatio();
     const diff = target - player.troops();
     if (Math.abs(diff) < maxDiff) {

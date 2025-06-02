@@ -531,9 +531,9 @@ export class DefaultConfig implements Config {
       const traitorDebuff = defender.isTraitor()
         ? this.traitorDefenseDebuff()
         : 1;
-      const baseTroopLoss = 16;
+      const baseTroopLoss = 14;
       const attackLossModifier = 1.3;
-      const baseTileCost = 47;
+      const baseTileCost = 45;
       const attackStandardSize = 10_000;
       return {
         attackerTroopLoss:

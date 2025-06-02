@@ -308,19 +308,19 @@ export class NameLayer implements Layer {
     const density = renderNumber(
       render.player.troops() / render.player.numTilesOwned(),
     );
-    const shieldDiv: HTMLDivElement | null =
-      render.element.querySelector(".player-shield");
-    const shieldImg = shieldDiv?.querySelector("img");
-    const shieldNumber = shieldDiv?.querySelector("span");
-    if (shieldImg) {
-      shieldImg.style.width = `${render.fontSize * 0.8}px`;
-      shieldImg.style.height = `${render.fontSize * 0.8}px`;
-    }
-    if (shieldNumber) {
-      shieldNumber.style.fontSize = `${render.fontSize * 0.6}px`;
-      shieldNumber.style.marginTop = `${-render.fontSize * 0.1}px`;
-      shieldNumber.textContent = density;
-    }
+    // const shieldDiv: HTMLDivElement | null =
+    //   render.element.querySelector(".player-shield");
+    // const shieldImg = shieldDiv?.querySelector("img");
+    // const shieldNumber = shieldDiv?.querySelector("span");
+    // if (shieldImg) {
+    //   shieldImg.style.width = `${render.fontSize * 0.8}px`;
+    //   shieldImg.style.height = `${render.fontSize * 0.8}px`;
+    // }
+    // if (shieldNumber) {
+    //   shieldNumber.style.fontSize = `${render.fontSize * 0.6}px`;
+    //   shieldNumber.style.marginTop = `${-render.fontSize * 0.1}px`;
+    //   shieldNumber.textContent = density;
+    // }
 
     // Handle icons
     const iconsDiv = render.element.querySelector(

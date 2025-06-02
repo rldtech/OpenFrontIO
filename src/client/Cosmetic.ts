@@ -38,24 +38,16 @@ export class PatternDecoder {
 
     const byte1 = bytes[1];
     const byte2 = bytes[2];
-    const scale = byte1 & 0x07;
-    const width = ((byte1 >> 3) & 0x1f) | ((byte2 & 0x03) << 5);
-    const height = (byte2 >> 2) & 0x3f;
+    this.scale = byte1 & 0x07;
+    const width = (((byte1 >> 3) & 0x1f) | ((byte2 & 0x03) << 5)) - 2;
+    const height = ((byte2 >> 2) & 0x3f) - 2;
 
-    if (
-      scale < 0 ||
-      scale > 7 ||
-      width < 1 ||
-      width > 127 ||
-      height < 1 ||
-      height > 63
-    ) {
+    if (height < 1) {
       throw new Error(
-        `Invalid pattern metadata: scale (log₂)=${scale}, width=${width}, height=${height}. Expected: scale 0–7, width 1–127, height 1–63.`,
+        `Invalid pattern metadata: scale=${this.scale}, width=${width}, height=${height}. Expected: scale 0–7, width 1–127, height 1–63.`,
       );
     }
 
-    this.scale = 1 << scale;
     this.tileWidth = width;
     this.tileHeight = height;
     this.dataStart = 3;
@@ -76,9 +68,8 @@ export class PatternDecoder {
 
   isSet(x: number, y: number): boolean {
     const norm = (v: number, mod: number) => (v + mod) % mod;
-    const shift = Math.log2(this.scale);
-    const px = norm(x >> shift, this.tileWidth);
-    const py = norm(y >> shift, this.tileHeight);
+    const px = norm(x >> this.scale, this.tileWidth);
+    const py = norm(y >> this.scale, this.tileHeight);
     const idx = py * this.tileWidth + px;
     const byteIndex = idx >> 3;
     const bitIndex = idx & 7;

@@ -253,8 +253,8 @@ export class TerritoryPatternsModal extends LitElement {
             const tiles: TemplateResult[] = [];
             for (let py = 0; py < cellCountY; py++) {
               for (let px = 0; px < cellCountX; px++) {
-                const x = px * decoder.getScale();
-                const y = py * decoder.getScale();
+                const x = px << decoder.getScale();
+                const y = py << decoder.getScale();
                 const bit = decoder.isSet(x, y);
                 tiles.push(html`
                   <div

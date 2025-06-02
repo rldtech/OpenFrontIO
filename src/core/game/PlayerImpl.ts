@@ -651,7 +651,7 @@ export class PlayerImpl implements Player {
   }
 
   removeGold(toRemove: Gold): Gold {
-    if (toRemove <= 1) {
+    if (toRemove <= 0n) {
       return 0n;
     }
     const actualRemoved = minInt(this._gold, toRemove);

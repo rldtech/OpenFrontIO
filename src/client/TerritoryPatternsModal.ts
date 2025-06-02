@@ -89,17 +89,7 @@ export class TerritoryPatternsModal extends LitElement {
       const isAllowed = groupList.some((required) => roles.includes(required));
 
       if (!isAllowed) {
-        let reason: string;
-
-        if (groupList.includes("donor")) {
-          reason =
-            "This pattern is available only to donors (money haters or early access supporters).";
-        } else if (groupList.includes("staff")) {
-          reason = "This pattern is available only to moderators and above.";
-        } else {
-          reason = `This pattern is available only to specific roles. (${groupList.join(", ")})`;
-        }
-
+        const reason = `This pattern requires the ${groupList.join(", ")} role.`;
         this.setLockedPatterns([key], reason);
       }
     }

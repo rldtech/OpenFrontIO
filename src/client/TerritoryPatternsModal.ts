@@ -77,8 +77,9 @@ export class TerritoryPatternsModal extends LitElement {
     for (const [key, patternData] of Object.entries(patterns)) {
       const roleGroup: string[] | string | undefined = patternData.role_group;
 
-      if (!roleGroup || (Array.isArray(roleGroup) && roleGroup.length === 0))
+      if (!roleGroup || (Array.isArray(roleGroup) && roleGroup.length === 0)) {
         continue;
+      }
 
       const groupList = Array.isArray(roleGroup) ? roleGroup : [roleGroup];
 

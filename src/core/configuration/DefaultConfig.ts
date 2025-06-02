@@ -646,7 +646,7 @@ export class DefaultConfig implements Config {
     // smaller countries recieve a boost to pop growth to speed up early game
     const baseAdditionRate = 10;
     const basePopGrowthRate = 1400 / max + 1 / 175;
-    const reproductionPop = player.troops() + player.workers();
+    const reproductionPop = player.troops() + 1.15 * player.workers();
     let toAdd = baseAdditionRate + basePopGrowthRate * reproductionPop;
     const totalPop = player.totalPopulation();
     const ratio = Math.max(1 - totalPop / max, 0);

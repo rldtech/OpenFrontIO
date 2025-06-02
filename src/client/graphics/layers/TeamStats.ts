@@ -66,7 +66,6 @@ export class TeamStats extends LitElement implements Layer {
           totalGold += p.gold();
           if (p.isAlive()) {
             totalTroops += p.troops();
-            totalGold += p.gold();
             totalScoreSort += p.numTilesOwned();
           }
         }

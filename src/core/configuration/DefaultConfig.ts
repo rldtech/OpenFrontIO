@@ -474,15 +474,15 @@ export class DefaultConfig implements Config {
     const type = gm.terrainType(tileToConquer);
     switch (type) {
       case TerrainType.Plains:
-        mag = 85;
+        mag = 1;
         speed = 16.5;
         break;
       case TerrainType.Highland:
-        mag = 100;
+        mag = 1.1;
         speed = 20;
         break;
       case TerrainType.Mountain:
-        mag = 120;
+        mag = 1.2;
         speed = 25;
         break;
       default:
@@ -536,10 +536,11 @@ export class DefaultConfig implements Config {
     if (defender.isPlayer()) {
       return {
         attackerTroopLoss:
-          within(defender.troops() / attackTroops, 0.6, 2) *
+          ((1.3 *
+            within(defender.troops() / attackTroops, 0.6, 2) *
+            defender.troops()) /
+            defender.numTilesOwned()) *
           mag *
-          0.8 *
-          largeLossModifier *
           (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: defender.troops() / defender.numTilesOwned(),
         tilesPerTickUsed:

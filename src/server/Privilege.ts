@@ -53,7 +53,7 @@ export class PrivilegeChecker {
 let cachedChecker: PrivilegeChecker | null = null;
 
 export function getPrivilegeChecker(): PrivilegeChecker {
-  if (!cachedChecker) {
+  if (cachedChecker === null) {
     cachedChecker = new PrivilegeChecker(patternData);
   }
   return cachedChecker;

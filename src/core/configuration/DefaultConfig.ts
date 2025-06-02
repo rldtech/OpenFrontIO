@@ -649,7 +649,7 @@ export class DefaultConfig implements Config {
     const reproductionPop = player.troops() + 1.15 * player.workers();
     let toAdd = baseAdditionRate + basePopGrowthRate * reproductionPop;
     const totalPop = player.totalPopulation();
-    const ratio = 1 - totalPop / max;
+    const ratio = Math.max(1 - totalPop / max, 0);
     toAdd *= ratio ** 1.222;
 
     if (player.type() === PlayerType.Bot) {

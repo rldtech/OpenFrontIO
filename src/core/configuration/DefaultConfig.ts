@@ -264,7 +264,7 @@ export class DefaultConfig implements Config {
     return this._gameConfig.infiniteTroops;
   }
   tradeShipGold(dist: number): Gold {
-    return BigInt(10000 + 150 * Math.pow(dist, 1.1));
+    return BigInt(Math.floor(10000 + 150 * Math.pow(dist, 1.1)));
   }
   tradeShipSpawnRate(numberOfPorts: number): number {
     return Math.round(10 * Math.pow(numberOfPorts, 0.6));
@@ -694,7 +694,7 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): Gold {
-    return BigInt(0.045 * player.workers() ** 0.7);
+    return BigInt(Math.floor(0.045 * player.workers() ** 0.7));
   }
 
   troopAdjustmentRate(player: Player): number {

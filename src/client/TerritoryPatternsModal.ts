@@ -83,10 +83,6 @@ export class TerritoryPatternsModal extends LitElement {
 
       const groupList = Array.isArray(roleGroup) ? roleGroup : [roleGroup];
 
-      if (groupList.includes("all")) {
-        continue; // Allow all users
-      }
-
       const isAllowed = groupList.some((required) => roles.includes(required));
 
       if (!isAllowed) {

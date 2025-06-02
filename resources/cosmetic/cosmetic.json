@@ -9,16 +9,13 @@
   },
   "pattern": {
     "stripes_v": {
-      "pattern": "ATMYVVU=",
-      "role_group": ["all"]
+      "pattern": "ATMYVVU="
     },
     "stripes_h": {
-      "pattern": "ATMYDw8=",
-      "role_group": ["all"]
+      "pattern": "ATMYDw8="
     },
     "checkerboard": {
-      "pattern": "ATMYpaU=",
-      "role_group": ["all"]
+      "pattern": "ATMYpaU="
     },
     "diagonal": {
       "pattern": "AZFIAQACAAQACAAQACAAQACAAAABAAIABAAIABAAIABAAIA=",

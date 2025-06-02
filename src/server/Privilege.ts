@@ -33,9 +33,9 @@ export class PrivilegeChecker {
     }
 
     const [, entry] = found;
-    const allowedGroups = entry.role_group;
+    const allowedGroups = entry.role_group ?? [];
 
-    if (allowedGroups.includes("all")) {
+    if (allowedGroups.length === 0) {
       return true;
     }
 

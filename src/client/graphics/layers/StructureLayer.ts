@@ -55,32 +55,32 @@ export class StructureLayer implements Layer {
   private readonly unitConfigs: Partial<Record<UnitType, UnitRenderConfig>> = {
     [UnitType.Port]: {
       icon: anchorIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
+      borderRadius: 16.5,
+      territoryRadius: 13.5,
       borderType: UnitBorderType.Round,
     },
     [UnitType.City]: {
       icon: cityIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
+      borderRadius: 16.5,
+      territoryRadius: 13.5,
       borderType: UnitBorderType.Round,
     },
     [UnitType.MissileSilo]: {
       icon: missileSiloIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
+      borderRadius: 16.5,
+      territoryRadius: 13.5,
       borderType: UnitBorderType.Square,
     },
     [UnitType.DefensePost]: {
       icon: shieldIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
+      borderRadius: 16.5,
+      territoryRadius: 13.5,
       borderType: UnitBorderType.Hexagon,
     },
     [UnitType.SAMLauncher]: {
       icon: SAMMissileIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
+      borderRadius: 16.5,
+      territoryRadius: 13.5,
       borderType: UnitBorderType.Square,
     },
   };
@@ -101,14 +101,14 @@ export class StructureLayer implements Layer {
     this.loadIconData();
     this.loadIcon("reloadingSam", {
       icon: SAMMissileReloadingIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
+      borderRadius: 16.5,
+      territoryRadius: 13.5,
       borderType: UnitBorderType.Square,
     });
     this.loadIcon("reloadingSilo", {
       icon: MissileSiloReloadingIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
+      borderRadius: 16.5,
+      territoryRadius: 13.5,
       borderType: UnitBorderType.Square,
     });
   }

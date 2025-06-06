@@ -144,7 +144,7 @@
     "random": "Random",
     "iceland": "Iceland",
     "pangaea": "Pangaea",
-    "japan": "Japan and Neighbors",
+    "eastasia": "East Asia",
     "betweentwoseas": "Between Two Seas",
     "faroeislands": "Faroe Islands",
     "deglaciatedantarctica": "Deglaciated Antarctica",
@@ -424,7 +424,9 @@
     "start_trade": "Start trading",
     "stop_trade": "Stop trading",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "none": "None",
+    "alliances": "Alliances"
   },
   "error_modal": {
     "crashed": "Game crashed!",

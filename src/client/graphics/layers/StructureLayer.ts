@@ -27,6 +27,11 @@ const underConstructionColor = colord({ r: 150, g: 150, b: 150 });
 const reloadingColor = colord({ r: 255, g: 0, b: 0 });
 const selectedUnitColor = colord({ r: 0, g: 255, b: 255 });
 
+// Base radius values and scaling factor for unit borders and territories
+const BASE_BORDER_RADIUS = 16.5;
+const BASE_TERRITORY_RADIUS = 13.5;
+const RADIUS_SCALE_FACTOR = 0.5;
+
 type DistanceFunction = typeof euclDistFN;
 
 enum UnitBorderType {
@@ -57,32 +62,32 @@ export class StructureLayer implements Layer {
   private readonly unitConfigs: Partial<Record<UnitType, UnitRenderConfig>> = {
     [UnitType.Port]: {
       icon: anchorIcon,
-      borderRadius: 8.25, // 16.5 / 2 (half size instead of quarter)
-      territoryRadius: 6.75, // 13.5 / 2
+      borderRadius: BASE_BORDER_RADIUS * RADIUS_SCALE_FACTOR,
+      territoryRadius: BASE_TERRITORY_RADIUS * RADIUS_SCALE_FACTOR,
       borderType: UnitBorderType.Round,
     },
     [UnitType.City]: {
       icon: cityIcon,
-      borderRadius: 8.25, // 16.5 / 2
-      territoryRadius: 6.75, // 13.5 / 2
+      borderRadius: BASE_BORDER_RADIUS * RADIUS_SCALE_FACTOR,
+      territoryRadius: BASE_TERRITORY_RADIUS * RADIUS_SCALE_FACTOR,
       borderType: UnitBorderType.Round,
     },
     [UnitType.MissileSilo]: {
       icon: missileSiloIcon,
-      borderRadius: 8.25, // 16.5 / 2
-      territoryRadius: 6.75, // 13.5 / 2
+      borderRadius: BASE_BORDER_RADIUS * RADIUS_SCALE_FACTOR,
+      territoryRadius: BASE_TERRITORY_RADIUS * RADIUS_SCALE_FACTOR,
       borderType: UnitBorderType.Square,
     },
     [UnitType.DefensePost]: {
       icon: shieldIcon,
-      borderRadius: 8.25, // 16.5 / 2
-      territoryRadius: 6.75, // 13.5 / 2
+      borderRadius: BASE_BORDER_RADIUS * RADIUS_SCALE_FACTOR,
+      territoryRadius: BASE_TERRITORY_RADIUS * RADIUS_SCALE_FACTOR,
       borderType: UnitBorderType.Hexagon,
     },
     [UnitType.SAMLauncher]: {
       icon: SAMMissileIcon,
-      borderRadius: 8.25, // 16.5 / 2
-      territoryRadius: 6.75, // 13.5 / 2
+      borderRadius: BASE_BORDER_RADIUS * RADIUS_SCALE_FACTOR,
+      territoryRadius: BASE_TERRITORY_RADIUS * RADIUS_SCALE_FACTOR,
       borderType: UnitBorderType.Square,
     },
   };
@@ -107,14 +112,14 @@ export class StructureLayer implements Layer {
     this.loadIconData();
     this.loadIcon("reloadingSam", {
       icon: SAMMissileReloadingIcon,
-      borderRadius: 8.25, // 16.5 / 2
-      territoryRadius: 6.75, // 13.5 / 2
+      borderRadius: BASE_BORDER_RADIUS * RADIUS_SCALE_FACTOR,
+      territoryRadius: BASE_TERRITORY_RADIUS * RADIUS_SCALE_FACTOR,
       borderType: UnitBorderType.Square,
     });
     this.loadIcon("reloadingSilo", {
       icon: MissileSiloReloadingIcon,
-      borderRadius: 8.25, // 16.5 / 2
-      territoryRadius: 6.75, // 13.5 / 2
+      borderRadius: BASE_BORDER_RADIUS * RADIUS_SCALE_FACTOR,
+      territoryRadius: BASE_TERRITORY_RADIUS * RADIUS_SCALE_FACTOR,
       borderType: UnitBorderType.Square,
     });
   }

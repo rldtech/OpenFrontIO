@@ -122,6 +122,9 @@ export class StructureLayer implements Layer {
         `icon loaded: ${unitType}, size: ${image.width}x${image.height}`,
       );
     };
+    image.onerror = () => {
+      console.error(`Failed to load icon for ${unitType}: ${config.icon}`);
+    };
   }
 
   private loadIconData() {
@@ -231,11 +234,17 @@ export class StructureLayer implements Layer {
 
     const config = this.unitConfigs[unitType];
     let icon: HTMLImageElement | undefined;
+    let borderColor = this.theme.borderColor(unit.owner());
 
     if (unitType === UnitType.SAMLauncher && unit.isCooldown()) {
       icon = this.unitIcons.get("reloadingSam");
+      borderColor = reloadingColor;
     } else if (unitType === UnitType.MissileSilo && unit.isCooldown()) {
       icon = this.unitIcons.get("reloadingSilo");
+      borderColor = reloadingColor;
+    } else if (unit.type() === UnitType.Construction) {
+      icon = this.unitIcons.get(iconType);
+      borderColor = underConstructionColor;
     } else {
       icon = this.unitIcons.get(iconType);
     }
@@ -252,19 +261,6 @@ export class StructureLayer implements Layer {
     }
 
     if (!unit.isActive()) return;
-
-    let borderColor = this.theme.borderColor(unit.owner());
-    if (unitType === UnitType.SAMLauncher && unit.isCooldown()) {
-      borderColor = reloadingColor;
-    } else if (unit.type() === UnitType.Construction) {
-      borderColor = underConstructionColor;
-    }
-
-    if (unitType === UnitType.MissileSilo && unit.isCooldown()) {
-      borderColor = reloadingColor;
-    } else if (unit.type() === UnitType.Construction) {
-      borderColor = underConstructionColor;
-    }
 
     if (this.selectedStructureUnit === unit) {
       borderColor = selectedUnitColor;

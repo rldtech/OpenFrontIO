@@ -50,6 +50,8 @@ export class StructureLayer implements Layer {
   private theme: Theme;
   private selectedStructureUnit: UnitView | null = null;
   private previouslySelected: UnitView | null = null;
+  private tempCanvas: HTMLCanvasElement;
+  private tempContext: CanvasRenderingContext2D;
 
   // Configuration for supported unit types only
   private readonly unitConfigs: Partial<Record<UnitType, UnitRenderConfig>> = {
@@ -98,6 +100,10 @@ export class StructureLayer implements Layer {
     }
     this.unitInfoModal = unitInfoModal;
     this.theme = game.config().theme();
+    this.tempCanvas = document.createElement("canvas");
+    const tempContext = this.tempCanvas.getContext("2d");
+    if (tempContext === null) throw new Error("2d context not supported");
+    this.tempContext = tempContext;
     this.loadIconData();
     this.loadIcon("reloadingSam", {
       icon: SAMMissileReloadingIcon,
@@ -290,33 +296,28 @@ export class StructureLayer implements Layer {
       color = underConstructionColor;
     }
 
-    // Create a single temporary canvas for high-quality rendering
-    const tempCanvas = document.createElement("canvas");
-    const tempContext = tempCanvas.getContext("2d");
-    if (tempContext === null) throw new Error("2d context not supported");
-
     // Make temp canvas at the final render size (2x scale)
-    tempCanvas.width = width * 2;
-    tempCanvas.height = height * 2;
+    this.tempCanvas.width = width * 2;
+    this.tempCanvas.height = height * 2;
 
     // Enable smooth scaling
-    tempContext.imageSmoothingEnabled = true;
-    tempContext.imageSmoothingQuality = "high";
+    this.tempContext.imageSmoothingEnabled = true;
+    this.tempContext.imageSmoothingQuality = "high";
 
     // Draw the image at final size with high quality scaling
-    tempContext.drawImage(image, 0, 0, width * 2, height * 2);
+    this.tempContext.drawImage(image, 0, 0, width * 2, height * 2);
 
     // Apply color tinting using multiply blend mode
-    tempContext.globalCompositeOperation = "multiply";
-    tempContext.fillStyle = color.toRgbString();
-    tempContext.fillRect(0, 0, width * 2, height * 2);
+    this.tempContext.globalCompositeOperation = "multiply";
+    this.tempContext.fillStyle = color.toRgbString();
+    this.tempContext.fillRect(0, 0, width * 2, height * 2);
 
     // Restore the alpha channel
-    tempContext.globalCompositeOperation = "destination-in";
-    tempContext.drawImage(image, 0, 0, width * 2, height * 2);
+    this.tempContext.globalCompositeOperation = "destination-in";
+    this.tempContext.drawImage(image, 0, 0, width * 2, height * 2);
 
     // Draw the final result to the main canvas
-    this.context.drawImage(tempCanvas, startX * 2, startY * 2);
+    this.context.drawImage(this.tempCanvas, startX * 2, startY * 2);
   }
 
   paintCell(cell: Cell, color: Colord, alpha: number) {

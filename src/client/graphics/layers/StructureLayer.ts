@@ -247,6 +247,7 @@ export class StructureLayer implements Layer {
     let icon: HTMLImageElement | undefined;
     let borderColor = this.theme.borderColor(unit.owner());
 
+    // Handle cooldown states and special icons
     if (unitType === UnitType.SAMLauncher && unit.isCooldown()) {
       icon = this.unitIcons.get("reloadingSam");
       borderColor = reloadingColor;

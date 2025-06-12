@@ -288,7 +288,7 @@ export class StructureLayer implements Layer {
 
     this.renderIcon(icon, startX, startY, scaledWidth, scaledHeight, unit);
   }
-
+  
   private renderIcon(
     image: HTMLImageElement,
     startX: number,
@@ -391,6 +391,7 @@ export class StructureLayer implements Layer {
         const screenPos = this.transformHandler.worldToScreenCoordinates(cell);
         const unitTile = clickedUnit.tile();
         this.unitInfoModal?.onOpenStructureModal({
+          eventBus: this.eventBus,
           unit: clickedUnit,
           x: screenPos.x,
           y: screenPos.y,

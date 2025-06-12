@@ -248,10 +248,10 @@ export class StructureLayer implements Layer {
     let borderColor = this.theme.borderColor(unit.owner());
 
     // Handle cooldown states and special icons
-    if (unitType === UnitType.SAMLauncher && unit.isCooldown()) {
+    if (unitType === UnitType.SAMLauncher && unit.isInCooldown()) {
       icon = this.unitIcons.get("reloadingSam");
       borderColor = reloadingColor;
-    } else if (unitType === UnitType.MissileSilo && unit.isCooldown()) {
+    } else if (unitType === UnitType.MissileSilo && unit.isInCooldown()) {
       icon = this.unitIcons.get("reloadingSilo");
       borderColor = reloadingColor;
     } else if (unit.type() === UnitType.Construction) {

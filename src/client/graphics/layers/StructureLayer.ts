@@ -288,7 +288,7 @@ export class StructureLayer implements Layer {
 
     this.renderIcon(icon, startX, startY, scaledWidth, scaledHeight, unit);
   }
-  
+
   private renderIcon(
     image: HTMLImageElement,
     startX: number,

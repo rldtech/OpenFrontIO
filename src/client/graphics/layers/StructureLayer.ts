@@ -281,10 +281,10 @@ export class StructureLayer implements Layer {
     this.drawBorder(unit, borderColor, config, drawFunction);
 
     // Render icon at 1/2 scale for better quality
-    const scaledWidth = Math.floor(icon.width / 2);
-    const scaledHeight = Math.floor(icon.height / 2);
-    const startX = this.game.x(unit.tile()) - Math.floor(scaledWidth / 2);
-    const startY = this.game.y(unit.tile()) - Math.floor(scaledHeight / 2);
+    const scaledWidth = icon.width >> 1;
+    const scaledHeight = icon.height >> 1;
+    const startX = this.game.x(unit.tile()) - (scaledWidth >> 1);
+    const startY = this.game.y(unit.tile()) - (scaledHeight >> 1);
 
     this.renderIcon(icon, startX, startY, scaledWidth, scaledHeight, unit);
   }
